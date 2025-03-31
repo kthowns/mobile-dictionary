@@ -17,7 +17,6 @@ local.properties
 ## Spring Boot ##
 application-*.yml
 application-*.properties
-misc.xml
 
 # External tool builders
 .externalToolBuilders/
