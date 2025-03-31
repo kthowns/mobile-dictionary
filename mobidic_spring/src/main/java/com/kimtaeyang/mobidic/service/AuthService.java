@@ -37,7 +37,7 @@ public class AuthService {
     public void join(@Valid JoinDto.Request request) {
         Member member = Member.builder()
                 .email(request.getEmail())
-                .username(request.getUsername())
+                .nickname(request.getNickname())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
         memberRepository.save(member);

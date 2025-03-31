@@ -16,16 +16,19 @@ public class JwtUtil {
     private final JwtProperties jwtProperties;
 
     public String generateToken(String userId) {
+        long now = System.currentTimeMillis();
+
         return Jwts.builder()
                     .subject(userId)
-                    .issuedAt(new Date())
-                    .expiration(new Date(System.currentTimeMillis() + jwtProperties.getJwtExp()))
+                    .issuedAt(new Date(now))
+                    .expiration(new Date(now + jwtProperties.getJwtExp()))
                     .signWith(jwtProperties.getSecretKey())
                     .compact();
     }
 
     public boolean validateToken(String token) {
         try {
+            log.info(token);
             Jwts.parser()
                     .verifyWith(jwtProperties.getSecretKey())
                     .build()

@@ -19,7 +19,6 @@ import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.NO_MEMBER;
 
-
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -34,8 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
+        log.info(authHeader);
         String token = authHeader.substring(7); // "Bearer " 제거
+        log.info("Validating...", token);
         if (jwtUtil.validateToken(token)) {
             String userId = jwtUtil.getUserIdFromToken(token);
             UserDetails userDetails = memberRepository.findById(UUID.fromString(userId))
