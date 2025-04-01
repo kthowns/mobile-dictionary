@@ -25,8 +25,8 @@ public class Member implements UserDetails {
     private UUID id;
     @Column(name="email")
     private String email;
-    @Column(name="username")
-    private String username;
+    @Column(name="nickname")
+    private String nickname;
     @Column(name="password")
     private String password;
     @Column(name="created_at", insertable = false, updatable = false)
