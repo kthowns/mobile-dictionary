@@ -26,11 +26,11 @@ public class AuthService {
     public String login(LoginDto.Request request) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );  
+        );
 
-        Member member = (Member) auth.getPrincipal();
+        Member claim = (Member) auth.getPrincipal();
 
-        return jwtUtil.generateToken(member.getId().toString());
+        return jwtUtil.generateToken(claim.getId().toString());
     }
 
     @Transactional
