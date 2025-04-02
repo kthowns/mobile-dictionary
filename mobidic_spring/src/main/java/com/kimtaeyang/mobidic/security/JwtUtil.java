@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -38,12 +39,12 @@ public class JwtUtil {
         }
     }
 
-    public String getUserIdFromToken(String token) {
+    public UUID getIdFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(jwtProperties.getSecretKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return claims.getSubject();
+        return UUID.fromString(claims.getSubject());
     }
 }
