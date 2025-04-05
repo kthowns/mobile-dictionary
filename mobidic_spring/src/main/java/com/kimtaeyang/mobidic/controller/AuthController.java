@@ -4,6 +4,7 @@ import com.kimtaeyang.mobidic.dto.ApiResponse;
 import com.kimtaeyang.mobidic.dto.JoinDto;
 import com.kimtaeyang.mobidic.dto.LoginDto;
 import com.kimtaeyang.mobidic.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.JOIN_OK;
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.LOGIN_OK;
+import java.util.UUID;
+
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,5 +32,13 @@ public class AuthController {
     public ResponseEntity<?> join(@Valid @RequestBody JoinDto.Request request) {
         authService.join(request);
         return ApiResponse.toResponseEntity(JOIN_OK, null);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+
+        authService.logout(UUID.fromString(token));
+        return ApiResponse.toResponseEntity(LOGOUT_OK, null);
     }
 }

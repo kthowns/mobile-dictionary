@@ -1,5 +1,7 @@
 package com.kimtaeyang.mobidic.config;
 
+import com.kimtaeyang.mobidic.exception.AuthAccessDeniedHandler;
+import com.kimtaeyang.mobidic.exception.AuthAuthenticationEntryPoint;
 import com.kimtaeyang.mobidic.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthAuthenticationEntryPoint authAuthenticationEntryPoint;
+    private final AuthAccessDeniedHandler authAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -32,13 +36,13 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/join").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
-                        .permitAll()
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(authAuthenticationEntryPoint)
+                        .accessDeniedHandler(authAccessDeniedHandler)
                 );
 
         return http.build();

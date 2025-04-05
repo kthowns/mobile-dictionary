@@ -47,4 +47,14 @@ public class JwtUtil {
                 .getPayload();
         return UUID.fromString(claims.getSubject());
     }
+
+    public Date getExpirationFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(jwtProperties.getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.getExpiration();
+    }
 }
