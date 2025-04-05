@@ -19,7 +19,8 @@ public enum GeneralResponseCode implements ApiResponseCode {
     DUPLICATED_WORD(HttpStatus.CONFLICT, "Word is duplicated"),
     DUPLICATED_DEFINITION(HttpStatus.CONFLICT, "Definition is duplicated"),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "Method is not supported"),
-    INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "Invalid Request Body"),
+    INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "Invalid request Body"),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden request"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 
     private final HttpStatus status;

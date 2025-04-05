@@ -7,12 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.INVALID_PASSWORD;
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.INVALID_USERNAME;
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.*;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.FORBIDDEN;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INTERNAL_SERVER_ERROR;
 
 @Slf4j
@@ -30,17 +31,36 @@ public class ApiExceptionHandler {
         return ApiResponse.toResponseEntity(INTERNAL_SERVER_ERROR, null);
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<?> methodNotSupported(
+            HttpRequestMethodNotSupportedException e, HttpServletRequest request
+    ) {
+        log.error("errorCode : {}, uri : {}, message : {}",
+                e, request.getRequestURI(), e.getMessage());
+        return ApiResponse.toResponseEntity(FORBIDDEN, null);
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<?> badCredentials(
             BadCredentialsException e, HttpServletRequest request
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
                 e, request.getRequestURI(), e.getMessage());
-        return ApiResponse.toResponseEntity(INVALID_PASSWORD, null);
+        return ApiResponse.toResponseEntity(LOGIN_FAILED, null);
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<?> apiException(
+            ApiException e, HttpServletRequest request
+    ) {
+        log.error("errorCode : {}, uri : {}, message : {}",
+                e, request.getRequestURI(), e.getMessage());
+
+        return ApiResponse.toResponseEntity(e.getResponseCode(), null);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleCustomException(
+    public ResponseEntity<?> exception(
             Exception e, HttpServletRequest request
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
