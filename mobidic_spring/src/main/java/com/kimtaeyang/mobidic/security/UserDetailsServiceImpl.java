@@ -1,6 +1,6 @@
 package com.kimtaeyang.mobidic.security;
 
-import com.kimtaeyang.mobidic.exception.ApiException;
+import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +17,13 @@ public class UserDetailsServiceImpl  implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new ApiException(NO_MEMBER, NO_MEMBER.getMessage() + email));
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(NO_MEMBER.getMessage()));
+
+        if(!member.getIsActive()){
+            throw new UsernameNotFoundException(NO_MEMBER.getMessage());
+        }
+
+        return member;
     }
 }

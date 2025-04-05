@@ -29,8 +29,12 @@ public class Member implements UserDetails {
     private String nickname;
     @Column(name="password")
     private String password;
+    @Column(name="is_active", insertable=false)
+    private Boolean isActive;
     @Column(name="created_at", insertable = false, updatable = false)
     private Timestamp createdAt;
+    @Column(name="withdrawn_at")
+    private Timestamp withdrawnAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
