@@ -62,9 +62,9 @@ public class MemberController {
     @DeleteMapping("/delete/{memberId}")
     public ResponseEntity<?> deleteMember(
             @PathVariable String memberId,
-            HttpServletRequest request
+            HttpServletRequest servletRequest
     ){
-        String token = request.getHeader("Authorization").substring(7);
+        String token = servletRequest.getHeader("Authorization").substring(7);
 
         return ApiResponse.toResponseEntity(OK,
                 memberService.deleteMember(token, UUID.fromString(memberId)));
