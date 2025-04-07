@@ -22,13 +22,13 @@ public class Vocab {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", columnDefinition = "BINARY(16)")
     private Member member;
 
     @Column(name = "title")
     private String title;
     @Column(name = "description")
     private String description;
-    @Column(name = "created_at")
+    @Column(name = "created_at", insertable = false, updatable = false)
     private Timestamp createdAt;
 }
