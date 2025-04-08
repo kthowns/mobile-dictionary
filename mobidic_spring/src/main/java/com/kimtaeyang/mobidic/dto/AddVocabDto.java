@@ -1,5 +1,6 @@
 package com.kimtaeyang.mobidic.dto;
 
+import com.kimtaeyang.mobidic.entity.Vocab;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -30,5 +31,13 @@ public class AddVocabDto {
         private UUID id;
         private String title;
         private String description;
+
+        public static Response fromEntity (Vocab vocab) {
+            return Response.builder()
+                    .id(vocab.getId())
+                    .title(vocab.getTitle())
+                    .description(vocab.getDescription())
+                    .build();
+        }
     }
 }
