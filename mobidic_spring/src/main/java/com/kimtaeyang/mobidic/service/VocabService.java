@@ -6,7 +6,6 @@ import com.kimtaeyang.mobidic.dto.VocabDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.entity.Vocab;
 import com.kimtaeyang.mobidic.exception.ApiException;
-import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.repository.VocabRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
