@@ -23,8 +23,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
-import static com.kimtaeyang.mobidic.code.GeneralResponseCode.NO_VOCAB;
-import static com.kimtaeyang.mobidic.code.GeneralResponseCode.NO_WORD;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 
 @Service
 @Slf4j
@@ -39,6 +38,9 @@ public class WordService {
         Vocab vocab = vocabRepository.findById(vocabId)
                         .orElseThrow(() -> new ApiException(NO_VOCAB));
         authorizeVocab(vocab);
+
+        wordRepository.findByExpression(request.getExpression())
+                .ifPresent((w) -> { throw new ApiException(DUPLICATED_WORD); });
 
         Word word = Word.builder()
                 .expression(request.getExpression())
@@ -64,6 +66,9 @@ public class WordService {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
         authorizeWord(word);
+
+        wordRepository.findByExpression(request.getExpression())
+                        .ifPresent((w) -> { throw new ApiException(DUPLICATED_WORD); });
 
         word.setExpression(request.getExpression());
         wordRepository.save(word);
