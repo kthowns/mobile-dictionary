@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_TITLE;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.NO_VOCAB;
 
 @Service
@@ -34,6 +35,10 @@ public class VocabService {
             AddVocabDto.@Valid Request request
     ) {
         authorizeMember(memberId);
+
+        vocabRepository.findByTitle(request.getTitle())
+                .ifPresent((v) -> { throw new ApiException(DUPLICATED_TITLE); });
+
         Vocab vocab = Vocab.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -70,6 +75,9 @@ public class VocabService {
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
         authorizeMember(vocab.getMember().getId());
         authorizeVocab(vocab);
+
+        vocabRepository.findByTitle(request.getTitle())
+                .ifPresent((v) -> { throw new ApiException(DUPLICATED_TITLE); });
 
         vocab.setTitle(request.getTitle());
         vocab.setDescription(request.getDescription());

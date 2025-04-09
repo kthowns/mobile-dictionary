@@ -13,6 +13,7 @@ public enum AuthResponseCode implements ApiResponseCode {
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "Invalid password"),
     JOIN_OK(HttpStatus.OK, "Join success"),
     LOGOUT_OK(HttpStatus.OK, "Logout success"),
+    DUPLICATED_NICKNAME(HttpStatus.CONFLICT, "Duplicated nickname"),
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "Login failed"),
     LOGOUT_FAILED(HttpStatus.BAD_REQUEST, "Logout failed"),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Invalid token"),

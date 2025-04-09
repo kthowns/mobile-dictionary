@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
 import java.util.UUID;
 
 @Data
@@ -26,11 +25,9 @@ public class Def {
     @JoinColumn(name = "word_id")
     private Word word;
 
-    @Column(name = "expression")
+    @Column(name = "definition")
     private String definition;
     @Column(name = "part")
     @Enumerated(EnumType.STRING)
     private PartOfSpeech part;
-    @Column(name = "created_at")
-    private Timestamp createdAt;
 }
