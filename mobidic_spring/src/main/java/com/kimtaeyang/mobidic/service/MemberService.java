@@ -20,8 +20,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.NO_MEMBER;
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.*;
 
 @Service
 @Slf4j
@@ -49,6 +48,10 @@ public class MemberService {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
+
+        memberRepository.findByNickname(request.getNickname())
+                        .ifPresent((m) -> { throw new ApiException(DUPLICATED_NICKNAME); });
+
         member.setNickname(request.getNickname());
         memberRepository.save(member);
 

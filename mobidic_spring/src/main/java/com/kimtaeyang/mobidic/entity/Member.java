@@ -1,5 +1,6 @@
 package com.kimtaeyang.mobidic.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,7 @@ public class Member implements UserDetails {
     @Column(name="nickname")
     private String nickname;
     @Column(name="password")
+    @JsonIgnore
     private String password;
     @Column(name="is_active", insertable=false)
     private Boolean isActive;

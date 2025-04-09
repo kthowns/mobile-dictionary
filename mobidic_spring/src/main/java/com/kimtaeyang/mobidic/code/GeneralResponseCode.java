@@ -14,7 +14,7 @@ public enum GeneralResponseCode implements ApiResponseCode {
     NO_WORD(HttpStatus.NOT_FOUND, "No word found"),
     NO_DEF(HttpStatus.NOT_FOUND, "No def found"),
     NO_THEME(HttpStatus.NOT_FOUND, "No theme found"),
-    NO_STATS(HttpStatus.NOT_FOUND, "No stats found"),
+    NO_RATE(HttpStatus.NOT_FOUND, "No rate found"),
     DUPLICATED_TITLE(HttpStatus.CONFLICT, "Title is duplicated"),
     DUPLICATED_WORD(HttpStatus.CONFLICT, "Word is duplicated"),
     DUPLICATED_DEFINITION(HttpStatus.CONFLICT, "Definition is duplicated"),

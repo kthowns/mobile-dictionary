@@ -16,5 +16,5 @@ public enum PartOfSpeech {
     CONJUNCTION("접속사"),
     INTERJECTION("감탄사");
 
-    private final String type;
+    private final String name;
 }
