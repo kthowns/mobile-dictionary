@@ -1,0 +1,6 @@
+GET http://127.0.0.1:8080/api/rate/v?vId=e7bfe7d2-7c6c-4f60-8889-d344f72a3667
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhMWYxMDhjNS1mMjY2LTQxYWEtOTJlNC1iODVhNDM2NmU1MDEiLCJpYXQiOjE3NDQxNzY4MzMsImV4cCI6MTc0NDI2MzIzM30.cEXUPYVXpMEZJ4Iiwd6RMTAtwYpd8RdlKLYihU6XVzO8WjZZPh_jLH9sWBrRKyAOMc6iolXRNh813y2ur2OaXg
+
+{
+}
