@@ -6,7 +6,6 @@ import com.kimtaeyang.mobidic.dto.VocabDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.entity.Vocab;
 import com.kimtaeyang.mobidic.exception.ApiException;
-import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.repository.VocabRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,11 +43,7 @@ public class VocabService {
                 .build();
         vocab = vocabRepository.save(vocab);
 
-        return AddVocabDto.Response.builder()
-                .id(vocab.getId())
-                .title(vocab.getTitle())
-                .description(vocab.getDescription())
-                .build();
+        return AddVocabDto.Response.fromEntity(vocab);
     }
 
     @Transactional(readOnly = true)
@@ -56,14 +51,7 @@ public class VocabService {
         authorizeMember(memberId);
 
         return vocabRepository.findByMember(Member.builder().id(memberId).build())
-                .stream().map((vocab) -> VocabDto.builder()
-                        .title(vocab.getTitle())
-                        .memberId(vocab.getMember().getId())
-                        .id(vocab.getId())
-                        .description(vocab.getDescription())
-                        .createdAt(vocab.getCreatedAt())
-                        .build()
-        ).collect(Collectors.toList());
+                .stream().map(VocabDto::fromEntity).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -73,13 +61,7 @@ public class VocabService {
         authorizeMember(vocab.getMember().getId());
         authorizeVocab(vocab);
 
-        return VocabDto.builder()
-                .id(vocab.getId())
-                .memberId(vocab.getMember().getId())
-                .title(vocab.getTitle())
-                .description(vocab.getDescription())
-                .createdAt(vocab.getCreatedAt())
-                .build();
+        return VocabDto.fromEntity(vocab);
     }
 
     @Transactional
@@ -93,11 +75,7 @@ public class VocabService {
         vocab.setDescription(request.getDescription());
         vocab = vocabRepository.save(vocab);
 
-        return UpdateVocabDto.Response.builder()
-                .id(vocab.getId())
-                .title(vocab.getTitle())
-                .description(vocab.getDescription())
-                .build();
+        return UpdateVocabDto.Response.fromEntity(vocab);
     }
 
     @Transactional
@@ -109,12 +87,7 @@ public class VocabService {
 
         vocabRepository.delete(vocab);
 
-        return VocabDto.builder()
-                .id(vocab.getId())
-                .memberId(vocab.getMember().getId())
-                .title(vocab.getTitle())
-                .description(vocab.getDescription())
-                .build();
+        return VocabDto.fromEntity(vocab);
     }
 
     private void authorizeMember(UUID memberId) {

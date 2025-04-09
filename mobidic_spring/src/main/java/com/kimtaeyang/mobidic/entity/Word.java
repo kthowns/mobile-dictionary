@@ -27,6 +27,6 @@ public class Word {
 
     @Column(name = "expression")
     private String expression;
-    @Column(name = "created_at")
+    @Column(name = "created_at", insertable = false, updatable = false)
     private Timestamp createdAt;
 }
