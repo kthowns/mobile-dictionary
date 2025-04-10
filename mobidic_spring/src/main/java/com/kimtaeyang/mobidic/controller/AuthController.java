@@ -30,15 +30,13 @@ public class AuthController {
 
     @PostMapping("/join")
     public ResponseEntity<?> join(@Valid @RequestBody JoinDto.Request request) {
-        authService.join(request);
-        return ApiResponse.toResponseEntity(JOIN_OK, null);
+        return ApiResponse.toResponseEntity(JOIN_OK, authService.join(request));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);
 
-        authService.logout(UUID.fromString(token));
-        return ApiResponse.toResponseEntity(LOGOUT_OK, null);
+        return ApiResponse.toResponseEntity(LOGOUT_OK, authService.logout(UUID.fromString(token)));
     }
 }
