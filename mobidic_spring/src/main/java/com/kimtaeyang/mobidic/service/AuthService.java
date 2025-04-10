@@ -37,7 +37,7 @@ public class AuthService {
 
         Member claim = (Member) auth.getPrincipal();
 
-        return jwtUtil.generateToken(claim.getId().toString());
+        return jwtUtil.generateToken(claim.getId());
     }
 
     @Transactional
