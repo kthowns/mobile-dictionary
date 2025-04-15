@@ -10,7 +10,7 @@ import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtBlacklistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.*;
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.DUPLICATED_NICKNAME;
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.NO_MEMBER;
 
 @Service
 @Slf4j
@@ -31,9 +32,8 @@ public class MemberService {
     private final JwtBlacklistService jwtBlacklistService;
 
     @Transactional(readOnly = true)
+    @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public MemberDto getMemberDetailById(UUID memberId) {
-        authorizeMember(memberId);
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
@@ -41,11 +41,10 @@ public class MemberService {
     }
 
     @Transactional
+    @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public UpdateNicknameDto.Response updateMemberNickname(
             UUID memberId, UpdateNicknameDto.Request request
     ) {
-        authorizeMember(memberId);
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
@@ -62,11 +61,10 @@ public class MemberService {
     }
 
     @Transactional
+    @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public UpdatePasswordDto.Response updateMemberPassword(
             UUID memberId, UpdatePasswordDto.Request request
     ) {
-        authorizeMember(memberId);
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
@@ -79,9 +77,8 @@ public class MemberService {
     }
 
     @Transactional
+    @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public WithdrawMemberDto.Response withdrawMember(String token, UUID memberId) {
-        authorizeMember(memberId);
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
@@ -101,9 +98,8 @@ public class MemberService {
     }
 
     @Transactional
+    @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public WithdrawMemberDto.Response deleteMember(String token, UUID memberId) {
-        authorizeMember(memberId);
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
         memberRepository.deleteById(memberId);
@@ -117,13 +113,5 @@ public class MemberService {
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .build();
-    }
-
-    private void authorizeMember(UUID memberId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UUID currentId = ((Member) auth.getPrincipal()).getId();
-        if (!memberId.equals(currentId)) {
-            throw new ApiException(UNAUTHORIZED);
-        }
     }
 }

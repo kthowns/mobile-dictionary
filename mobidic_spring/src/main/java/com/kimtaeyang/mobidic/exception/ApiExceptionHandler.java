@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -47,6 +48,15 @@ public class ApiExceptionHandler {
         log.error("errorCode : {}, uri : {}, message : {}",
                 e, request.getRequestURI(), e.getMessage());
         return ApiResponse.toResponseEntity(LOGIN_FAILED, null);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<?> authorizationDenied(
+            AuthorizationDeniedException e, HttpServletRequest request
+    ) {
+        log.error("errorCode : {}, uri : {}, message : {}",
+                e, request.getRequestURI(), e.getMessage());
+        return ApiResponse.toResponseEntity(UNAUTHORIZED, null);
     }
 
     @ExceptionHandler(ApiException.class)
