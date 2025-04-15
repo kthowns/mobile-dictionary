@@ -2,6 +2,7 @@ package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.JoinDto;
 import com.kimtaeyang.mobidic.dto.LoginDto;
+import com.kimtaeyang.mobidic.dto.LogoutDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtBlacklistService;
@@ -9,6 +10,7 @@ import com.kimtaeyang.mobidic.security.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,23 +39,31 @@ public class AuthService {
 
         Member claim = (Member) auth.getPrincipal();
 
-        return jwtUtil.generateToken(claim.getId().toString());
+        return jwtUtil.generateToken(claim.getId());
     }
 
     @Transactional
-    public void join(@Valid JoinDto.Request request) {
+    public JoinDto.Response join(@Valid JoinDto.Request request) {
         Member member = Member.builder()
                 .email(request.getEmail())
                 .nickname(request.getNickname())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
-        memberRepository.save(member);
+
+        return JoinDto.Response.fromEntity(memberRepository.save(member));
     }
 
-    public void logout(UUID token) {
+    @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
+    public LogoutDto.Response logout(UUID memberId, String token) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        auth.setAuthenticated(false);
+        auth.setAuthenticated(false); //인증 Context 초기화
 
-        jwtBlacklistService.logoutToken(token.toString());
+        LogoutDto.Response response = LogoutDto.Response.builder()
+                .id(jwtUtil.getIdFromToken(token))
+                .build();
+
+        jwtBlacklistService.logoutToken(token); //Redis 블랙리스트에 토큰 추가
+
+        return response;
     }
 }

@@ -22,12 +22,12 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.OK;
 public class MemberController {
     private final MemberService memberService;
 
-    @GetMapping("/detail/{memberId}")
+    @GetMapping("/detail")
     public ResponseEntity<?> getMemberDetail(
-            @PathVariable @Valid String memberId
+            @RequestParam @Valid String uId
     ) {
         return ApiResponse.toResponseEntity(OK,
-                memberService.getMemberDetailById(UUID.fromString(memberId)));
+                memberService.getMemberDetailById(UUID.fromString(uId)));
     }
 
     @PatchMapping("/nckchn/{memberId}")

@@ -16,9 +16,9 @@ import java.util.UUID;
 public class JwtUtil {
     private final JwtProperties jwtProperties;
 
-    public String generateToken(String userId) {
+    public String generateToken(UUID userId) {
         return Jwts.builder()
-                    .subject(userId)
+                    .subject(userId.toString())
                     .issuedAt(new Date())
                     .expiration(new Date(System.currentTimeMillis() + jwtProperties.getJwtExp()))
                     .signWith(jwtProperties.getSecretKey())
