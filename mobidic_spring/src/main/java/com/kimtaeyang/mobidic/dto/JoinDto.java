@@ -1,5 +1,6 @@
 package com.kimtaeyang.mobidic.dto;
 
+import com.kimtaeyang.mobidic.entity.Member;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -8,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 public class JoinDto {
     @Data
@@ -35,7 +38,16 @@ public class JoinDto {
     @NoArgsConstructor
     @Builder
     public static class Response{
+        private UUID id;
         private String email;
         private String nickname;
+
+        public static Response fromEntity(Member member){
+            return Response.builder()
+                    .id(member.getId())
+                    .email(member.getEmail())
+                    .nickname(member.getNickname())
+                    .build();
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.JoinDto;
 import com.kimtaeyang.mobidic.dto.LoginDto;
+import com.kimtaeyang.mobidic.dto.LogoutDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtBlacklistService;
@@ -41,19 +42,28 @@ public class AuthService {
     }
 
     @Transactional
-    public void join(@Valid JoinDto.Request request) {
+    public JoinDto.Response join(@Valid JoinDto.Request request) {
         Member member = Member.builder()
                 .email(request.getEmail())
                 .nickname(request.getNickname())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
-        memberRepository.save(member);
+
+        return JoinDto.Response.fromEntity(memberRepository.save(member));
     }
 
-    public void logout(UUID token) {
+    public LogoutDto.Response logout(UUID token) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        auth.setAuthenticated(false);
+        Member curretMember = (Member) auth.getPrincipal();
 
-        jwtBlacklistService.logoutToken(token.toString());
+        auth.setAuthenticated(false); //인증 Context 초기화
+
+        LogoutDto.Response response = LogoutDto.Response.builder()
+                .id(curretMember.getId())
+                .build();
+
+        jwtBlacklistService.logoutToken(token.toString()); //Redis 블랙리스트에 토큰 추가
+
+        return response;
     }
 }
