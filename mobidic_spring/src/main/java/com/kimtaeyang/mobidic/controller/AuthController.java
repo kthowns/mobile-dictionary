@@ -3,6 +3,7 @@ package com.kimtaeyang.mobidic.controller;
 import com.kimtaeyang.mobidic.dto.ApiResponse;
 import com.kimtaeyang.mobidic.dto.JoinDto;
 import com.kimtaeyang.mobidic.dto.LoginDto;
+import com.kimtaeyang.mobidic.security.JwtUtil;
 import com.kimtaeyang.mobidic.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ import static com.kimtaeyang.mobidic.code.AuthResponseCode.*;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDto.Request request) {
@@ -36,7 +38,8 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);
+        UUID memberId = jwtUtil.getIdFromToken(token);
 
-        return ApiResponse.toResponseEntity(LOGOUT_OK, authService.logout(UUID.fromString(token)));
+        return ApiResponse.toResponseEntity(LOGOUT_OK, authService.logout(memberId, token));
     }
 }

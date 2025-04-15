@@ -10,6 +10,7 @@ import com.kimtaeyang.mobidic.security.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -52,17 +53,16 @@ public class AuthService {
         return JoinDto.Response.fromEntity(memberRepository.save(member));
     }
 
-    public LogoutDto.Response logout(UUID token) {
+    @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
+    public LogoutDto.Response logout(UUID memberId, String token) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Member curretMember = (Member) auth.getPrincipal();
-
         auth.setAuthenticated(false); //인증 Context 초기화
 
         LogoutDto.Response response = LogoutDto.Response.builder()
-                .id(curretMember.getId())
+                .id(jwtUtil.getIdFromToken(token))
                 .build();
 
-        jwtBlacklistService.logoutToken(token.toString()); //Redis 블랙리스트에 토큰 추가
+        jwtBlacklistService.logoutToken(token); //Redis 블랙리스트에 토큰 추가
 
         return response;
     }
