@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,6 +28,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
@@ -115,11 +117,26 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("[AuthService] Login failed")
     void loginTestFail() {
         String rawPassword = "test1234";
 
+        LoginDto.Request request = LoginDto.Request.builder()
+                .email("user@example.com")
+                .password(rawPassword)
+                .build();
 
+        // given
+        Mockito.when(authenticationManager.authenticate(Mockito.any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(BadCredentialsException.class);
+
+        //when
+        Throwable e = assertThrows(Exception.class, () -> {
+            authService.login(request);
+        });
+
+        // then
+        assertEquals(e.getMessage(), e.getMessage());
     }
 
     @TestConfiguration

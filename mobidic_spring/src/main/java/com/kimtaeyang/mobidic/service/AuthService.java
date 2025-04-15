@@ -56,13 +56,13 @@ public class AuthService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Member curretMember = (Member) auth.getPrincipal();
 
-        auth.setAuthenticated(false);
+        auth.setAuthenticated(false); //인증 Context 초기화
 
         LogoutDto.Response response = LogoutDto.Response.builder()
                 .id(curretMember.getId())
                 .build();
 
-        jwtBlacklistService.logoutToken(token.toString());
+        jwtBlacklistService.logoutToken(token.toString()); //Redis 블랙리스트에 토큰 추가
 
         return response;
     }
