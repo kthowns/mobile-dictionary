@@ -36,6 +36,8 @@ public class VocabService {
             UUID memberId,
             AddVocabDto.@Valid Request request
     ) {
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new ApiException(NO_MEMBER));
         vocabRepository.findByTitle(request.getTitle())
                 .ifPresent((v) -> { throw new ApiException(DUPLICATED_TITLE); });
 
