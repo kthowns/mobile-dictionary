@@ -52,7 +52,7 @@ public class MemberService {
                         .ifPresent((m) -> { throw new ApiException(DUPLICATED_NICKNAME); });
 
         member.setNickname(request.getNickname());
-        memberRepository.save(member);
+        member = memberRepository.save(member);
 
         return UpdateNicknameDto.Response.builder()
                 .nickname(member.getNickname())
