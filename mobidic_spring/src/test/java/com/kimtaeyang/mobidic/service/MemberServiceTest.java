@@ -54,6 +54,8 @@ class MemberServiceTest {
     @DisplayName("[MemberService] Get member detail success")
     @WithMockUser(username = UID)
     void getMemberDetailByIdSuccess() {
+        resetMock();
+
         Member member = Member.builder()
                 .id(UUID.fromString(UID))
                 .email("test@test.com")
@@ -78,6 +80,8 @@ class MemberServiceTest {
     @DisplayName("[MemberService] Update member nickname success")
     @WithMockUser(username = UID)
     void updateMemberNicknameSuccess() {
+        resetMock();
+
         Member defaultMember = Member.builder()
                 .id(UUID.fromString(UID))
                 .email("test@test.com")
@@ -119,6 +123,8 @@ class MemberServiceTest {
     @DisplayName("[MemberService] Update member password success")
     @WithMockUser(username = UID)
     void updateMemberPasswordSuccess() {
+        resetMock();
+
         Member defaultMember = Member.builder()
                 .id(UUID.fromString(UID))
                 .email("test@test.com")
@@ -140,7 +146,7 @@ class MemberServiceTest {
                 .willAnswer(invocation -> {
                     Member memberArg = invocation.getArgument(0);
                     memberArg.setPassword(passwordEncoder.encode(
-                                    request.getPassword()));
+                            request.getPassword()));
                     return memberArg;
                 });
 
@@ -171,5 +177,9 @@ class MemberServiceTest {
         public PasswordEncoder passwordEncoder() {
             return new BCryptPasswordEncoder();
         }
+    }
+
+    private void resetMock(){
+        Mockito.reset(memberRepository);
     }
 }
