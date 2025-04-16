@@ -62,19 +62,37 @@ public class WordService {
 
     @Transactional(readOnly = true)
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vId)")
-    public List<WordDto> getWordsByVocabId(UUID vId) {
+    public List<WordDetailDto> getWordsByVocabId(UUID vId) {
         Vocab vocab = vocabRepository.findById(vId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
 
         return wordRepository.findByVocab(vocab)
                 .stream().map((word) -> {
-                    Rate rate = rateRepository.getRateByWordId(word.getId())
+                    Rate rate = rateRepository.getRateByWord(word)
                             .orElseThrow(() -> new ApiException(INTERNAL_SERVER_ERROR));
+
+                    List<Def> defs = defRepository.findByWord(word);
 
                     Difficulty diff = getDifficulty(rate.getCorrectCount(), rate.getIncorrectCount());
 
-                    return WordDto.fromEntity(word, diff);
+                    return WordDetailDto.fromEntity(word, defs, diff);
                 }).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#wId)")
+    public WordDetailDto getWordDetail(UUID wId) {
+        Word word = wordRepository.findById(wId)
+                .orElseThrow(() -> new ApiException(NO_WORD));
+
+        List<Def> defs = defRepository.findByWord(word);
+
+        Rate rate = rateRepository.getRateByWord(word)
+                .orElseThrow(() -> new ApiException(INTERNAL_SERVER_ERROR));
+
+        Difficulty diff = getDifficulty(rate.getCorrectCount(), rate.getIncorrectCount());
+
+        return WordDetailDto.fromEntity(word, defs, diff);
     }
 
     @Transactional
@@ -100,18 +118,7 @@ public class WordService {
 
         wordRepository.delete(word);
 
-        return WordDto.fromEntity(word, Difficulty.NORMAL);
-    }
-
-    @Transactional(readOnly = true)
-    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#wId)")
-    public WordDetailDto getWordDetail(UUID wId) {
-        Word word = wordRepository.findById(wId)
-                .orElseThrow(() -> new ApiException(NO_WORD));
-
-        List<Def> definitions = defRepository.findByWord(word);
-
-        return WordDetailDto.fromEntity(word, definitions);
+        return WordDto.fromEntity(word);
     }
 
     private Difficulty getDifficulty(Integer correct, Integer incorrect) {
