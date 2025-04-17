@@ -110,7 +110,7 @@ class WordServiceTest {
                 .willReturn(Optional.of(Mockito.mock(Vocab.class)));
         given(wordRepository.findByVocab(any(Vocab.class)))
                 .willReturn(words);
-        given(rateRepository.getRateByWord(any(Word.class)))
+        given(rateRepository.findRateByWord(any(Word.class)))
                 .willReturn(Optional.of(defaultRate));
 
         //when
@@ -149,7 +149,7 @@ class WordServiceTest {
         //given
         given(wordRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultWord));
-        given(rateRepository.getRateByWord(any(Word.class)))
+        given(rateRepository.findRateByWord(any(Word.class)))
                 .willReturn(Optional.of(defaultRate));
         given(defRepository.findByWord(any(Word.class)))
                 .willReturn(defs);

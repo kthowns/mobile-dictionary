@@ -68,7 +68,7 @@ public class WordService {
 
         return wordRepository.findByVocab(vocab)
                 .stream().map((word) -> {
-                    Rate rate = rateRepository.getRateByWord(word)
+                    Rate rate = rateRepository.findRateByWord(word)
                             .orElseThrow(() -> new ApiException(INTERNAL_SERVER_ERROR));
 
                     List<Def> defs = defRepository.findByWord(word);
@@ -87,7 +87,7 @@ public class WordService {
 
         List<Def> defs = defRepository.findByWord(word);
 
-        Rate rate = rateRepository.getRateByWord(word)
+        Rate rate = rateRepository.findRateByWord(word)
                 .orElseThrow(() -> new ApiException(INTERNAL_SERVER_ERROR));
 
         Difficulty diff = getDifficulty(rate.getCorrectCount(), rate.getIncorrectCount());

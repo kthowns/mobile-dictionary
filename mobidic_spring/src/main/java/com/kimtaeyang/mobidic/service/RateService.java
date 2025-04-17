@@ -28,7 +28,7 @@ public class RateService {
     public RateDto getRateByWordId(UUID wordId) {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
-        Rate rate = rateRepository.getRateByWord(word)
+        Rate rate = rateRepository.findRateByWord(word)
                 .orElseThrow(() -> new ApiException(NO_RATE));
 
         return RateDto.fromEntity(rate);
@@ -46,7 +46,7 @@ public class RateService {
     public void toggleRateByWordId(UUID wordId) {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
-        Rate rate = rateRepository.getRateByWord(word)
+        Rate rate = rateRepository.findRateByWord(word)
                 .orElseThrow(() -> new ApiException(NO_RATE));
 
         if(rate.getIsLearned() > 0){

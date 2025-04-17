@@ -16,5 +16,5 @@ public interface RateRepository extends JpaRepository<Rate, UUID> {
             " where w.vocab.id = :vocabId")
     Optional<Double> getVocabLearningRate(@Param("vocab") UUID vocabId);
 
-    Optional<Rate> getRateByWord(Word word);
+    Optional<Rate> findRateByWord(Word word);
 }

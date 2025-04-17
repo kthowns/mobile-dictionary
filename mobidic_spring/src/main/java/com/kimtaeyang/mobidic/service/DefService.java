@@ -64,9 +64,6 @@ public class DefService {
         Def def = defRepository.findById(defId)
                 .orElseThrow(() -> new ApiException(NO_DEF));
 
-        defRepository.findByDefinition(request.getDefinition())
-                .ifPresent((d) -> { throw new ApiException(DUPLICATED_DEFINITION); });
-
         def.setDefinition(request.getDefinition());
         def.setPart(request.getPart());
         defRepository.save(def);
