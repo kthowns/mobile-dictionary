@@ -1,44 +1,41 @@
 package com.kimtaeyang.mobidic.exception;
 
-import com.kimtaeyang.mobidic.dto.ApiResponse;
+import com.kimtaeyang.mobidic.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.*;
-import static com.kimtaeyang.mobidic.code.GeneralResponseCode.FORBIDDEN;
+import java.util.HashMap;
+
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.LOGIN_FAILED;
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INTERNAL_SERVER_ERROR;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST_BODY;
 
 @Slf4j
 @RestControllerAdvice(annotations = RestController.class)
 public class ApiExceptionHandler {
-    @ExceptionHandler(InternalAuthenticationServiceException.class)
-    public ResponseEntity<?> noMember(
-            InternalAuthenticationServiceException e, HttpServletRequest request
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> methodArgumentNotValidException(
+            final MethodArgumentNotValidException e, final HttpServletRequest request
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
-                e, request.getRequestURI(), e.getMessage());
-        if(e.getCause() instanceof UsernameNotFoundException) {
-            return ApiResponse.toResponseEntity(INVALID_USERNAME, null);
-        }
-        return ApiResponse.toResponseEntity(INTERNAL_SERVER_ERROR, null);
-    }
+                        e, request.getRequestURI(), e.getMessage());
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<?> methodNotSupported(
-            HttpRequestMethodNotSupportedException e, HttpServletRequest request
-    ) {
-        log.error("errorCode : {}, uri : {}, message : {}",
-                e, request.getRequestURI(), e.getMessage());
-        return ApiResponse.toResponseEntity(FORBIDDEN, null);
+        HashMap<String, String> errors = new HashMap<>();
+
+        for (FieldError error : e.getBindingResult().getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+
+        return ErrorResponse.toResponseEntity(INVALID_REQUEST_BODY, errors);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -47,7 +44,7 @@ public class ApiExceptionHandler {
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
                 e, request.getRequestURI(), e.getMessage());
-        return ApiResponse.toResponseEntity(LOGIN_FAILED, null);
+        return ErrorResponse.toResponseEntity(LOGIN_FAILED, null);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
@@ -56,7 +53,7 @@ public class ApiExceptionHandler {
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
                 e, request.getRequestURI(), e.getMessage());
-        return ApiResponse.toResponseEntity(UNAUTHORIZED, null);
+        return ErrorResponse.toResponseEntity(UNAUTHORIZED, null);
     }
 
     @ExceptionHandler(ApiException.class)
@@ -66,7 +63,7 @@ public class ApiExceptionHandler {
         log.error("errorCode : {}, uri : {}, message : {}",
                 e, request.getRequestURI(), e.getMessage());
 
-        return ApiResponse.toResponseEntity(e.getResponseCode(), null);
+        return ErrorResponse.toResponseEntity(e.getResponseCode(), null);
     }
 
     @ExceptionHandler(Exception.class)
@@ -76,6 +73,6 @@ public class ApiExceptionHandler {
         log.error("errorCode : {}, uri : {}, message : {}",
                 e, request.getRequestURI(), e.getMessage());
 
-        return ApiResponse.toResponseEntity(INTERNAL_SERVER_ERROR, null);
+        return ErrorResponse.toResponseEntity(INTERNAL_SERVER_ERROR, null);
     }
 }
