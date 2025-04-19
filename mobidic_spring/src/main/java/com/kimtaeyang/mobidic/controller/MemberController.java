@@ -42,10 +42,13 @@ public class MemberController {
     @PatchMapping("/pschn/{memberId}")
     public ResponseEntity<?> updateMemberPassword(
             @PathVariable String memberId,
-            @RequestBody @Valid UpdatePasswordDto.Request request
+            @RequestBody @Valid UpdatePasswordDto.Request request,
+            HttpServletRequest httpServletRequest
     ){
+        String token = httpServletRequest.getHeader("Authorization").substring(7);
+
         return ApiResponse.toResponseEntity(OK,
-                memberService.updateMemberPassword(UUID.fromString(memberId), request));
+                memberService.updateMemberPassword(UUID.fromString(memberId), request, UUID.fromString(token)));
     }
 
     @PatchMapping("/withdraw/{memberId}")
