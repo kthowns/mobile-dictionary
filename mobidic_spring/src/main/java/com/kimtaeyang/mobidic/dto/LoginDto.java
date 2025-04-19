@@ -7,11 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.kimtaeyang.mobidic.code.GeneralResponseCode.BAD_REQUEST;
-
 public class LoginDto {
-    private static final String EMAIL_ERROR_MESSAGE = BAD_REQUEST.getMessage();
-
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
