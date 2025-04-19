@@ -73,9 +73,7 @@ public class VocabService {
     @Transactional
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
     public UpdateVocabDto.Response updateVocab(
-            UUID vocabId,
-            @Valid UpdateVocabDto.Request request
-    ) {
+            UUID vocabId, UpdateVocabDto.Request request) {
         Vocab vocab = vocabRepository.findById(vocabId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
 
