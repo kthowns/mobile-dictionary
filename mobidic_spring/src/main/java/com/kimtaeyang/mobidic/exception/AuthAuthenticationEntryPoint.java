@@ -2,6 +2,7 @@ package com.kimtaeyang.mobidic.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kimtaeyang.mobidic.dto.ApiResponse;
+import com.kimtaeyang.mobidic.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,16 +30,16 @@ public class AuthAuthenticationEntryPoint implements AuthenticationEntryPoint {
         log.error("errorCode : {}, uri : {}, message : {}",
                 authException, request.getRequestURI(), authException.getMessage());
 
-        ApiResponse<?> apiResponse = ApiResponse.builder()
-                .data(null)
+        ErrorResponse<?> errorResponse = ErrorResponse.builder()
+                .errors(null)
                 .status(UNAUTHORIZED.getStatus().value())
                 .message(UNAUTHORIZED.getMessage())
                 .build();
 
-        String responseBody = objectMapper.writeValueAsString(apiResponse);
+        String responseBody = objectMapper.writeValueAsString(errorResponse);
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(UNAUTHORIZED.getStatus().value());
+        response.setStatus(errorResponse.getStatus());
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(responseBody);
     }
