@@ -76,9 +76,6 @@ public class VocabService {
         Vocab vocab = vocabRepository.findById(vocabId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
 
-        vocabRepository.findByTitle(request.getTitle())
-                .ifPresent((v) -> { throw new ApiException(DUPLICATED_TITLE); });
-
         vocab.setTitle(request.getTitle());
         vocab.setDescription(request.getDescription());
         vocab = vocabRepository.save(vocab);
