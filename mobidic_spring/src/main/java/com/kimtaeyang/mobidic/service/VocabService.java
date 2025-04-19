@@ -34,7 +34,7 @@ public class VocabService {
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public AddVocabDto.Response addVocab(
             UUID memberId,
-            AddVocabDto.@Valid Request request
+            @Valid AddVocabDto.Request request
     ) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
@@ -72,12 +72,10 @@ public class VocabService {
 
     @Transactional
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
-    public UpdateVocabDto.Response updateVocab(UUID vocabId, UpdateVocabDto.Request request) {
+    public UpdateVocabDto.Response updateVocab(
+            UUID vocabId, UpdateVocabDto.Request request) {
         Vocab vocab = vocabRepository.findById(vocabId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
-
-        vocabRepository.findByTitle(request.getTitle())
-                .ifPresent((v) -> { throw new ApiException(DUPLICATED_TITLE); });
 
         vocab.setTitle(request.getTitle());
         vocab.setDescription(request.getDescription());

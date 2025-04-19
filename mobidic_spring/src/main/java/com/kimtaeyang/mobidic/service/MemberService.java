@@ -30,6 +30,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtBlacklistService jwtBlacklistService;
+    private final AuthService authService;
 
     @Transactional(readOnly = true)
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
@@ -63,13 +64,15 @@ public class MemberService {
     @Transactional
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public UpdatePasswordDto.Response updateMemberPassword(
-            UUID memberId, UpdatePasswordDto.Request request
+            UUID memberId, UpdatePasswordDto.Request request, String token
     ) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
         member.setPassword(passwordEncoder.encode(request.getPassword()));
         memberRepository.save(member);
+
+        authService.logout(memberId, token);
 
         return UpdatePasswordDto.Response.builder()
                 .id(member.getId())

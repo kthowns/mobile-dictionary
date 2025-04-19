@@ -49,7 +49,7 @@ public class VocabController {
     @PatchMapping("/{vocabId}")
     public ResponseEntity<?> updateVocab(
             @PathVariable String vocabId,
-            @RequestBody UpdateVocabDto.Request request
+            @RequestBody @Valid UpdateVocabDto.Request request
     ) {
         return ApiResponse.toResponseEntity(OK,
                 vocabService.updateVocab(UUID.fromString(vocabId), request));
