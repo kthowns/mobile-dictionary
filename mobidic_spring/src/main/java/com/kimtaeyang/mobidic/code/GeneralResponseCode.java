@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum GeneralResponseCode implements ApiResponseCode {
     OK(HttpStatus.OK, "OK"),
     NOT_FOUND(HttpStatus.NOT_FOUND, "Not found"),
-    INVALID_REQUEST(HttpStatus.NOT_FOUND, "Invalid Request"),
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "Invalid Request"),
     NO_VOCAB(HttpStatus.NOT_FOUND, "No vocab found"),
     NO_WORD(HttpStatus.NOT_FOUND, "No word found"),
     NO_DEF(HttpStatus.NOT_FOUND, "No def found"),
@@ -19,7 +19,7 @@ public enum GeneralResponseCode implements ApiResponseCode {
     DUPLICATED_WORD(HttpStatus.CONFLICT, "Word is duplicated"),
     DUPLICATED_DEFINITION(HttpStatus.CONFLICT, "Definition is duplicated"),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "Method is not supported"),
-    INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "Invalid request Body"),
+    INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "Invalid request body"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden request"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 

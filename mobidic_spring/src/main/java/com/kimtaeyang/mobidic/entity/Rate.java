@@ -24,11 +24,11 @@ public class Rate {
     private Word word;
 
     @Column(name = "correct_count")
-    private Integer correctCount;
+    private int correctCount;
 
     @Column(name = "incorrect_count")
-    private Integer incorrectCount;
+    private int incorrectCount;
 
     @Column(name = "is_learned")
-    private Integer isLearned;
+    private int isLearned;
 }

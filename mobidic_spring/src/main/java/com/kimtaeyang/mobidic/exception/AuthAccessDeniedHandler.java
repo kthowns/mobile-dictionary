@@ -1,7 +1,7 @@
 package com.kimtaeyang.mobidic.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.ApiResponse;
+import com.kimtaeyang.mobidic.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,15 +29,16 @@ public class AuthAccessDeniedHandler implements AccessDeniedHandler {
         log.error("errorCode : {}, uri : {}, message : {}",
                 accessDeniedException, request.getRequestURI(), accessDeniedException   .getMessage());
 
-        ApiResponse<?> apiResponse = ApiResponse.builder()
-                .data(null)
+        ErrorResponse<?> errorResponse = ErrorResponse.builder()
+                .errors(null)
                 .status(FORBIDDEN.getStatus().value())
                 .message(FORBIDDEN.getMessage())
                 .build();
-        String responseBody = objectMapper.writeValueAsString(apiResponse);
+
+        String responseBody = objectMapper.writeValueAsString(errorResponse);
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(FORBIDDEN.getStatus().value());
+        response.setStatus(errorResponse.getStatus());
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(responseBody);
     }

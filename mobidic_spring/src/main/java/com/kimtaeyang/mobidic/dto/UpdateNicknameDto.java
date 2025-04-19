@@ -16,7 +16,7 @@ public class UpdateNicknameDto {
     @Builder
     public static class Request {
         @NotBlank
-        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{2,16}$")
+        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{2,16}$", message = "Invalid nickname pattern")
         private String nickname;
     }
 

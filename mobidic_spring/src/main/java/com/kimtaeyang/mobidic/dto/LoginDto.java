@@ -1,5 +1,6 @@
 package com.kimtaeyang.mobidic.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +14,7 @@ public class LoginDto {
     @Builder
     public static class Request{
         @NotBlank
+        @Email(message = "Invalid email pattern")
         private String email;
         @NotBlank
         private String password;

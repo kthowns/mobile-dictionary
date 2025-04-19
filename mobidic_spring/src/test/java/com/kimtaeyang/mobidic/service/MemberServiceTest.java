@@ -1,5 +1,6 @@
 package com.kimtaeyang.mobidic.service;
 
+import com.kimtaeyang.mobidic.dto.LogoutDto;
 import com.kimtaeyang.mobidic.dto.MemberDto;
 import com.kimtaeyang.mobidic.dto.UpdateNicknameDto;
 import com.kimtaeyang.mobidic.dto.UpdatePasswordDto;
@@ -48,12 +49,17 @@ class MemberServiceTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    AuthService authService;
+
     private static final String UID = "9f81b0d7-2f8e-4ad3-ae18-41c73dc71b39";
 
     @Test
     @DisplayName("[MemberService] Get member detail success")
     @WithMockUser(username = UID)
     void getMemberDetailByIdSuccess() {
+        resetMock();
+
         Member member = Member.builder()
                 .id(UUID.fromString(UID))
                 .email("test@test.com")
@@ -78,6 +84,8 @@ class MemberServiceTest {
     @DisplayName("[MemberService] Update member nickname success")
     @WithMockUser(username = UID)
     void updateMemberNicknameSuccess() {
+        resetMock();
+
         Member defaultMember = Member.builder()
                 .id(UUID.fromString(UID))
                 .email("test@test.com")
@@ -119,6 +127,8 @@ class MemberServiceTest {
     @DisplayName("[MemberService] Update member password success")
     @WithMockUser(username = UID)
     void updateMemberPasswordSuccess() {
+        resetMock();
+
         Member defaultMember = Member.builder()
                 .id(UUID.fromString(UID))
                 .email("test@test.com")
@@ -136,16 +146,18 @@ class MemberServiceTest {
         //given
         given(memberRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultMember));
+        given(authService.logout(any(UUID.class), anyString()))
+                .willReturn(Mockito.mock(LogoutDto.Response.class));
         given(memberRepository.save(any(Member.class)))
                 .willAnswer(invocation -> {
                     Member memberArg = invocation.getArgument(0);
                     memberArg.setPassword(passwordEncoder.encode(
-                                    request.getPassword()));
+                            request.getPassword()));
                     return memberArg;
                 });
 
         //when
-        memberService.updateMemberPassword(UUID.fromString(UID), request);
+        memberService.updateMemberPassword(UUID.fromString(UID), request, UUID.randomUUID().toString());
 
         //then
         verify(memberRepository, times(1))
@@ -171,5 +183,14 @@ class MemberServiceTest {
         public PasswordEncoder passwordEncoder() {
             return new BCryptPasswordEncoder();
         }
+
+        @Bean
+        public AuthService authService() {
+            return Mockito.mock(AuthService.class);
+        }
+    }
+
+    private void resetMock() {
+        Mockito.reset(memberRepository);
     }
 }

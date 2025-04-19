@@ -14,9 +14,9 @@ import java.util.UUID;
 @Builder
 public class RateDto {
     private UUID wordId;
-    private Integer correctCount;
-    private Integer incorrectCount;
-    private Integer isLearned;
+    private int correctCount;
+    private int incorrectCount;
+    private int isLearned;
 
     public static RateDto fromEntity(Rate rate) {
         return RateDto.builder()
