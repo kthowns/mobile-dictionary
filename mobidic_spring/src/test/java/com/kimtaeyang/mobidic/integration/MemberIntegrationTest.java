@@ -45,18 +45,6 @@ public class MemberIntegrationTest {
         memberRepository.deleteAll();
     }
 
-    // Resource api integration test convention
-    //Success
-    // -> OK
-    //Fail without token
-    // -> UNAUTHORIZED
-    //Fail with unauthorized token
-    // -> UNAUTHORIZED
-    //Fail with no resource
-    // -> UNAUTHORIZED
-    //Fail with invalid pattern
-    // -> INVALID_REQUEST_BODY
-
     @Test
     @DisplayName("[Member][Integration] Get member detail")
     void getMemberDetailTest() throws Exception {
@@ -329,3 +317,14 @@ public class MemberIntegrationTest {
                                 .value(UNAUTHORIZED.getMessage()));
     }
 }
+// Resource api integration test convention
+//Success
+// -> OK
+//Fail without token
+// -> UNAUTHORIZED
+//Fail with unauthorized token
+// -> UNAUTHORIZED
+//Fail with no resource
+// -> UNAUTHORIZED
+//Fail with invalid pattern
+// -> INVALID_REQUEST_BODY
