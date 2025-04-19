@@ -34,7 +34,7 @@ public class VocabService {
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public AddVocabDto.Response addVocab(
             UUID memberId,
-            AddVocabDto.@Valid Request request
+            @Valid AddVocabDto.Request request
     ) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
@@ -72,7 +72,10 @@ public class VocabService {
 
     @Transactional
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
-    public UpdateVocabDto.Response updateVocab(UUID vocabId, UpdateVocabDto.Request request) {
+    public UpdateVocabDto.Response updateVocab(
+            UUID vocabId,
+            @Valid UpdateVocabDto.Request request
+    ) {
         Vocab vocab = vocabRepository.findById(vocabId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
 
