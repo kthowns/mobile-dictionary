@@ -63,11 +63,9 @@ public class AuthIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath("$.data.email")
+                .andExpect(jsonPath("$.data.email")
                                 .value("test@test.com"))
-                .andExpect(
-                        jsonPath("$.data.nickname")
+                .andExpect(jsonPath("$.data.nickname")
                                 .value("test"));
 
         request.setEmail("test@test");
@@ -84,13 +82,10 @@ public class AuthIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(
-                        jsonPath("$.message")
+                .andExpect(jsonPath("$.message")
                                 .value(INVALID_REQUEST_BODY.getMessage()))
-                .andExpect(
-                        jsonPath("$.errors")
-                                .value(expectedErrors)
-                );
+                .andExpect(jsonPath("$.errors")
+                                .value(expectedErrors));
     }
 
     @DisplayName("[Auth][Integration] Login test")
@@ -132,10 +127,8 @@ public class AuthIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(
-                        jsonPath("$.message")
-                                .value(LOGIN_FAILED.getMessage())
-                );
+                .andExpect(jsonPath("$.message")
+                                .value(LOGIN_FAILED.getMessage()));
 
         //Login fail invalid email
         loginRequest.setEmail("wrong@email.com");
@@ -143,10 +136,8 @@ public class AuthIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(
-                        jsonPath("$.message")
-                                .value(LOGIN_FAILED.getMessage())
-                );
+                .andExpect(jsonPath("$.message")
+                                .value(LOGIN_FAILED.getMessage()));
 
         //Login fail invalid email pattern
         loginRequest.setEmail("wrong");
@@ -154,13 +145,10 @@ public class AuthIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(
-                        jsonPath("$.message")
+                .andExpect(jsonPath("$.message")
                                 .value(INVALID_REQUEST_BODY.getMessage()))
-                .andExpect(
-                        jsonPath("$.errors.email")
-                                .value("Invalid email pattern")
-                );
+                .andExpect(jsonPath("$.errors.email")
+                                .value("Invalid email pattern"));
     }
 
     @DisplayName("[Auth][Integration] Logout test")
@@ -198,20 +186,16 @@ public class AuthIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath("$.data.id")
-                                .value(memberId.toString())
-                );
+                .andExpect(jsonPath("$.data.id")
+                                .value(memberId.toString()));
 
         //Testing post method through invalid token
         mockMvc.perform(post("/api/auth/logout")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnauthorized())
-                .andExpect(
-                        jsonPath("$.message")
-                                .value(UNAUTHORIZED.getMessage())
-                );
+                .andExpect(jsonPath("$.message")
+                                .value(UNAUTHORIZED.getMessage()));
     }
 
     @Test
@@ -249,23 +233,18 @@ public class AuthIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath("$.data.email")
+                .andExpect(jsonPath("$.data.email")
                                 .value(joinRequest.getEmail()))
-                .andExpect(
-                        jsonPath("$.data.nickname")
+                .andExpect(jsonPath("$.data.nickname")
                                 .value(joinRequest.getNickname()))
-                .andExpect(
-                        jsonPath("$.data.withdrawnAt")
+                .andExpect(jsonPath("$.data.withdrawnAt")
                                 .isNotEmpty());
 
         mockMvc.perform(post("/api/auth/logout")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnauthorized())
-                .andExpect(
-                        jsonPath("$.message")
-                                .value(UNAUTHORIZED.getMessage())
-                );
+                .andExpect(jsonPath("$.message")
+                                .value(UNAUTHORIZED.getMessage()));
     }
 }
