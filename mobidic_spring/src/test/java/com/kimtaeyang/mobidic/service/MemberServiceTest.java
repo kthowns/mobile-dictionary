@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -47,6 +48,9 @@ class MemberServiceTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    AuthService authService;
 
     private static final String UID = "9f81b0d7-2f8e-4ad3-ae18-41c73dc71b39";
 
@@ -142,6 +146,7 @@ class MemberServiceTest {
         //given
         given(memberRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultMember));
+        willDoNothing().given(authService).logout(any(UUID.class), anyString());
         given(memberRepository.save(any(Member.class)))
                 .willAnswer(invocation -> {
                     Member memberArg = invocation.getArgument(0);
@@ -151,7 +156,7 @@ class MemberServiceTest {
                 });
 
         //when
-        memberService.updateMemberPassword(UUID.fromString(UID), request);
+        memberService.updateMemberPassword(UUID.fromString(UID), request, UUID.randomUUID());
 
         //then
         verify(memberRepository, times(1))
@@ -177,9 +182,14 @@ class MemberServiceTest {
         public PasswordEncoder passwordEncoder() {
             return new BCryptPasswordEncoder();
         }
+
+        @Bean
+        public AuthService authService() {
+            return Mockito.mock(AuthService.class);
+        }
     }
 
-    private void resetMock(){
+    private void resetMock() {
         Mockito.reset(memberRepository);
     }
 }
