@@ -72,7 +72,7 @@ public class MemberService {
         member.setPassword(passwordEncoder.encode(request.getPassword()));
         memberRepository.save(member);
 
-        authService.logout(memberId, token.toString());
+        authService.logout(memberId, token);
 
         return UpdatePasswordDto.Response.builder()
                 .id(member.getId())
