@@ -41,37 +41,25 @@ public class MemberIntegrationTest {
     private JwtUtil jwtUtil;
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         memberRepository.deleteAll();
     }
+
+    private final JoinDto.Request joinRequest = JoinDto.Request.builder()
+            .email("test@test.com")
+            .nickname("test")
+            .password("testTest1")
+            .build();
+
+    private final LoginDto.Request loginRequest = LoginDto.Request.builder()
+            .email(joinRequest.getEmail())
+            .password(joinRequest.getPassword())
+            .build();
 
     @Test
     @DisplayName("[Member][Integration] Get member detail")
     void getMemberDetailTest() throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
-                .email("test@test.com")
-                .nickname("test")
-                .password("testTest1")
-                .build();
-
-        mockMvc.perform(post("/api/auth/join")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(joinRequest)))
-                .andExpect(status().isOk());
-
-        LoginDto.Request loginRequest = LoginDto.Request.builder()
-                .email(joinRequest.getEmail())
-                .password(joinRequest.getPassword())
-                .build();
-
-        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String json = loginResult.getResponse().getContentAsString();
-        String token = objectMapper.readTree(json).get("data").asText();
+        String token = loginAndGetToken();
         UUID memberId = jwtUtil.getIdFromToken(token);
 
         //Success
@@ -225,30 +213,7 @@ public class MemberIntegrationTest {
     @Test
     @DisplayName("[Member][Integration] Update member password")
     void updateMemberPasswordTest() throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
-                .email("test@test.com")
-                .nickname("test")
-                .password("testTest1")
-                .build();
-
-        mockMvc.perform(post("/api/auth/join")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(joinRequest)))
-                .andExpect(status().isOk());
-
-        LoginDto.Request loginRequest = LoginDto.Request.builder()
-                .email(joinRequest.getEmail())
-                .password(joinRequest.getPassword())
-                .build();
-
-        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String json = loginResult.getResponse().getContentAsString();
-        String token = objectMapper.readTree(json).get("data").asText();
+        String token = loginAndGetToken();
         UUID memberId = jwtUtil.getIdFromToken(token);
 
         UpdatePasswordDto.Request updatePasswordRequest = UpdatePasswordDto.Request.builder()
@@ -315,6 +280,22 @@ public class MemberIntegrationTest {
                 .andExpect(
                         jsonPath("$.message")
                                 .value(UNAUTHORIZED.getMessage()));
+    }
+
+    private String loginAndGetToken() throws Exception {
+        mockMvc.perform(post("/api/auth/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(joinRequest)))
+                .andExpect(status().isOk());
+
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String json = loginResult.getResponse().getContentAsString();
+        return objectMapper.readTree(json).get("data").asText();
     }
 }
 // Resource api integration test convention
