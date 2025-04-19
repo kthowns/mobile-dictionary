@@ -1,5 +1,6 @@
 package com.kimtaeyang.mobidic.service;
 
+import com.kimtaeyang.mobidic.dto.LogoutDto;
 import com.kimtaeyang.mobidic.dto.MemberDto;
 import com.kimtaeyang.mobidic.dto.UpdateNicknameDto;
 import com.kimtaeyang.mobidic.dto.UpdatePasswordDto;
@@ -146,7 +147,8 @@ class MemberServiceTest {
         //given
         given(memberRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultMember));
-        willDoNothing().given(authService).logout(any(UUID.class), anyString());
+        given(authService.logout(any(UUID.class), anyString()))
+                .willReturn(Mockito.mock(LogoutDto.Response.class));
         given(memberRepository.save(any(Member.class)))
                 .willAnswer(invocation -> {
                     Member memberArg = invocation.getArgument(0);
