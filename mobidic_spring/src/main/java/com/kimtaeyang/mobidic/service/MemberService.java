@@ -64,7 +64,7 @@ public class MemberService {
     @Transactional
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public UpdatePasswordDto.Response updateMemberPassword(
-            UUID memberId, UpdatePasswordDto.Request request, UUID token
+            UUID memberId, UpdatePasswordDto.Request request, String token
     ) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));

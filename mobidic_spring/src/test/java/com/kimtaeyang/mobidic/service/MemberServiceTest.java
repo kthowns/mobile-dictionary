@@ -158,7 +158,7 @@ class MemberServiceTest {
                 });
 
         //when
-        memberService.updateMemberPassword(UUID.fromString(UID), request, UUID.randomUUID());
+        memberService.updateMemberPassword(UUID.fromString(UID), request, UUID.randomUUID().toString());
 
         //then
         verify(memberRepository, times(1))

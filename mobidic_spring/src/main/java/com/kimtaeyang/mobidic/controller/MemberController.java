@@ -48,7 +48,7 @@ public class MemberController {
         String token = httpServletRequest.getHeader("Authorization").substring(7);
 
         return ApiResponse.toResponseEntity(OK,
-                memberService.updateMemberPassword(UUID.fromString(memberId), request, UUID.fromString(token)));
+                memberService.updateMemberPassword(UUID.fromString(memberId), request, token));
     }
 
     @PatchMapping("/withdraw/{memberId}")
