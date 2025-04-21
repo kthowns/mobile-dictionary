@@ -111,7 +111,7 @@ public class WordService {
     }
 
     @Transactional
-    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#wordId)")
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
     public WordDto deleteWord(UUID wordId) {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
