@@ -6,7 +6,6 @@ import com.kimtaeyang.mobidic.dto.JoinDto;
 import com.kimtaeyang.mobidic.dto.LoginDto;
 import com.kimtaeyang.mobidic.dto.UpdateVocabDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
-import com.kimtaeyang.mobidic.repository.VocabRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,13 +40,9 @@ public class VocabIntegrationTest {
     @Autowired
     private MemberRepository memberRepository;
 
-    @Autowired
-    private VocabRepository vocabRepository;
-
     @AfterEach
     void tearDown() {
         memberRepository.deleteAll();
-        vocabRepository.deleteAll();
     }
 
     private final JoinDto.Request joinRequest = JoinDto.Request.builder()
@@ -120,7 +115,7 @@ public class VocabIntegrationTest {
         //Fail with invalid pattern
         addVocabRequest.setTitle(UUID.randomUUID().toString());
         addVocabRequest.setDescription(UUID.randomUUID().toString() + UUID.randomUUID());
-        mockMvc.perform(post("/api/vocab/" + UUID.randomUUID())
+        mockMvc.perform(post("/api/vocab/" + memberId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content(objectMapper.writeValueAsString(addVocabRequest)))
