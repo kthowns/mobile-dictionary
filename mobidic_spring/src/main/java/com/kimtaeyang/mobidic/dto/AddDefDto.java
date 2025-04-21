@@ -21,7 +21,7 @@ public class AddDefDto {
         @NotBlank
         @Size(max = 32, message = "Invalid definition pattern")
         private String definition;
-        @NotNull
+        @NotBlank
         private PartOfSpeech part;
     }
 
