@@ -3,7 +3,6 @@ package com.kimtaeyang.mobidic.dto;
 import com.kimtaeyang.mobidic.entity.Def;
 import com.kimtaeyang.mobidic.type.PartOfSpeech;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +21,7 @@ public class AddDefDto {
         @Size(max = 32, message = "Invalid definition pattern")
         private String definition;
         @NotBlank
+        @Size(max = 10, message = "Invalid part pattern")
         private String part;
     }
 
