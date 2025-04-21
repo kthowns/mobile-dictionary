@@ -4,6 +4,7 @@ import com.kimtaeyang.mobidic.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
@@ -36,6 +37,16 @@ public class ApiExceptionHandler {
         }
 
         return ErrorResponse.toResponseEntity(INVALID_REQUEST_BODY, errors);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> httpMessageNotReadableException(
+            final HttpMessageNotReadableException e, final HttpServletRequest request
+    ) {
+        log.error("errorCode : {}, uri : {}, message : {}",
+                e, request.getRequestURI(), e.getMessage());
+
+        return ErrorResponse.toResponseEntity(INVALID_REQUEST_BODY, null);
     }
 
     @ExceptionHandler(BadCredentialsException.class)

@@ -80,7 +80,7 @@ public class WordService {
     }
 
     @Transactional(readOnly = true)
-    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#wId)")
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wId)")
     public WordDetailDto getWordDetail(UUID wId) {
         Word word = wordRepository.findById(wId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
@@ -111,7 +111,7 @@ public class WordService {
     }
 
     @Transactional
-    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#wordId)")
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
     public WordDto deleteWord(UUID wordId) {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));

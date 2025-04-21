@@ -3,6 +3,7 @@ package com.kimtaeyang.mobidic.controller;
 import com.kimtaeyang.mobidic.dto.AddDefDto;
 import com.kimtaeyang.mobidic.dto.ApiResponse;
 import com.kimtaeyang.mobidic.service.DefService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class DefController {
     @PostMapping("/{wordId}")
     public ResponseEntity<?> addDef(
             @PathVariable String wordId,
-            @RequestBody AddDefDto.Request request
+            @RequestBody @Valid AddDefDto.Request request
     ) {
         return ApiResponse.toResponseEntity(OK,
                 defService.addDef(UUID.fromString(wordId), request));
@@ -39,7 +40,7 @@ public class DefController {
     @PatchMapping("/{defId}")
     public ResponseEntity<?> updateDef(
             @PathVariable String defId,
-            @RequestBody AddDefDto.Request request
+            @RequestBody @Valid AddDefDto.Request request
     ){
         return ApiResponse.toResponseEntity(OK,
                 defService.updateDef(UUID.fromString(defId), request));
