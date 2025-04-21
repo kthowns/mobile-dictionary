@@ -19,7 +19,7 @@ public class AddDefDto {
     @Builder
     public static class Request {
         @NotBlank
-        @Size(max = 64)
+        @Size(max = 32)
         private String definition;
         @NotNull
         private PartOfSpeech part;
