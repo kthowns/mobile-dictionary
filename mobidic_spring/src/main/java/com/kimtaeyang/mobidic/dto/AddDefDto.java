@@ -22,7 +22,7 @@ public class AddDefDto {
         @Size(max = 32, message = "Invalid definition pattern")
         private String definition;
         @NotBlank
-        private PartOfSpeech part;
+        private String part;
     }
 
     @Data
