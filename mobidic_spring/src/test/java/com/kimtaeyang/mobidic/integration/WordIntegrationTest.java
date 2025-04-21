@@ -352,8 +352,8 @@ public class WordIntegrationTest {
                         .value(UNAUTHORIZED.getMessage()));
         //Success
         mockMvc.perform(delete("/api/word/" + wordId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id")
                         .value(wordId))
