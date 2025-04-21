@@ -80,7 +80,7 @@ public class WordService {
     }
 
     @Transactional(readOnly = true)
-    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#wId)")
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wId)")
     public WordDetailDto getWordDetail(UUID wId) {
         Word word = wordRepository.findById(wId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
