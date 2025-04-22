@@ -15,5 +15,5 @@ public interface VocabRepository extends JpaRepository<Vocab, UUID> {
 
     Optional<Vocab> findByTitle(String title);
 
-    long countByTitleAndIdNot(String title, UUID id);
+    int countByTitleAndIdNot(String title, UUID id);
 }
