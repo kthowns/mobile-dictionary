@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -58,8 +57,6 @@ class DefServiceTest {
         //given
         given(wordRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(Mockito.mock(Word.class)));
-        given(defRepository.findByDefinition(anyString()))
-                .willReturn(Optional.empty());
         given(defRepository.save(any(Def.class)))
                 .willAnswer(invocation -> {
                     Def defArg = invocation.getArgument(0);
@@ -134,8 +131,6 @@ class DefServiceTest {
         //given
         given(defRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultDef));
-        given(defRepository.findByDefinition(anyString()))
-                .willReturn(Optional.empty());
         given(defRepository.save(any(Def.class)))
                 .willAnswer(invocation -> {
                     Def defArg = invocation.getArgument(0);

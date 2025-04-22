@@ -261,6 +261,9 @@ public class WordIntegrationTest {
         AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
                 .expression("test1")
                 .build();
+        AddWordDto.Request addWordRequest2 = AddWordDto.Request.builder()
+                .expression("test2")
+                .build();
 
         MvcResult addWordResult = mockMvc.perform(post("/api/word/" + vocabId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -268,12 +271,19 @@ public class WordIntegrationTest {
                         .content(objectMapper.writeValueAsString(addWordRequest)))
                 .andExpect(status().isOk())
                 .andReturn();
+        MvcResult addWordResult2 = mockMvc.perform(post("/api/word/" + vocabId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addWordRequest2)))
+                .andExpect(status().isOk())
+                .andReturn();
 
         String json = addWordResult.getResponse().getContentAsString();
         String wordId = objectMapper.readTree(json).path("data").path("id").asText();
+        json = addWordResult2.getResponse().getContentAsString();
+        String wordId2 = objectMapper.readTree(json).path("data").path("id").asText();
 
         //Success
-        addWordRequest.setExpression("testtest2");
         mockMvc.perform(patch("/api/word/" + wordId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
@@ -285,7 +295,7 @@ public class WordIntegrationTest {
                         .value(addWordRequest.getExpression()));
 
         //Fail with duplicated word
-        mockMvc.perform(patch("/api/word/" + wordId)
+        mockMvc.perform(patch("/api/word/" + wordId2)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content(objectMapper.writeValueAsString(addWordRequest)))

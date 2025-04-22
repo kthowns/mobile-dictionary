@@ -57,8 +57,8 @@ class VocabServiceTest {
         //given
         given(memberRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(Mockito.mock(Member.class)));
-        given(vocabRepository.findByTitle(anyString()))
-                .willReturn(Optional.empty());
+        given(vocabRepository.countByTitleAndMember(anyString(), any(Member.class)))
+                .willReturn(0);
         given(vocabRepository.save(any(Vocab.class)))
                 .willAnswer(invocation -> {
                     Vocab vocabArg = invocation.getArgument(0);
@@ -160,9 +160,7 @@ class VocabServiceTest {
         //given
         given(vocabRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultVocab));
-        given(vocabRepository.findByTitle(anyString()))
-                .willReturn(Optional.empty());
-        given(vocabRepository.countByTitleAndIdNot(anyString(), any(UUID.class)))
+        given(vocabRepository.countByTitleAndMemberAndIdNot(anyString(), any(Member.class), any(UUID.class)))
                 .willReturn(0);
         given(vocabRepository.save(any(Vocab.class)))
                 .willAnswer(invocation -> {

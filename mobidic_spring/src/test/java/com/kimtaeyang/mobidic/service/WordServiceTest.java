@@ -2,10 +2,7 @@ package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.AddWordDto;
 import com.kimtaeyang.mobidic.dto.WordDetailDto;
-import com.kimtaeyang.mobidic.entity.Def;
-import com.kimtaeyang.mobidic.entity.Rate;
-import com.kimtaeyang.mobidic.entity.Vocab;
-import com.kimtaeyang.mobidic.entity.Word;
+import com.kimtaeyang.mobidic.entity.*;
 import com.kimtaeyang.mobidic.repository.DefRepository;
 import com.kimtaeyang.mobidic.repository.RateRepository;
 import com.kimtaeyang.mobidic.repository.VocabRepository;
@@ -65,8 +62,8 @@ class WordServiceTest {
         //given
         given(vocabRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(Mockito.mock(Vocab.class)));
-        given(wordRepository.findByExpression(anyString()))
-                .willReturn(Optional.empty());
+        given(wordRepository.countByExpressionAndVocab(anyString(), any(Vocab.class)))
+                .willReturn(0);
         given(wordRepository.save(any(Word.class)))
                 .willAnswer(invocation -> {
                     Word wordArg = invocation.getArgument(0);
@@ -188,8 +185,8 @@ class WordServiceTest {
         //given
         given(wordRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultWord));
-        given(vocabRepository.findByTitle(anyString()))
-                .willReturn(Optional.empty());
+        given(vocabRepository.countByTitleAndMemberAndIdNot(anyString(), any(Member.class), any(UUID.class)))
+                .willReturn(0);
         given(wordRepository.save(any(Word.class)))
                 .willAnswer(invocation -> {
                    Word wordArg = invocation.getArgument(0);

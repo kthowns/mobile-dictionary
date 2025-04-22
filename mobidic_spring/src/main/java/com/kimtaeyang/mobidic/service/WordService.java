@@ -38,10 +38,13 @@ public class WordService {
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
     public AddWordDto.Response addWord(UUID vocabId, AddWordDto.Request request) {
         Vocab vocab = vocabRepository.findById(vocabId)
-                        .orElseThrow(() -> new ApiException(NO_VOCAB));
+                .orElseThrow(() -> new ApiException(NO_VOCAB));
 
-        wordRepository.findByExpression(request.getExpression())
-                .ifPresent((w) -> { throw new ApiException(DUPLICATED_WORD); });
+        int count = wordRepository.countByExpressionAndVocab(request.getExpression(), vocab);
+
+        if (count > 0) {
+            throw new ApiException(DUPLICATED_WORD);
+        }
 
         Word word = Word.builder()
                 .expression(request.getExpression())
@@ -101,8 +104,11 @@ public class WordService {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
-        wordRepository.findByExpression(request.getExpression())
-                        .ifPresent((w) -> { throw new ApiException(DUPLICATED_WORD); });
+        long count = wordRepository.countByExpressionAndVocabAndIdNot(request.getExpression(), word.getVocab(), wordId);
+
+        if (count > 0) {
+            throw new ApiException(DUPLICATED_WORD);
+        }
 
         word.setExpression(request.getExpression());
         wordRepository.save(word);
@@ -124,7 +130,7 @@ public class WordService {
     private Difficulty getDifficulty(Integer correct, Integer incorrect) {
         double diff = calcDifficultyRatio(correct, incorrect);
 
-        if(diff < 0.3){
+        if (diff < 0.3) {
             return Difficulty.EASY;
         } else if (diff > 0.7) {
             return Difficulty.HARD;
@@ -138,10 +144,9 @@ public class WordService {
             난이도 함수 : -0.04correct + 0.05incorrect + 0.5
         */
         double diff = (-0.04 * correct) + (0.05 * incorrect) + 0.5;
-        if (diff > 1){
+        if (diff > 1) {
             diff = 1;
-        }
-        else if (diff < 0){
+        } else if (diff < 0) {
             diff = 0;
         }
 
