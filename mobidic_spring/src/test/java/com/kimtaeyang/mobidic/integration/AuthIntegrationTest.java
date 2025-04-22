@@ -21,7 +21,7 @@ import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.LOGIN_FAILED;
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
-import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST_BODY;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -68,6 +68,26 @@ public class AuthIntegrationTest {
                 .andExpect(jsonPath("$.data.nickname")
                         .value("test"));
 
+        //Fail with duplicated Email
+        request.setNickname("test2");
+        mockMvc.perform(post("/api/auth/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_EMAIL.getMessage()));
+
+        //Fail with duplicated Nickname
+        request.setEmail("test2@test.com");
+        request.setNickname("test");
+        mockMvc.perform(post("/api/auth/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_NICKNAME.getMessage()));
+
+        //Email, nickname, password format fail
         request.setEmail("test@test");
         request.setNickname("1");
         request.setPassword("test");
@@ -77,7 +97,6 @@ public class AuthIntegrationTest {
         expectedErrors.put("nickname", "Invalid nickname pattern");
         expectedErrors.put("password", "Invalid password pattern");
 
-        //Email, nickname, password format fail
         mockMvc.perform(post("/api/auth/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

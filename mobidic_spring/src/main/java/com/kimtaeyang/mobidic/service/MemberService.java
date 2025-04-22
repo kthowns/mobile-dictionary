@@ -20,8 +20,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.DUPLICATED_NICKNAME;
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.NO_MEMBER;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_NICKNAME;
 
 @Service
 @Slf4j

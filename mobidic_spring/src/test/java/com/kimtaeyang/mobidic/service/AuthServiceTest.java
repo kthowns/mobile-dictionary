@@ -24,11 +24,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
@@ -73,6 +75,10 @@ class AuthServiceTest {
                 .build();
 
         // mocking
+        Mockito.when(memberRepository.findByNickname(anyString()))
+                .thenReturn(Optional.empty());
+        Mockito.when(memberRepository.findByEmail(anyString()))
+                .thenReturn(Optional.empty());
         Mockito.when(memberRepository.save(Mockito.any(Member.class)))
                 .thenReturn(memberToReturn);
 
