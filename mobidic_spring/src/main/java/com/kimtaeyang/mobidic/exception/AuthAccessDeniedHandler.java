@@ -29,7 +29,7 @@ public class AuthAccessDeniedHandler implements AccessDeniedHandler {
         log.error("errorCode : {}, uri : {}, message : {}",
                 accessDeniedException, request.getRequestURI(), accessDeniedException   .getMessage());
 
-        ErrorResponse<?> errorResponse = ErrorResponse.builder()
+        ErrorResponse errorResponse = ErrorResponse.builder()
                 .errors(null)
                 .status(FORBIDDEN.getStatus().value())
                 .message(FORBIDDEN.getMessage())
