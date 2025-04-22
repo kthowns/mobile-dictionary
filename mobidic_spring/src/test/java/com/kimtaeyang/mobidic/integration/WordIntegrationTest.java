@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_WORD;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST_BODY;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -77,6 +78,15 @@ public class WordIntegrationTest {
                         .isNotEmpty())
                 .andExpect(jsonPath("$.data.expression")
                         .value(addWordRequest.getExpression()));
+
+        //Fail with duplicated word
+        mockMvc.perform(post("/api/word/" + vocabId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addWordRequest)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_WORD.getMessage()));
 
         //Fail without token
         mockMvc.perform(post("/api/word/" + vocabId)
@@ -273,6 +283,15 @@ public class WordIntegrationTest {
                         .isNotEmpty())
                 .andExpect(jsonPath("$.data.expression")
                         .value(addWordRequest.getExpression()));
+
+        //Fail with duplicated word
+        mockMvc.perform(patch("/api/word/" + wordId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addWordRequest)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_WORD.getMessage()));
 
         //Fail without token
         mockMvc.perform(patch("/api/word/" + vocabId)
