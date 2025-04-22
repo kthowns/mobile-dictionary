@@ -24,7 +24,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -137,9 +136,7 @@ class AuthServiceTest {
                 .thenThrow(BadCredentialsException.class);
 
         //when
-        Throwable e = assertThrows(Exception.class, () -> {
-            authService.login(request);
-        });
+        Throwable e = assertThrows(Exception.class, () -> authService.login(request));
 
         // then
         assertEquals(e.getMessage(), e.getMessage());
