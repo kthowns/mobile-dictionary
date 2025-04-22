@@ -38,8 +38,12 @@ public class VocabService {
     ) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
-        vocabRepository.findByTitle(request.getTitle())
-                .ifPresent((v) -> { throw new ApiException(DUPLICATED_TITLE); });
+
+        int count = vocabRepository.countByTitleAndMember(request.getTitle(), member);
+
+        if (count > 0) {
+            throw new ApiException(DUPLICATED_TITLE);
+        }
 
         Vocab vocab = Vocab.builder()
                 .title(request.getTitle())
@@ -76,6 +80,12 @@ public class VocabService {
             UUID vocabId, UpdateVocabDto.Request request) {
         Vocab vocab = vocabRepository.findById(vocabId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
+
+        long count = vocabRepository.countByTitleAndMemberAndIdNot(request.getTitle(), vocab.getMember(), vocabId);
+
+        if (count > 0) {
+            throw new ApiException(DUPLICATED_TITLE);
+        }
 
         vocab.setTitle(request.getTitle());
         vocab.setDescription(request.getDescription());

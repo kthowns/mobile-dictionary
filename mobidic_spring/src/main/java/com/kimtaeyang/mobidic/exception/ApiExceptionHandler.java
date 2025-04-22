@@ -3,6 +3,7 @@ package com.kimtaeyang.mobidic.exception;
 import com.kimtaeyang.mobidic.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -37,6 +38,16 @@ public class ApiExceptionHandler {
         }
 
         return ErrorResponse.toResponseEntity(INVALID_REQUEST_BODY, errors);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> dataIntegrityViolationException(
+            final DataIntegrityViolationException e, final HttpServletRequest request
+    ) {
+        log.error("errorCode : {}, uri : {}, message : {}",
+                e, request.getRequestURI(), e.getMessage());
+
+        return ErrorResponse.toResponseEntity(INTERNAL_SERVER_ERROR, null);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

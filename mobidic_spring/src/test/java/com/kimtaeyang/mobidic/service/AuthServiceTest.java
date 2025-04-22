@@ -29,6 +29,7 @@ import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
@@ -73,6 +74,10 @@ class AuthServiceTest {
                 .build();
 
         // mocking
+        Mockito.when(memberRepository.countByNickname(anyString()))
+                .thenReturn(0);
+        Mockito.when(memberRepository.countByEmail(anyString()))
+                .thenReturn(0);
         Mockito.when(memberRepository.save(Mockito.any(Member.class)))
                 .thenReturn(memberToReturn);
 
@@ -131,9 +136,7 @@ class AuthServiceTest {
                 .thenThrow(BadCredentialsException.class);
 
         //when
-        Throwable e = assertThrows(Exception.class, () -> {
-            authService.login(request);
-        });
+        Throwable e = assertThrows(Exception.class, () -> authService.login(request));
 
         // then
         assertEquals(e.getMessage(), e.getMessage());

@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_WORD;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST_BODY;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -77,6 +78,15 @@ public class WordIntegrationTest {
                         .isNotEmpty())
                 .andExpect(jsonPath("$.data.expression")
                         .value(addWordRequest.getExpression()));
+
+        //Fail with duplicated word
+        mockMvc.perform(post("/api/word/" + vocabId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addWordRequest)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_WORD.getMessage()));
 
         //Fail without token
         mockMvc.perform(post("/api/word/" + vocabId)
@@ -251,6 +261,9 @@ public class WordIntegrationTest {
         AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
                 .expression("test1")
                 .build();
+        AddWordDto.Request addWordRequest2 = AddWordDto.Request.builder()
+                .expression("test2")
+                .build();
 
         MvcResult addWordResult = mockMvc.perform(post("/api/word/" + vocabId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -258,12 +271,19 @@ public class WordIntegrationTest {
                         .content(objectMapper.writeValueAsString(addWordRequest)))
                 .andExpect(status().isOk())
                 .andReturn();
+        MvcResult addWordResult2 = mockMvc.perform(post("/api/word/" + vocabId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addWordRequest2)))
+                .andExpect(status().isOk())
+                .andReturn();
 
         String json = addWordResult.getResponse().getContentAsString();
         String wordId = objectMapper.readTree(json).path("data").path("id").asText();
+        json = addWordResult2.getResponse().getContentAsString();
+        String wordId2 = objectMapper.readTree(json).path("data").path("id").asText();
 
         //Success
-        addWordRequest.setExpression("testtest2");
         mockMvc.perform(patch("/api/word/" + wordId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
@@ -273,6 +293,15 @@ public class WordIntegrationTest {
                         .isNotEmpty())
                 .andExpect(jsonPath("$.data.expression")
                         .value(addWordRequest.getExpression()));
+
+        //Fail with duplicated word
+        mockMvc.perform(patch("/api/word/" + wordId2)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addWordRequest)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_WORD.getMessage()));
 
         //Fail without token
         mockMvc.perform(patch("/api/word/" + vocabId)

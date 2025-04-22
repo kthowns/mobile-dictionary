@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_DEFINITION;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST_BODY;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -78,6 +79,15 @@ public class DefIntegrationTest {
                         .value(addDefRequest.getDefinition()))
                 .andExpect(jsonPath("$.data.part")
                         .value(addDefRequest.getPart().toString()));
+
+        //Fail with duplicated definition
+        mockMvc.perform(post("/api/def/" + wordId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addDefRequest)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_DEFINITION.getMessage()));
 
         //Fail without token
         mockMvc.perform(post("/api/def/" + wordId)
@@ -190,6 +200,10 @@ public class DefIntegrationTest {
                 .definition("definition")
                 .part(PartOfSpeech.NOUN)
                 .build();
+        AddDefDto.Request addDefRequest2 = AddDefDto.Request.builder()
+                .definition("definition2")
+                .part(PartOfSpeech.NOUN)
+                .build();
 
         MvcResult result = mockMvc.perform(post("/api/def/" + wordId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -197,12 +211,20 @@ public class DefIntegrationTest {
                         .content(objectMapper.writeValueAsString(addDefRequest)))
                 .andExpect(status().isOk())
                 .andReturn();
+        MvcResult result2 = mockMvc.perform(post("/api/def/" + wordId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addDefRequest2)))
+                .andExpect(status().isOk())
+                .andReturn();
 
         String json = result.getResponse().getContentAsString();
         String defId = objectMapper.readTree(json).path("data").path("id").asText();
+        json = result2.getResponse().getContentAsString();
+        String defId2 = objectMapper.readTree(json).path("data").path("id").asText();
 
         //Success
-        addDefRequest.setDefinition("updated");
+        addDefRequest.setPart(PartOfSpeech.VERB);
         mockMvc.perform(patch("/api/def/" + defId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
@@ -214,6 +236,28 @@ public class DefIntegrationTest {
                         .value(addDefRequest.getDefinition()))
                 .andExpect(jsonPath("$.data.part")
                         .value(addDefRequest.getPart().toString()));
+        addDefRequest.setPart(PartOfSpeech.VERB);
+
+        mockMvc.perform(patch("/api/def/" + defId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addDefRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id")
+                        .isNotEmpty())
+                .andExpect(jsonPath("$.data.definition")
+                        .value(addDefRequest.getDefinition()))
+                .andExpect(jsonPath("$.data.part")
+                        .value(addDefRequest.getPart().toString()));
+
+        //Fail with duplicated definition
+        mockMvc.perform(patch("/api/def/" + defId2)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addDefRequest)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_DEFINITION.getMessage()));
 
         //Fail without token
         mockMvc.perform(patch("/api/def/" + defId)

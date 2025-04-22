@@ -103,8 +103,8 @@ class MemberServiceTest {
         //given
         given(memberRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultMember));
-        given(memberRepository.findByNickname(anyString()))
-                .willReturn(Optional.empty());
+        given(memberRepository.countByNicknameAndIdNot(anyString(), any(UUID.class)))
+                .willReturn(0);
         given(memberRepository.save(any(Member.class)))
                 .willAnswer(invocation -> {
                     Member memberArg = invocation.getArgument(0);
