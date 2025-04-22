@@ -130,7 +130,7 @@ public class WordService {
     private Difficulty getDifficulty(Integer correct, Integer incorrect) {
         double diff = calcDifficultyRatio(correct, incorrect);
 
-        if (diff < 0.3) {
+        if(diff < 0.3){
             return Difficulty.EASY;
         } else if (diff > 0.7) {
             return Difficulty.HARD;
@@ -144,9 +144,10 @@ public class WordService {
             난이도 함수 : -0.04correct + 0.05incorrect + 0.5
         */
         double diff = (-0.04 * correct) + (0.05 * incorrect) + 0.5;
-        if (diff > 1) {
+        if (diff > 1){
             diff = 1;
-        } else if (diff < 0) {
+        }
+        else if (diff < 0){
             diff = 0;
         }
 
