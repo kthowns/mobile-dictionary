@@ -101,8 +101,11 @@ public class WordService {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
-        wordRepository.findByExpression(request.getExpression())
-                        .ifPresent((w) -> { throw new ApiException(DUPLICATED_WORD); });
+        long count = wordRepository.countByExpressionAndIdNot(request.getExpression(), wordId);
+
+        if(count > 0) {
+            throw new ApiException(DUPLICATED_WORD);
+        }
 
         word.setExpression(request.getExpression());
         wordRepository.save(word);

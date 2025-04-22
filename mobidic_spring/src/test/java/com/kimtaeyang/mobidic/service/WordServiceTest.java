@@ -67,6 +67,8 @@ class WordServiceTest {
                 .willReturn(Optional.of(Mockito.mock(Vocab.class)));
         given(wordRepository.findByExpression(anyString()))
                 .willReturn(Optional.empty());
+        given(wordRepository.countByExpressionAndIdNot(anyString(), any(UUID.class)))
+                .willReturn(0);
         given(wordRepository.save(any(Word.class)))
                 .willAnswer(invocation -> {
                     Word wordArg = invocation.getArgument(0);
