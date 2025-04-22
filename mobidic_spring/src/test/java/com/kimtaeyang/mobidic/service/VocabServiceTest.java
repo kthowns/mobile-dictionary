@@ -162,6 +162,8 @@ class VocabServiceTest {
                 .willReturn(Optional.of(defaultVocab));
         given(vocabRepository.findByTitle(anyString()))
                 .willReturn(Optional.empty());
+        given(vocabRepository.countByTitleAndIdNot(anyString(), any(UUID.class)))
+                .willReturn(0L);
         given(vocabRepository.save(any(Vocab.class)))
                 .willAnswer(invocation -> {
                    Vocab vocabArg = invocation.getArgument(0);
