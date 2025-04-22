@@ -49,8 +49,12 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
-        memberRepository.findByNickname(request.getNickname())
-                        .ifPresent((m) -> { throw new ApiException(DUPLICATED_NICKNAME); });
+        int count = memberRepository.countByNicknameAndIdNot(request.getNickname(), memberId);
+
+        System.out.println("SSOME : " + count);
+        if(count > 0) {
+            throw new ApiException(DUPLICATED_NICKNAME);
+        }
 
         member.setNickname(request.getNickname());
         member = memberRepository.save(member);

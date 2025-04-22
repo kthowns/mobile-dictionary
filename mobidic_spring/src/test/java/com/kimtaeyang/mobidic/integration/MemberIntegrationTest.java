@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_NICKNAME;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST_BODY;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -111,15 +112,28 @@ public class MemberIntegrationTest {
                 .nickname("test")
                 .password("testTest1")
                 .build();
+        JoinDto.Request joinRequest2 = JoinDto.Request.builder()
+                .email("test2@test.com")
+                .nickname("test2")
+                .password("testTest2")
+                .build();
 
         mockMvc.perform(post("/api/auth/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(joinRequest)))
                 .andExpect(status().isOk());
+        mockMvc.perform(post("/api/auth/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(joinRequest2)))
+                .andExpect(status().isOk());
 
         LoginDto.Request loginRequest = LoginDto.Request.builder()
                 .email(joinRequest.getEmail())
                 .password(joinRequest.getPassword())
+                .build();
+        LoginDto.Request loginRequest2 = LoginDto.Request.builder()
+                .email(joinRequest2.getEmail())
+                .password(joinRequest2.getPassword())
                 .build();
 
         MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
@@ -127,15 +141,34 @@ public class MemberIntegrationTest {
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
                 .andReturn();
+        MvcResult loginResult2 = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest2)))
+                .andExpect(status().isOk())
+                .andReturn();
 
         String json = loginResult.getResponse().getContentAsString();
         String token = objectMapper.readTree(json).get("data").asText();
         UUID memberId = jwtUtil.getIdFromToken(token);
 
+        json = loginResult2.getResponse().getContentAsString();
+        String token2 = objectMapper.readTree(json).get("data").asText();
+        UUID memberId2 = jwtUtil.getIdFromToken(token2);
+
         //Success
         UpdateNicknameDto.Request updateNicknameRequest = UpdateNicknameDto.Request.builder()
                 .nickname(joinRequest.getNickname() + "test")
                 .build();
+
+        mockMvc.perform(patch("/api/user/nckchn/" + memberId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(updateNicknameRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id")
+                        .value(memberId.toString()))
+                .andExpect(jsonPath("$.data.nickname")
+                        .value(updateNicknameRequest.getNickname()));
 
         mockMvc.perform(patch("/api/user/nckchn/" + memberId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -154,6 +187,15 @@ public class MemberIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.nickname")
                         .value(updateNicknameRequest.getNickname()));
+
+        //Fail with duplicated nickname
+        mockMvc.perform(patch("/api/user/nckchn/" + memberId2)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token2)
+                        .content(objectMapper.writeValueAsString(updateNicknameRequest)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_NICKNAME.getMessage()));
 
         //Fail without token
         mockMvc.perform(patch("/api/user/nckchn/" + memberId)

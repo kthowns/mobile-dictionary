@@ -75,10 +75,10 @@ class AuthServiceTest {
                 .build();
 
         // mocking
-        Mockito.when(memberRepository.findByNickname(anyString()))
-                .thenReturn(Optional.empty());
-        Mockito.when(memberRepository.findByEmail(anyString()))
-                .thenReturn(Optional.empty());
+        Mockito.when(memberRepository.countByNickname(anyString()))
+                .thenReturn(0);
+        Mockito.when(memberRepository.countByEmail(anyString()))
+                .thenReturn(0);
         Mockito.when(memberRepository.save(Mockito.any(Member.class)))
                 .thenReturn(memberToReturn);
 

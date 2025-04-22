@@ -48,15 +48,13 @@ public class AuthService {
 
     @Transactional
     public JoinDto.Response join(@Valid JoinDto.Request request) {
-        memberRepository.findByNickname(request.getNickname())
-                .ifPresent((m) -> {
-                    throw new ApiException(DUPLICATED_NICKNAME);
-                });
+        if(memberRepository.countByNickname(request.getNickname()) > 0){
+            throw new ApiException(DUPLICATED_NICKNAME);
+        }
 
-        memberRepository.findByEmail(request.getEmail())
-                .ifPresent((m) -> {
-                    throw new ApiException(DUPLICATED_EMAIL);
-                });
+        if(memberRepository.countByEmail(request.getEmail()) > 0){
+            throw new ApiException(DUPLICATED_EMAIL);
+        }
 
         Member member = Member.builder()
                 .email(request.getEmail())
