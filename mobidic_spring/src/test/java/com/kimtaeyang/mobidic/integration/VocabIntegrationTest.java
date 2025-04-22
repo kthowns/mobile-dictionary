@@ -297,7 +297,7 @@ public class VocabIntegrationTest {
         );
 
         UpdateVocabDto.Request updateVocabRequest = UpdateVocabDto.Request.builder()
-                .title("title3")
+                .title(addVocabRequest.getTitle())
                 .description("description3")
                 .build();
 
