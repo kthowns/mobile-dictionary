@@ -74,16 +74,21 @@ public class VocabIntegrationTest {
                         .content(objectMapper.writeValueAsString(addVocabRequest))
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath("$.data.title")
+                .andExpect(jsonPath("$.data.title")
                                 .value(addVocabRequest.getTitle()))
-                .andExpect(
-                        jsonPath("$.data.description")
+                .andExpect(jsonPath("$.data.description")
                                 .value(addVocabRequest.getDescription()))
-                .andExpect(
-                        jsonPath("$.data.id")
+                .andExpect(jsonPath("$.data.id")
                                 .isNotEmpty());
 
+        //Fail with duplicated title
+        mockMvc.perform(post("/api/vocab/" + memberId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addVocabRequest))
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                                .value(DUPLICATED_TITLE.getMessage()));
         //Fail without token
         mockMvc.perform(post("/api/vocab/" + memberId)
                         .contentType(MediaType.APPLICATION_JSON)
