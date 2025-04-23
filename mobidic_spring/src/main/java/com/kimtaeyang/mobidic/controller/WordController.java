@@ -1,14 +1,18 @@
 package com.kimtaeyang.mobidic.controller;
 
 import com.kimtaeyang.mobidic.dto.AddWordDto;
-import com.kimtaeyang.mobidic.dto.ApiResponse;
+import com.kimtaeyang.mobidic.dto.GeneralResponse;
+import com.kimtaeyang.mobidic.dto.WordDetailDto;
+import com.kimtaeyang.mobidic.dto.WordDto;
 import com.kimtaeyang.mobidic.service.WordService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.OK;
@@ -17,48 +21,49 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.OK;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/word")
+@Tag(name = "단어 관련 서비스", description = "단어장 별 단어 불러오기, 추가 등")
 public class WordController {
     private final WordService wordService;
 
     @PostMapping("/{vocabId}")
-    public ResponseEntity<?> addWord(
+    public ResponseEntity<GeneralResponse<AddWordDto.Response>> addWord(
             @PathVariable("vocabId") String vocabId,
             @RequestBody @Valid AddWordDto.Request request
     ) {
-        return ApiResponse.toResponseEntity(OK,
+        return GeneralResponse.toResponseEntity(OK,
                 wordService.addWord(UUID.fromString(vocabId), request));
     }
 
     @PatchMapping("/{wordId}")
-    public ResponseEntity<?> updateWord(
+    public ResponseEntity<GeneralResponse<AddWordDto.Response>> updateWord(
             @PathVariable("wordId") String wordId,
             @RequestBody @Valid AddWordDto.Request request
     ) {
-        return ApiResponse.toResponseEntity(OK,
+        return GeneralResponse.toResponseEntity(OK,
                 wordService.updateWord(UUID.fromString(wordId), request));
     }
 
     @DeleteMapping("/{wordId}")
-    public ResponseEntity<?> deleteWord(
+    public ResponseEntity<GeneralResponse<WordDto>> deleteWord(
             @PathVariable("wordId") String wordId
     ) {
-        return ApiResponse.toResponseEntity(OK,
+        return GeneralResponse.toResponseEntity(OK,
                 wordService.deleteWord(UUID.fromString(wordId)));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getWordsByVocabId(
+    public ResponseEntity<GeneralResponse<List<WordDetailDto>>> getWordsByVocabId(
             @RequestParam String vId
     ) {
-        return ApiResponse.toResponseEntity(OK,
+        return GeneralResponse.toResponseEntity(OK,
                 wordService.getWordsByVocabId(UUID.fromString(vId)));
     }
 
     @GetMapping("/detail")
-    public ResponseEntity<?> getWordDetail(
+    public ResponseEntity<GeneralResponse<WordDetailDto>> getWordDetail(
             @RequestParam String wId
     ){
-        return ApiResponse.toResponseEntity(OK,
+        return GeneralResponse.toResponseEntity(OK,
                 wordService.getWordDetail(UUID.fromString(wId)));
     }
 }

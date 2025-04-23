@@ -25,7 +25,7 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST_BO
 @RestControllerAdvice(annotations = RestController.class)
 public class ApiExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> methodArgumentNotValidException(
+    public ResponseEntity<ErrorResponse> methodArgumentNotValidException(
             final MethodArgumentNotValidException e, final HttpServletRequest request
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
@@ -41,7 +41,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> dataIntegrityViolationException(
+    public ResponseEntity<ErrorResponse> dataIntegrityViolationException(
             final DataIntegrityViolationException e, final HttpServletRequest request
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
@@ -51,7 +51,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<?> httpMessageNotReadableException(
+    public ResponseEntity<ErrorResponse> httpMessageNotReadableException(
             final HttpMessageNotReadableException e, final HttpServletRequest request
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
@@ -61,7 +61,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<?> badCredentials(
+    public ResponseEntity<ErrorResponse> badCredentials(
             BadCredentialsException e, HttpServletRequest request
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
@@ -70,7 +70,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<?> authorizationDenied(
+    public ResponseEntity<ErrorResponse> authorizationDenied(
             AuthorizationDeniedException e, HttpServletRequest request
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
@@ -79,7 +79,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<?> apiException(
+    public ResponseEntity<ErrorResponse> apiException(
             ApiException e, HttpServletRequest request
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
@@ -89,7 +89,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> exception(
+    public ResponseEntity<ErrorResponse> exception(
             Exception e, HttpServletRequest request
     ) {
         log.error("errorCode : {}, uri : {}, message : {}",
