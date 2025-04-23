@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.verify;
 })
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {MemberService.class, MemberServiceTest.TestConfig.class})
+@ActiveProfiles("dev")
 class MemberServiceTest {
     @Autowired
     private MemberService memberService;
