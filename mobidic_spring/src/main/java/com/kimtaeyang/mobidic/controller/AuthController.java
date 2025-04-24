@@ -6,6 +6,9 @@ import com.kimtaeyang.mobidic.dto.LoginDto;
 import com.kimtaeyang.mobidic.dto.LogoutDto;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import com.kimtaeyang.mobidic.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -27,6 +30,17 @@ import static com.kimtaeyang.mobidic.code.AuthResponseCode.*;
 public class AuthController {
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+
+    @Operation(
+            summary = "로그인",
+            description = "이메일과 비밀번호로 로그인",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "400", description = "유효하지 않은 Request Body"),
+                    @ApiResponse(responseCode = "401", description = "인증 실패"),
+                    @ApiResponse(responseCode = "500", description = "서버에 예기치 못한 오류 발생")
+            }
+    )
 
     @PostMapping("/login")
     public ResponseEntity<GeneralResponse<String>> login(@Valid @RequestBody LoginDto.Request request) {
