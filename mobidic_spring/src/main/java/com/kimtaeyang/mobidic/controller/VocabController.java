@@ -5,6 +5,8 @@ import com.kimtaeyang.mobidic.dto.GeneralResponse;
 import com.kimtaeyang.mobidic.dto.UpdateVocabDto;
 import com.kimtaeyang.mobidic.dto.VocabDto;
 import com.kimtaeyang.mobidic.service.VocabService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,11 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.OK;
 public class VocabController {
     private final VocabService vocabService;
 
+    @Operation(
+            summary = "단어장 추가",
+            description = "중복체크 있음",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @PostMapping("/{memberId}")
     public ResponseEntity<GeneralResponse<AddVocabDto.Response>> addVocab(
             @PathVariable String memberId,
@@ -34,6 +41,11 @@ public class VocabController {
                 vocabService.addVocab(UUID.fromString(memberId), request));
     }
 
+    @Operation(
+            summary = "단어장 조회",
+            description = "사용자 식별자를 통한 사용자의 모든 단어장 조회",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @GetMapping("/all")
     public ResponseEntity<GeneralResponse<List<VocabDto>>> getAllVocab(
            @RequestParam String uId
@@ -42,6 +54,11 @@ public class VocabController {
                 vocabService.getVocabsByMemberId(UUID.fromString(uId)));
     }
 
+    @Operation(
+            summary = "단어장 정보 조회",
+            description = "단어장 식별자를 통한 단어장 정보 조회",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @GetMapping("/detail")
     public ResponseEntity<GeneralResponse<VocabDto>> getVocabDetail(
             @RequestParam String vId
@@ -50,6 +67,11 @@ public class VocabController {
                 vocabService.getVocabById(UUID.fromString(vId)));
     }
 
+    @Operation(
+            summary = "단어장 정보 수정",
+            description = "단어장 정보 수정, 중복체크 있음",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @PatchMapping("/{vocabId}")
     public ResponseEntity<GeneralResponse<UpdateVocabDto.Response>> updateVocab(
             @PathVariable String vocabId,
@@ -59,6 +81,11 @@ public class VocabController {
                 vocabService.updateVocab(UUID.fromString(vocabId), request));
     }
 
+    @Operation(
+            summary = "단어장 삭제",
+            description = "완전 삭제",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @DeleteMapping("/{vocabId}")
     public ResponseEntity<GeneralResponse<VocabDto>> deleteVocab(
             @PathVariable String vocabId
