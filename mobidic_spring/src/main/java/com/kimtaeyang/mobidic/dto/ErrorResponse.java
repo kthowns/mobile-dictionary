@@ -18,7 +18,7 @@ public class ErrorResponse {
     private String message;
     private HashMap<String, String> errors;
 
-    public static ResponseEntity<?> toResponseEntity(ApiResponseCode responseCode, HashMap<String, String> errors) {
+    public static ResponseEntity<ErrorResponse> toResponseEntity(ApiResponseCode responseCode, HashMap<String, String> errors) {
         return ResponseEntity.status(responseCode.getStatus())
                 .body(ErrorResponse.fromData(
                         responseCode, errors));

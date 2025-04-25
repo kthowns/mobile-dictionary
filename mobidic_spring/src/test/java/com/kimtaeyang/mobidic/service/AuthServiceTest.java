@@ -20,6 +20,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -37,6 +38,7 @@ import static org.mockito.ArgumentMatchers.anyString;
         "jwt.exp=3600"
 })
 @ContextConfiguration(classes = {AuthService.class, AuthServiceTest.TestConfig.class})
+@ActiveProfiles("dev")
 class AuthServiceTest {
 
     @Autowired
