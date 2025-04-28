@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mobidic_flutter/Dictation.dart';
-import 'login_UI.dart';
-import 'join_UI.dart';
-import 'Find_id_pw.dart';
+import 'package:mobidic_flutter/login_UI.dart';
+
 import 'OX_Quiz.dart';
+import 'join_UI.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,7 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) =>  Fill_blank(),
+        '/': (context) =>  LoginPage(),
         '/signup': (context) => SignUpPage(),
         '/oxquiz': (context) => OxQuizPage(),
       },
