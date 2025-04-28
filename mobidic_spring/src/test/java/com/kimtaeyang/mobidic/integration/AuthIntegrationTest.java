@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.LOGIN_FAILED;
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
-import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST_BODY;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("dev")
 public class AuthIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
@@ -68,6 +70,26 @@ public class AuthIntegrationTest {
                 .andExpect(jsonPath("$.data.nickname")
                         .value("test"));
 
+        //Fail with duplicated Email
+        request.setNickname("test2");
+        mockMvc.perform(post("/api/auth/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_EMAIL.getMessage()));
+
+        //Fail with duplicated Nickname
+        request.setEmail("test2@test.com");
+        request.setNickname("test");
+        mockMvc.perform(post("/api/auth/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_NICKNAME.getMessage()));
+
+        //Email, nickname, password format fail
         request.setEmail("test@test");
         request.setNickname("1");
         request.setPassword("test");
@@ -77,7 +99,6 @@ public class AuthIntegrationTest {
         expectedErrors.put("nickname", "Invalid nickname pattern");
         expectedErrors.put("password", "Invalid password pattern");
 
-        //Email, nickname, password format fail
         mockMvc.perform(post("/api/auth/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

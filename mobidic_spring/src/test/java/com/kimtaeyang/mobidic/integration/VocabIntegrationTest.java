@@ -6,7 +6,6 @@ import com.kimtaeyang.mobidic.dto.JoinDto;
 import com.kimtaeyang.mobidic.dto.LoginDto;
 import com.kimtaeyang.mobidic.dto.UpdateVocabDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
-import com.kimtaeyang.mobidic.repository.VocabRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,12 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_TITLE;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST_BODY;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("dev")
 public class VocabIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
@@ -41,13 +43,9 @@ public class VocabIntegrationTest {
     @Autowired
     private MemberRepository memberRepository;
 
-    @Autowired
-    private VocabRepository vocabRepository;
-
     @AfterEach
     void tearDown() {
         memberRepository.deleteAll();
-        vocabRepository.deleteAll();
     }
 
     private final JoinDto.Request joinRequest = JoinDto.Request.builder()
@@ -78,16 +76,21 @@ public class VocabIntegrationTest {
                         .content(objectMapper.writeValueAsString(addVocabRequest))
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath("$.data.title")
+                .andExpect(jsonPath("$.data.title")
                                 .value(addVocabRequest.getTitle()))
-                .andExpect(
-                        jsonPath("$.data.description")
+                .andExpect(jsonPath("$.data.description")
                                 .value(addVocabRequest.getDescription()))
-                .andExpect(
-                        jsonPath("$.data.id")
+                .andExpect(jsonPath("$.data.id")
                                 .isNotEmpty());
 
+        //Fail with duplicated title
+        mockMvc.perform(post("/api/vocab/" + memberId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addVocabRequest))
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                                .value(DUPLICATED_TITLE.getMessage()));
         //Fail without token
         mockMvc.perform(post("/api/vocab/" + memberId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -120,7 +123,7 @@ public class VocabIntegrationTest {
         //Fail with invalid pattern
         addVocabRequest.setTitle(UUID.randomUUID().toString());
         addVocabRequest.setDescription(UUID.randomUUID().toString() + UUID.randomUUID());
-        mockMvc.perform(post("/api/vocab/" + UUID.randomUUID())
+        mockMvc.perform(post("/api/vocab/" + memberId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content(objectMapper.writeValueAsString(addVocabRequest)))
@@ -268,10 +271,20 @@ public class VocabIntegrationTest {
                 .title("title")
                 .description("description")
                 .build();
+        AddVocabDto.Request addVocabRequest2 = AddVocabDto.Request.builder()
+                .title("title2")
+                .description("description2")
+                .build();
 
         MvcResult addResult = mockMvc.perform(post("/api/vocab/" + memberId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addVocabRequest))
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn();
+        MvcResult addResult2 = mockMvc.perform(post("/api/vocab/" + memberId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addVocabRequest2))
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -280,11 +293,45 @@ public class VocabIntegrationTest {
         AddVocabDto.Response addVocabResponse = objectMapper.convertValue(
                 objectMapper.readTree(json).path("data"), AddVocabDto.Response.class
         );
+        json = addResult2.getResponse().getContentAsString();
+        AddVocabDto.Response addVocabResponse2 = objectMapper.convertValue(
+                objectMapper.readTree(json).path("data"), AddVocabDto.Response.class
+        );
 
         UpdateVocabDto.Request updateVocabRequest = UpdateVocabDto.Request.builder()
-                .title("title2")
-                .description("description2")
+                .title(addVocabRequest.getTitle())
+                .description("description3")
                 .build();
+
+        //Success
+        mockMvc.perform(patch("/api/vocab/" + addVocabResponse.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(updateVocabRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.title")
+                        .value(updateVocabRequest.getTitle()))
+                .andExpect(jsonPath("$.data.description")
+                        .value(updateVocabRequest.getDescription()));
+
+        mockMvc.perform(patch("/api/vocab/" + addVocabResponse.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(updateVocabRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.title")
+                        .value(updateVocabRequest.getTitle()))
+                .andExpect(jsonPath("$.data.description")
+                        .value(updateVocabRequest.getDescription()));
+
+        //Fail with duplicated title
+        mockMvc.perform(patch("/api/vocab/" + addVocabResponse2.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(updateVocabRequest)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(DUPLICATED_TITLE.getMessage()));
 
         //Fail without token
         mockMvc.perform(patch("/api/vocab/" + addVocabResponse.getId())
@@ -311,17 +358,6 @@ public class VocabIntegrationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message")
                         .value(UNAUTHORIZED.getMessage()));
-
-        //Success
-        mockMvc.perform(patch("/api/vocab/" + addVocabResponse.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content(objectMapper.writeValueAsString(updateVocabRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.title")
-                        .value(updateVocabRequest.getTitle()))
-                .andExpect(jsonPath("$.data.description")
-                        .value(updateVocabRequest.getDescription()));
 
         //Fail with invalid pattern
         updateVocabRequest.setTitle(UUID.randomUUID().toString());

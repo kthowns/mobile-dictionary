@@ -20,8 +20,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.DUPLICATED_NICKNAME;
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.NO_MEMBER;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_NICKNAME;
 
 @Service
 @Slf4j
@@ -49,8 +49,12 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
-        memberRepository.findByNickname(request.getNickname())
-                        .ifPresent((m) -> { throw new ApiException(DUPLICATED_NICKNAME); });
+        int count = memberRepository.countByNicknameAndIdNot(request.getNickname(), memberId);
+
+        System.out.println("SSOME : " + count);
+        if(count > 0) {
+            throw new ApiException(DUPLICATED_NICKNAME);
+        }
 
         member.setNickname(request.getNickname());
         member = memberRepository.save(member);

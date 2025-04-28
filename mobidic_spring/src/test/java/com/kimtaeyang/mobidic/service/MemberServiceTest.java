@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.verify;
 })
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {MemberService.class, MemberServiceTest.TestConfig.class})
+@ActiveProfiles("dev")
 class MemberServiceTest {
     @Autowired
     private MemberService memberService;
@@ -103,8 +105,8 @@ class MemberServiceTest {
         //given
         given(memberRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultMember));
-        given(memberRepository.findByNickname(anyString()))
-                .willReturn(Optional.empty());
+        given(memberRepository.countByNicknameAndIdNot(anyString(), any(UUID.class)))
+                .willReturn(0);
         given(memberRepository.save(any(Member.class)))
                 .willAnswer(invocation -> {
                     Member memberArg = invocation.getArgument(0);

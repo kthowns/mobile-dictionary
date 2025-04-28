@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {VocabService.class, VocabServiceTest.TestConfig.class})
+@ActiveProfiles("dev")
 class VocabServiceTest {
     @Autowired
     private VocabRepository vocabRepository;
@@ -57,8 +59,8 @@ class VocabServiceTest {
         //given
         given(memberRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(Mockito.mock(Member.class)));
-        given(vocabRepository.findByTitle(anyString()))
-                .willReturn(Optional.empty());
+        given(vocabRepository.countByTitleAndMember(anyString(), any(Member.class)))
+                .willReturn(0);
         given(vocabRepository.save(any(Vocab.class)))
                 .willAnswer(invocation -> {
                     Vocab vocabArg = invocation.getArgument(0);
@@ -160,8 +162,8 @@ class VocabServiceTest {
         //given
         given(vocabRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultVocab));
-        given(vocabRepository.findByTitle(anyString()))
-                .willReturn(Optional.empty());
+        given(vocabRepository.countByTitleAndMemberAndIdNot(anyString(), any(Member.class), any(UUID.class)))
+                .willReturn(0);
         given(vocabRepository.save(any(Vocab.class)))
                 .willAnswer(invocation -> {
                    Vocab vocabArg = invocation.getArgument(0);

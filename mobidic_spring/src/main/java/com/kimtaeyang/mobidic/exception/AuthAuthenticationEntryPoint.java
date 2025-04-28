@@ -29,7 +29,7 @@ public class AuthAuthenticationEntryPoint implements AuthenticationEntryPoint {
         log.error("errorCode : {}, uri : {}, message : {}",
                 authException, request.getRequestURI(), authException.getMessage());
 
-        ErrorResponse<?> errorResponse = ErrorResponse.builder()
+        ErrorResponse errorResponse = ErrorResponse.builder()
                 .errors(null)
                 .status(UNAUTHORIZED.getStatus().value())
                 .message(UNAUTHORIZED.getMessage())

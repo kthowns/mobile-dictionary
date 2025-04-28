@@ -38,10 +38,13 @@ public class WordService {
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
     public AddWordDto.Response addWord(UUID vocabId, AddWordDto.Request request) {
         Vocab vocab = vocabRepository.findById(vocabId)
-                        .orElseThrow(() -> new ApiException(NO_VOCAB));
+                .orElseThrow(() -> new ApiException(NO_VOCAB));
 
-        wordRepository.findByExpression(request.getExpression())
-                .ifPresent((w) -> { throw new ApiException(DUPLICATED_WORD); });
+        int count = wordRepository.countByExpressionAndVocab(request.getExpression(), vocab);
+
+        if (count > 0) {
+            throw new ApiException(DUPLICATED_WORD);
+        }
 
         Word word = Word.builder()
                 .expression(request.getExpression())
@@ -80,7 +83,7 @@ public class WordService {
     }
 
     @Transactional(readOnly = true)
-    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#wId)")
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wId)")
     public WordDetailDto getWordDetail(UUID wId) {
         Word word = wordRepository.findById(wId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
@@ -101,8 +104,11 @@ public class WordService {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
-        wordRepository.findByExpression(request.getExpression())
-                        .ifPresent((w) -> { throw new ApiException(DUPLICATED_WORD); });
+        long count = wordRepository.countByExpressionAndVocabAndIdNot(request.getExpression(), word.getVocab(), wordId);
+
+        if (count > 0) {
+            throw new ApiException(DUPLICATED_WORD);
+        }
 
         word.setExpression(request.getExpression());
         wordRepository.save(word);
@@ -111,7 +117,7 @@ public class WordService {
     }
 
     @Transactional
-    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#wordId)")
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
     public WordDto deleteWord(UUID wordId) {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));

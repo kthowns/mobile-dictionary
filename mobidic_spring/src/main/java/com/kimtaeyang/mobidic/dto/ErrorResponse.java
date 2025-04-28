@@ -7,22 +7,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
+import java.util.HashMap;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ErrorResponse<T> {
+public class ErrorResponse {
     private Integer status;
     private String message;
-    private T errors;
+    private HashMap<String, String> errors;
 
-    public static <T> ResponseEntity<?> toResponseEntity(ApiResponseCode responseCode, T errors) {
+    public static ResponseEntity<ErrorResponse> toResponseEntity(ApiResponseCode responseCode, HashMap<String, String> errors) {
         return ResponseEntity.status(responseCode.getStatus())
                 .body(ErrorResponse.fromData(
                         responseCode, errors));
     }
 
-    private static <T> ErrorResponse<?> fromData(ApiResponseCode responseCode, T errors) {
+    private static ErrorResponse fromData(ApiResponseCode responseCode, HashMap<String, String> errors) {
         return ErrorResponse.builder()
                 .errors(errors)
                 .message(responseCode.getMessage())
