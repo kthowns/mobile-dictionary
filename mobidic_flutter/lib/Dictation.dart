@@ -51,7 +51,7 @@ class DictationPage extends StatelessWidget {
               margin: EdgeInsets.symmetric(horizontal: 32),
               padding: EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
