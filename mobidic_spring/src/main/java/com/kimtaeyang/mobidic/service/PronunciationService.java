@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.NO_WORD;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.TOO_BIG_FILE_SIZE;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +25,11 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.NO_WORD;
 public class PronunciationService {
     private final WordRepository wordRepository;
 
-    @PreAuthorize("#wordAccessHandler.ownershipCheck(wordId)")
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
     public double ratePronunciation(UUID wordId, MultipartFile record) {
+        if(record.getSize() > 1024 * 100) {
+            throw new ApiException(TOO_BIG_FILE_SIZE);
+        }
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
@@ -44,7 +48,6 @@ public class PronunciationService {
                     String r = s.get("result").toString();
                     r = r.toLowerCase().trim();
                     r = r.substring(0, r.length() - 1);
-                    log.info("\"{}\"", r);
                     return r;
                 })
                 .block();
