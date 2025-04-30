@@ -46,21 +46,12 @@ public class RateIntegrationTest {
         memberRepository.deleteAll();
     }
 
-    private final JoinDto.Request joinRequest = JoinDto.Request.builder()
-            .email("test@test.com")
-            .nickname("test")
-            .password("testTest1")
-            .build();
-
-    private final LoginDto.Request loginRequest = LoginDto.Request.builder()
-            .email(joinRequest.getEmail())
-            .password(joinRequest.getPassword())
-            .build();
-
     @Test
     @DisplayName("[Rate][Integration] Get rate by word id test")
     void getRateByWordIdTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetId(memberId, token);
         UUID wordId = addWordAndGetId(vocabId, token);
@@ -110,7 +101,9 @@ public class RateIntegrationTest {
     @Test
     @DisplayName("[Rate][Integration] Get vocab learning rate test")
     void getVocabLearningRateTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetId(memberId, token);
         UUID wordId = addWordAndGetId(vocabId, token);
@@ -154,7 +147,9 @@ public class RateIntegrationTest {
     @Test
     @DisplayName("[Vocab][Integration] Toggle rate by word id test")
     void toggleRateByWordIdTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetId(memberId, token);
         UUID wordId = addWordAndGetId(vocabId, token);
@@ -247,7 +242,18 @@ public class RateIntegrationTest {
         return UUID.fromString(wordId);
     }
 
-    private String loginAndGetToken() throws Exception {
+    private String loginAndGetToken(String email, String nickname) throws Exception {
+        JoinDto.Request joinRequest = JoinDto.Request.builder()
+                .email(email)
+                .nickname(nickname)
+                .password("testTest1")
+                .build();
+
+        LoginDto.Request loginRequest = LoginDto.Request.builder()
+                .email(joinRequest.getEmail())
+                .password(joinRequest.getPassword())
+                .build();
+
         mockMvc.perform(post("/api/auth/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(joinRequest)))
@@ -260,7 +266,7 @@ public class RateIntegrationTest {
                 .andReturn();
 
         String json = loginResult.getResponse().getContentAsString();
-        return objectMapper.readTree(json).get("data").asText();
+        return objectMapper.readTree(json).path("data").path("token").asText();
     }
 }
 // Resource api integration test convention

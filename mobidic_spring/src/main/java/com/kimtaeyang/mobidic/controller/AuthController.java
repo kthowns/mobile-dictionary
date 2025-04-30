@@ -1,12 +1,13 @@
 package com.kimtaeyang.mobidic.controller;
 
-import com.kimtaeyang.mobidic.dto.GeneralResponse;
-import com.kimtaeyang.mobidic.dto.JoinDto;
-import com.kimtaeyang.mobidic.dto.LoginDto;
-import com.kimtaeyang.mobidic.dto.LogoutDto;
+import com.kimtaeyang.mobidic.dto.*;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import com.kimtaeyang.mobidic.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,8 +35,17 @@ public class AuthController {
             summary = "로그인",
             description = "이메일과 비밀번호로 로그인"
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/login")
-    public ResponseEntity<GeneralResponse<String>> login(@Valid @RequestBody LoginDto.Request request) {
+    public ResponseEntity<GeneralResponse<LoginDto.Response>> login(@Valid @RequestBody LoginDto.Request request) {
         return GeneralResponse.toResponseEntity(LOGIN_OK, authService.login(request));
     }
 
@@ -43,6 +53,19 @@ public class AuthController {
             summary = "회원가입",
             description = "회원가입"
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "중복된 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/join")
     public ResponseEntity<GeneralResponse<JoinDto.Response>> join(@Valid @RequestBody JoinDto.Request request) {
         return GeneralResponse.toResponseEntity(JOIN_OK, authService.join(request));
@@ -53,6 +76,17 @@ public class AuthController {
             description = "토큰 정보 만으로 로그아웃",
             security = @SecurityRequirement(name = "bearerAuth")
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/logout")
     public ResponseEntity<GeneralResponse<LogoutDto.Response>> logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);

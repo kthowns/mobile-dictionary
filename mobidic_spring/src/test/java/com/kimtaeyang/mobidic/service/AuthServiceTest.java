@@ -116,7 +116,7 @@ class AuthServiceTest {
                 .thenReturn(principal);
 
         // when
-        String token = authService.login(request);
+        String token = authService.login(request).getToken();
 
         // then
         assertEquals(principal.getId(), jwtUtil.getIdFromToken(token));
