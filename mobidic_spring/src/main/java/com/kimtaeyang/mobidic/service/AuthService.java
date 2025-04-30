@@ -36,14 +36,17 @@ public class AuthService {
     private final JwtBlacklistService jwtBlacklistService;
 
     @Transactional(readOnly = true)
-    public String login(LoginDto.Request request) {
+    public LoginDto.Response login(LoginDto.Request request) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        Member claim = (Member) auth.getPrincipal();
+        Member member = (Member) auth.getPrincipal();
 
-        return jwtUtil.generateToken(claim.getId());
+        return LoginDto.Response.builder()
+                .memberId(member.getId().toString())
+                .token(jwtUtil.generateToken(member.getId()))
+                .build();
     }
 
     @Transactional
