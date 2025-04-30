@@ -45,7 +45,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/login")
-    public ResponseEntity<GeneralResponse<String>> login(@Valid @RequestBody LoginDto.Request request) {
+    public ResponseEntity<GeneralResponse<LoginDto.Response>> login(@Valid @RequestBody LoginDto.Request request) {
         return GeneralResponse.toResponseEntity(LOGIN_OK, authService.login(request));
     }
 
