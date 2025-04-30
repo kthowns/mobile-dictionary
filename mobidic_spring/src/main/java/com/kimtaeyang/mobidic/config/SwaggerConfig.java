@@ -38,6 +38,6 @@ public class SwaggerConfig {
         return new Info()
                 .title("Mobidic Swagger")
                 .description("모든 REST API")
-                .version("1.0.0");
+                .version("1.1.0");
     }
 }
