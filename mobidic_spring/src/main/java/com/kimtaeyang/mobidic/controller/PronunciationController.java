@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -27,6 +28,7 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.OK;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/pron")
+@Tag(name = "발음 체크 관련 서비스", description = "발음 점수 체크 등")
 public class PronunciationController {
     private final PronunciationService pronunciationService;
 
@@ -42,6 +44,8 @@ public class PronunciationController {
             @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "413", description = "너무 큰 파일 용량",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
