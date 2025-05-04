@@ -132,9 +132,9 @@ misc.xml
 # .idea/compiler.xml
 # .idea/jarRepositories.xml
 # .idea/modules.xml
-# .idea/*.iml
+.idea/*.iml
 # .idea/modules
-# *.iml
+*.iml
 # *.ipr
 
 # CMake
@@ -178,6 +178,7 @@ fabric.properties
 # that are supposed to be shared within teams.
 
 .idea/*
+.idea
 
 !.idea/codeStyles
 !.idea/runConfigurations
