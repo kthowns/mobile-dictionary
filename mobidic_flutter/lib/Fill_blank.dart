@@ -7,7 +7,7 @@ class FillBlankPage extends StatefulWidget {
   State<FillBlankPage> createState() => _FillBlankPageState();
 }
 
-class _FillBlankPageState extends State<FillBlankPage> {
+class _FillBlankPageState extends State<FillBlankPage> {    //리스트
   final List<Map<String, dynamic>> quizList = [
     {
       'word': 'apple',
