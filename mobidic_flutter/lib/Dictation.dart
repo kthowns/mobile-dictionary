@@ -7,7 +7,7 @@ class DictationQuizPage extends StatefulWidget {
   State<DictationQuizPage> createState() => _DictationQuizPageState();
 }
 
-class _DictationQuizPageState extends State<DictationQuizPage> {
+class _DictationQuizPageState extends State<DictationQuizPage> { //빈칸채우기
   final TextEditingController _controller = TextEditingController();
 
   void _checkAnswer() {
