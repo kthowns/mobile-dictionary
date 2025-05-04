@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'Log_in_page.dart';
-import 'Sign_up_page.dart';
-import 'find_id_page.dart';
-import 'find_pw_page.dart';
-import 'account_find_home.dart'; // 계정 찾기 선택 화면
-import 'ox_quiz.dart';
-import 'fill_blank.dart';
-import 'dictation.dart';
+
+import 'OX_Quiz.dart';
+import 'MainPage.dart';
+import 'list.dart';
 
 void main() => runApp(const MyApp());
 
@@ -20,8 +16,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/', // 앱 실행 시 LoginPage부터 시작
       routes: {
-        '/': (context) => LoginPage(),
-        '/signup': (context) => SignUpPage(),
+        '/': (context) => VocabularyScreen(),
         '/find': (context) => const AccountFindHome(),
         '/find/id': (context) => const FindIdPage(),
         '/find/pw': (context) => const FindPwPage(),
