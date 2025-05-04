@@ -1,110 +1,110 @@
 import 'package:flutter/material.dart';
 
-class OxQuizPage extends StatelessWidget {
+class OXQuizPage extends StatefulWidget {
+  const OXQuizPage({super.key}); // 라우터용 const 생성자
+
+  @override
+  State<OXQuizPage> createState() => _OXQuizPageState();
+}
+
+class _OXQuizPageState extends State<OXQuizPage> {
+  final List<Map<String, dynamic>> quizList = [
+    {'word': 'Apple', 'meaning': '사과', 'isCorrect': true},
+    {'word': 'Dog', 'meaning': '고양이', 'isCorrect': false},
+    {'word': 'Car', 'meaning': '자동차', 'isCorrect': true},
+  ];
+
+  int currentIndex = 0;
+
+  void _checkAnswer(bool userAnswer) {
+    bool correctAnswer = quizList[currentIndex]['isCorrect'];
+
+    if (userAnswer == correctAnswer) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("정답입니다!! 🎉"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() {
+                  if (currentIndex < quizList.length - 1) {
+                    currentIndex++;
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("퀴즈 완료!")),
+                    );
+                  }
+                });
+              },
+              child: const Text("다음 문제"),
+            )
+          ],
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("다시 생각해보세요 ㅠ"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("확인"),
+            )
+          ],
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currentQuiz = quizList[currentIndex];
+
     return Scaffold(
-      backgroundColor: Colors.lightBlue.shade100, // 배경 파란색
-      body: SafeArea(
+      appBar: AppBar(
+        title: const Text('O X 퀴즈'),
+        centerTitle: true,
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 20),
             Text(
-              'O,X Quiz',
-              style: TextStyle(
-                fontSize: 28,
-                fontFamily: 'Baloo2',
-                fontWeight: FontWeight.bold,
-              ),
+              currentQuiz['word'],
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.pop(context); // 뒤로가기
-                    },
-                  ),
-                  Text(
-                    'O,X Quiz',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontFamily: 'MPlusRounded1c',
-                    ),
-                  ),
-                  Spacer(),
-                  IconButton(
-                    icon: Icon(Icons.home),
-                    onPressed: () {
-                      // 홈 이동 기능 나중에 추가
-                    },
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 60),
+            const SizedBox(height: 12),
             Text(
-              'Apple',
-              style: TextStyle(
-                fontSize: 32,
-                fontFamily: 'MPlusRounded1c',
-                fontWeight: FontWeight.bold,
-              ),
+              currentQuiz['meaning'],
+              style: const TextStyle(fontSize: 24, color: Colors.grey),
             ),
-            SizedBox(height: 60),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 32),
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // '사과' 버튼 기능 (나중에 추가)
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+            const SizedBox(height: 60),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () => _checkAnswer(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: const Text('O', style: TextStyle(fontSize: 24)),
                 ),
-                child: Text(
-                  '사과',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.black,
-                    fontFamily: 'MPlusRounded1c',
+                ElevatedButton(
+                  onPressed: () => _checkAnswer(false),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                   ),
+                  child: const Text('X', style: TextStyle(fontSize: 24)),
                 ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 32),
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // '배' 버튼 기능 (나중에 추가)
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: Text(
-                  '배',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.black,
-                    fontFamily: 'MPlusRounded1c',
-                  ),
-                ),
-              ),
-            ),
+              ],
+            )
           ],
         ),
       ),
