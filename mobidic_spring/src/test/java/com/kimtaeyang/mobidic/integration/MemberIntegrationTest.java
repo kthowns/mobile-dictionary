@@ -47,22 +47,13 @@ public class MemberIntegrationTest {
     void tearDown() {
         memberRepository.deleteAll();
     }
-
-    private final JoinDto.Request joinRequest = JoinDto.Request.builder()
-            .email("test@test.com")
-            .nickname("test")
-            .password("testTest1")
-            .build();
-
-    private final LoginDto.Request loginRequest = LoginDto.Request.builder()
-            .email(joinRequest.getEmail())
-            .password(joinRequest.getPassword())
-            .build();
-
+    
     @Test
     @DisplayName("[Member][Integration] Get member detail")
     void getMemberDetailTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
 
         //Success
@@ -74,9 +65,9 @@ public class MemberIntegrationTest {
                 .andExpect(jsonPath("$.data.id")
                         .value(memberId.toString()))
                 .andExpect(jsonPath("$.data.email")
-                        .value(joinRequest.getEmail()))
+                        .value(email))
                 .andExpect(jsonPath("$.data.nickname")
-                        .value(joinRequest.getNickname()))
+                        .value(nickname))
                 .andExpect(jsonPath("$.data.createdAt")
                         .isNotEmpty());
 
@@ -109,57 +100,19 @@ public class MemberIntegrationTest {
     @Test
     @DisplayName("[Member][Integration] Update member nickname")
     void updateMemberNicknameTest() throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
-                .email("test@test.com")
-                .nickname("test")
-                .password("testTest1")
-                .build();
-        JoinDto.Request joinRequest2 = JoinDto.Request.builder()
-                .email("test2@test.com")
-                .nickname("test2")
-                .password("testTest2")
-                .build();
-
-        mockMvc.perform(post("/api/auth/join")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(joinRequest)))
-                .andExpect(status().isOk());
-        mockMvc.perform(post("/api/auth/join")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(joinRequest2)))
-                .andExpect(status().isOk());
-
-        LoginDto.Request loginRequest = LoginDto.Request.builder()
-                .email(joinRequest.getEmail())
-                .password(joinRequest.getPassword())
-                .build();
-        LoginDto.Request loginRequest2 = LoginDto.Request.builder()
-                .email(joinRequest2.getEmail())
-                .password(joinRequest2.getPassword())
-                .build();
-
-        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andReturn();
-        MvcResult loginResult2 = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest2)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String json = loginResult.getResponse().getContentAsString();
-        String token = objectMapper.readTree(json).get("data").asText();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
 
-        json = loginResult2.getResponse().getContentAsString();
-        String token2 = objectMapper.readTree(json).get("data").asText();
+        String email2 = "test2@test.com";
+        String nickname2 = "test2";
+        String token2 = loginAndGetToken(email2, nickname2);
         UUID memberId2 = jwtUtil.getIdFromToken(token2);
 
         //Success
         UpdateNicknameDto.Request updateNicknameRequest = UpdateNicknameDto.Request.builder()
-                .nickname(joinRequest.getNickname() + "test")
+                .nickname(nickname + "test")
                 .build();
 
         mockMvc.perform(patch("/api/user/nckchn/" + memberId)
@@ -226,7 +179,7 @@ public class MemberIntegrationTest {
                         .value(UNAUTHORIZED.getMessage()));
 
         //Fail with invalid nickname pattern
-        updateNicknameRequest.setNickname(joinRequest.getNickname() + "testqweqweqqq");
+        updateNicknameRequest.setNickname(nickname + "testqweqweqqq");
         mockMvc.perform(patch("/api/user/nckchn/" + memberId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
@@ -242,7 +195,9 @@ public class MemberIntegrationTest {
     @Test
     @DisplayName("[Member][Integration] Update member password")
     void updateMemberPasswordTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
 
         UpdatePasswordDto.Request updatePasswordRequest = UpdatePasswordDto.Request.builder()
@@ -305,7 +260,18 @@ public class MemberIntegrationTest {
                         .value(UNAUTHORIZED.getMessage()));
     }
 
-    private String loginAndGetToken() throws Exception {
+    private String loginAndGetToken(String email, String nickname) throws Exception {
+        JoinDto.Request joinRequest = JoinDto.Request.builder()
+                .email(email)
+                .nickname(nickname)
+                .password("testTest1")
+                .build();
+
+        LoginDto.Request loginRequest = LoginDto.Request.builder()
+                .email(joinRequest.getEmail())
+                .password(joinRequest.getPassword())
+                .build();
+
         mockMvc.perform(post("/api/auth/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(joinRequest)))
@@ -318,7 +284,7 @@ public class MemberIntegrationTest {
                 .andReturn();
 
         String json = loginResult.getResponse().getContentAsString();
-        return objectMapper.readTree(json).get("data").asText();
+        return objectMapper.readTree(json).path("data").path("token").asText();
     }
 }
 // Resource api integration test convention

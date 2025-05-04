@@ -48,21 +48,12 @@ public class WordIntegrationTest {
         memberRepository.deleteAll();
     }
 
-    private final JoinDto.Request joinRequest = JoinDto.Request.builder()
-            .email("test@test.com")
-            .nickname("test")
-            .password("testTest1")
-            .build();
-
-    private final LoginDto.Request loginRequest = LoginDto.Request.builder()
-            .email(joinRequest.getEmail())
-            .password(joinRequest.getPassword())
-            .build();
-
     @Test
     @DisplayName("[Word][Integration] Add word test")
     void addWordTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
@@ -134,7 +125,9 @@ public class WordIntegrationTest {
     @Test
     @DisplayName("[Word][Integration] Get word by vocab id test")
     void getWordByVocabTestId() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
@@ -193,7 +186,9 @@ public class WordIntegrationTest {
     @Test
     @DisplayName("[Word][Integration] Get word detail Test")
     void getWordDetailTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
@@ -256,7 +251,9 @@ public class WordIntegrationTest {
     @Test
     @DisplayName("[Word][Integration] Update word test")
     void updateWordTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
@@ -349,7 +346,9 @@ public class WordIntegrationTest {
     @Test
     @DisplayName("[Word][Integration] Delete word test")
     void deleteWordTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
@@ -421,7 +420,18 @@ public class WordIntegrationTest {
         return UUID.fromString(vocabId);
     }
 
-    private String loginAndGetToken() throws Exception {
+    private String loginAndGetToken(String email, String nickname) throws Exception {
+        JoinDto.Request joinRequest = JoinDto.Request.builder()
+                .email(email)
+                .nickname(nickname)
+                .password("testTest1")
+                .build();
+
+        LoginDto.Request loginRequest = LoginDto.Request.builder()
+                .email(joinRequest.getEmail())
+                .password(joinRequest.getPassword())
+                .build();
+
         mockMvc.perform(post("/api/auth/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(joinRequest)))
@@ -434,7 +444,7 @@ public class WordIntegrationTest {
                 .andReturn();
 
         String json = loginResult.getResponse().getContentAsString();
-        return objectMapper.readTree(json).get("data").asText();
+        return objectMapper.readTree(json).path("data").path("token").asText();
     }
 }
 // Resource api integration test convention

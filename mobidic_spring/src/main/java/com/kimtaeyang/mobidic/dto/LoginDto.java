@@ -24,6 +24,7 @@ public class LoginDto {
     @NoArgsConstructor
     @Builder
     public static class Response{
+        private String memberId;
         private String token;
     }
 }

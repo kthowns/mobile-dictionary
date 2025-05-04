@@ -137,7 +137,7 @@ public class AuthIntegrationTest {
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        String token = objectMapper.readTree(json).path("data").asText();
+        String token = objectMapper.readTree(json).path("data").path("token").asText();
 
         assertThat(jwtUtil.validateToken(token));
 
@@ -199,7 +199,7 @@ public class AuthIntegrationTest {
 
         //Logout success
         String loginJson = loginResult.getResponse().getContentAsString();
-        String token = objectMapper.readTree(loginJson).path("data").asText();
+        String token = objectMapper.readTree(loginJson).path("data").path("token").asText();
 
         UUID memberId = jwtUtil.getIdFromToken(token);
 
@@ -222,10 +222,43 @@ public class AuthIntegrationTest {
     @Test
     @DisplayName("[Auth][Integration] Withdraw test")
     public void withdrawTest() throws Exception {
+        String email = "test@test.com";
+        String nickname = "test";
+
+        String token = loginAndGetToken(email, nickname);
+        UUID memberId = jwtUtil.getIdFromToken(token);
+
+        //Withdraw success
+        mockMvc.perform(patch("/api/user/withdraw/" + memberId.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.email")
+                        .value(email))
+                .andExpect(jsonPath("$.data.nickname")
+                        .value(nickname))
+                .andExpect(jsonPath("$.data.withdrawnAt")
+                        .isNotEmpty());
+
+        //Fail with invalid token
+        mockMvc.perform(post("/api/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message")
+                        .value(UNAUTHORIZED.getMessage()));
+    }
+
+    private String loginAndGetToken(String email, String nickname) throws Exception {
         JoinDto.Request joinRequest = JoinDto.Request.builder()
-                .email("test@test.com")
-                .nickname("test")
+                .email(email)
+                .nickname(nickname)
                 .password("testTest1")
+                .build();
+
+        LoginDto.Request loginRequest = LoginDto.Request.builder()
+                .email(joinRequest.getEmail())
+                .password(joinRequest.getPassword())
                 .build();
 
         mockMvc.perform(post("/api/auth/join")
@@ -233,39 +266,13 @@ public class AuthIntegrationTest {
                         .content(objectMapper.writeValueAsString(joinRequest)))
                 .andExpect(status().isOk());
 
-        LoginDto.Request loginRequest = LoginDto.Request.builder()
-                .email(joinRequest.getEmail())
-                .password(joinRequest.getPassword())
-                .build();
-
         MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        //Withdraw success
-        String loginJson = loginResult.getResponse().getContentAsString();
-        String token = objectMapper.readTree(loginJson).path("data").asText();
-
-        UUID memberId = jwtUtil.getIdFromToken(token);
-
-        mockMvc.perform(patch("/api/user/withdraw/" + memberId.toString())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.email")
-                        .value(joinRequest.getEmail()))
-                .andExpect(jsonPath("$.data.nickname")
-                        .value(joinRequest.getNickname()))
-                .andExpect(jsonPath("$.data.withdrawnAt")
-                        .isNotEmpty());
-
-        mockMvc.perform(post("/api/auth/logout")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message")
-                        .value(UNAUTHORIZED.getMessage()));
+        String json = loginResult.getResponse().getContentAsString();
+        return objectMapper.readTree(json).path("data").path("token").asText();
     }
 }

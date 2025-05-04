@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -23,7 +24,7 @@ public class WordDetailDto {
     private String expression;
     private Difficulty difficulty;
     private Timestamp createdAt;
-    private List<Def> defs;
+    private List<DefDto> defs;
 
     public static WordDetailDto fromEntity (Word word, List<Def> defs, Difficulty difficulty) {
         return WordDetailDto.builder()
@@ -32,7 +33,10 @@ public class WordDetailDto {
                 .expression(word.getExpression())
                 .difficulty(difficulty)
                 .createdAt(word.getCreatedAt())
-                .defs(defs)
+                .defs(
+                        defs.stream().map(DefDto::fromEntity)
+                        .collect(Collectors.toList())
+                )
                 .build();
     }
 }

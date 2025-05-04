@@ -23,6 +23,7 @@ public enum GeneralResponseCode implements ApiResponseCode {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "Method is not supported"),
     INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "Invalid request body"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden request"),
+    TOO_BIG_FILE_SIZE(HttpStatus.BAD_REQUEST, "Too big file size"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 
     private final HttpStatus status;

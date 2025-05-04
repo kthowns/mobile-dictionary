@@ -46,21 +46,12 @@ public class DefIntegrationTest {
         memberRepository.deleteAll();
     }
 
-    private final JoinDto.Request joinRequest = JoinDto.Request.builder()
-            .email("test@test.com")
-            .nickname("test")
-            .password("testTest1")
-            .build();
-
-    private final LoginDto.Request loginRequest = LoginDto.Request.builder()
-            .email(joinRequest.getEmail())
-            .password(joinRequest.getPassword())
-            .build();
-
     @Test
     @DisplayName("[Def][Integration] Add def test")
     void addDefTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID wordId = addWordAndGetId(memberId, token);
 
@@ -133,7 +124,9 @@ public class DefIntegrationTest {
     @Test
     @DisplayName("[Def][Integration] Get defs by word id test")
     void getDefsByWordIdTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID wordId = addWordAndGetId(memberId, token);
 
@@ -194,7 +187,9 @@ public class DefIntegrationTest {
     @Test
     @DisplayName("[Def][Integration] Update def test")
     void updateDefTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID wordId = addWordAndGetId(memberId, token);
 
@@ -315,7 +310,9 @@ public class DefIntegrationTest {
     @Test
     @DisplayName("[Def][Integration] Delete def test")
     void deleteDefTest() throws Exception {
-        String token = loginAndGetToken();
+        String email = "test@test.com";
+        String nickname = "test";
+        String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID wordId = addWordAndGetId(memberId, token);
 
@@ -406,7 +403,19 @@ public class DefIntegrationTest {
         return UUID.fromString(wordId);
     }
 
-    private String loginAndGetToken() throws Exception {
+
+    private String loginAndGetToken(String email, String nickname) throws Exception {
+        JoinDto.Request joinRequest = JoinDto.Request.builder()
+                .email(email)
+                .nickname(nickname)
+                .password("testTest1")
+                .build();
+
+        LoginDto.Request loginRequest = LoginDto.Request.builder()
+                .email(joinRequest.getEmail())
+                .password(joinRequest.getPassword())
+                .build();
+
         mockMvc.perform(post("/api/auth/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(joinRequest)))
@@ -419,7 +428,7 @@ public class DefIntegrationTest {
                 .andReturn();
 
         String json = loginResult.getResponse().getContentAsString();
-        return objectMapper.readTree(json).get("data").asText();
+        return objectMapper.readTree(json).path("data").path("token").asText();
     }
 }
 // Resource api integration test convention
