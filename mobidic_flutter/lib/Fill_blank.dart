@@ -1,127 +1,194 @@
 import 'package:flutter/material.dart';
 
-class Fill_blank extends StatefulWidget {
+class FillBlankPage extends StatefulWidget {
+  const FillBlankPage({super.key});
+
   @override
-  _Fill_blankState createState() => _Fill_blankState();
+  State<FillBlankPage> createState() => _FillBlankPageState();
 }
 
-class _Fill_blankState extends State<Fill_blank> {
-  final TextEditingController answerController = TextEditingController();
-  String resultText = '';
+class _FillBlankPageState extends State<FillBlankPage> {
+  final List<Map<String, dynamic>> quizList = [
+    {
+      'word': 'apple',
+      'meaning': '사과',
+      'revealed': [false, false, false, true, true],
+    },
+    {
+      'word': 'cat',
+      'meaning': '고양이',
+      'revealed': [false, false, false],
+    },
+    {
+      'word': 'human',
+      'meaning': '사람',
+      'revealed': [false, true, false, false, true],
+    },
+  ];
+
+  int currentIndex = 0;
+  List<String> userInput = [];
+  List<TextEditingController> controllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _setupCurrentQuestion();
+  }
+
+  void _setupCurrentQuestion() {
+    final quiz = quizList[currentIndex];
+    userInput = List.generate(quiz['word'].length, (_) => '');
+    controllers = List.generate(
+      quiz['word'].length,
+          (_) => TextEditingController(),
+    );
+  }
 
   void checkAnswer() {
-    String userAnswer = answerController.text.trim().toLowerCase();
-    if (userAnswer == 'apple') {
-      setState(() {
-        resultText = 'Correct!!';
-      });
+    final quiz = quizList[currentIndex];
+    final String word = quiz['word'];
+    final List<bool> revealed = quiz['revealed'];
+
+    String answer = '';
+    for (int i = 0; i < word.length; i++) {
+      answer += revealed[i] ? word[i] : (userInput[i].toLowerCase());
+    }
+
+    if (answer == word) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('정답입니다!! 🎉'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() {
+                  if (currentIndex < quizList.length - 1) {
+                    currentIndex++;
+                    _setupCurrentQuestion();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("퀴즈 완료!")),
+                    );
+                  }
+                });
+              },
+              child: const Text("다음 문제"),
+            )
+          ],
+        ),
+      );
     } else {
-      setState(() {
-        resultText = 'Try again..';
-      });
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('다시 생각해보세요. 😢'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('확인'),
+            )
+          ],
+        ),
+      );
     }
   }
 
   @override
+  void dispose() {
+    for (final controller in controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final quiz = quizList[currentIndex];
+    final String word = quiz['word'];
+    final String meaning = quiz['meaning'];
+    final List<bool> revealed = quiz['revealed'];
+
     return Scaffold(
-      backgroundColor: Colors.lightBlue.shade100,
-      body: SafeArea(
+      appBar: AppBar(
+        title: const Text('빈칸 채우기'),
+        centerTitle: true,
+        backgroundColor: Colors.teal,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(32.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 20),
-            Text(
-              '받아쓰기',
-              style: TextStyle(
-                fontSize: 28,
-                fontFamily: 'Baloo2',
-                fontWeight: FontWeight.bold,
-              ),
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(word.length, (i) {
+                if (revealed[i]) {
+                  return _buildLetterBox(word[i], isRevealed: true);
+                } else {
+                  return _buildInputBox(i);
+                }
+              }),
             ),
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Text(
-                    '빈칸 채우기',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontFamily: 'MPlusRounded1c',
-                    ),
-                  ),
-                  Spacer(),
-                  IconButton(
-                    icon: Icon(Icons.home),
-                    onPressed: () {
-                      // 홈 이동 기능 추가 예정
-                    },
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 60),
-            Text(
-              '사과',
-              style: TextStyle(
-                fontSize: 32,
-                fontFamily: 'MPlusRounded1c',
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 40),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 32),
-              child: TextField(
-                controller: answerController,
-                decoration: InputDecoration(
-                  hintText: '정답 입력',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
+            const SizedBox(height: 40),
+            Text('뜻: $meaning', style: const TextStyle(fontSize: 20)),
+            const SizedBox(height: 40),
             ElevatedButton(
               onPressed: checkAnswer,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                backgroundColor: Colors.teal,
               ),
-              child: Text(
-                '확인',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                  fontFamily: 'MPlusRounded1c',
-                ),
-              ),
-            ),
-            SizedBox(height: 30),
-            Text(
-              resultText,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'MPlusRounded1c',
-                color: resultText == 'Correct!!' ? Colors.green : Colors.red,
-              ),
+              child: const Text('제출하기', style: TextStyle(fontSize: 18)),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLetterBox(String letter, {bool isRevealed = false}) {
+    return Container(
+      width: 48,
+      height: 48,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: isRevealed ? Colors.grey[300] : Colors.white,
+        border: Border.all(color: Colors.black54),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        letter,
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildInputBox(int index) {
+    return Container(
+      width: 48,
+      height: 48,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      child: TextField(
+        controller: controllers[index],
+        maxLength: 1,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 24),
+        decoration: const InputDecoration(
+          counterText: '',
+          border: OutlineInputBorder(),
+        ),
+        onChanged: (value) {
+          if (value.length > 1) {
+            controllers[index].text = value[0];
+          }
+          setState(() {
+            userInput[index] = value;
+          });
+        },
       ),
     );
   }
