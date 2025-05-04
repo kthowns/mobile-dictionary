@@ -17,9 +17,9 @@ public class UpdateVocabDto {
     @Builder
     public static class Request {
         @NotBlank
-        @Size(min = 1, max = 32)
+        @Size(min = 1, max = 32, message = "Invalid title pattern")
         private String title;
-        @Size(max = 64)
+        @Size(max = 32, message = "Invalid description pattern")
         private String description;
     }
     @Data

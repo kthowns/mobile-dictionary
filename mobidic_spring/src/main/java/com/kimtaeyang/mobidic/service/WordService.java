@@ -38,10 +38,13 @@ public class WordService {
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
     public AddWordDto.Response addWord(UUID vocabId, AddWordDto.Request request) {
         Vocab vocab = vocabRepository.findById(vocabId)
-                        .orElseThrow(() -> new ApiException(NO_VOCAB));
+                .orElseThrow(() -> new ApiException(NO_VOCAB));
 
-        wordRepository.findByExpression(request.getExpression())
-                .ifPresent((w) -> { throw new ApiException(DUPLICATED_WORD); });
+        int count = wordRepository.countByExpressionAndVocab(request.getExpression(), vocab);
+
+        if (count > 0) {
+            throw new ApiException(DUPLICATED_WORD);
+        }
 
         Word word = Word.builder()
                 .expression(request.getExpression())
@@ -62,19 +65,37 @@ public class WordService {
 
     @Transactional(readOnly = true)
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vId)")
-    public List<WordDto> getWordsByVocabId(UUID vId) {
+    public List<WordDetailDto> getWordsByVocabId(UUID vId) {
         Vocab vocab = vocabRepository.findById(vId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
 
         return wordRepository.findByVocab(vocab)
                 .stream().map((word) -> {
-                    Rate rate = rateRepository.getRateByWordId(word.getId())
+                    Rate rate = rateRepository.findRateByWord(word)
                             .orElseThrow(() -> new ApiException(INTERNAL_SERVER_ERROR));
+
+                    List<Def> defs = defRepository.findByWord(word);
 
                     Difficulty diff = getDifficulty(rate.getCorrectCount(), rate.getIncorrectCount());
 
-                    return WordDto.fromEntity(word, diff);
+                    return WordDetailDto.fromEntity(word, defs, diff);
                 }).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wId)")
+    public WordDetailDto getWordDetail(UUID wId) {
+        Word word = wordRepository.findById(wId)
+                .orElseThrow(() -> new ApiException(NO_WORD));
+
+        List<Def> defs = defRepository.findByWord(word);
+
+        Rate rate = rateRepository.findRateByWord(word)
+                .orElseThrow(() -> new ApiException(INTERNAL_SERVER_ERROR));
+
+        Difficulty diff = getDifficulty(rate.getCorrectCount(), rate.getIncorrectCount());
+
+        return WordDetailDto.fromEntity(word, defs, diff);
     }
 
     @Transactional
@@ -83,8 +104,11 @@ public class WordService {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
-        wordRepository.findByExpression(request.getExpression())
-                        .ifPresent((w) -> { throw new ApiException(DUPLICATED_WORD); });
+        long count = wordRepository.countByExpressionAndVocabAndIdNot(request.getExpression(), word.getVocab(), wordId);
+
+        if (count > 0) {
+            throw new ApiException(DUPLICATED_WORD);
+        }
 
         word.setExpression(request.getExpression());
         wordRepository.save(word);
@@ -93,25 +117,14 @@ public class WordService {
     }
 
     @Transactional
-    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#wordId)")
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
     public WordDto deleteWord(UUID wordId) {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
         wordRepository.delete(word);
 
-        return WordDto.fromEntity(word, Difficulty.NORMAL);
-    }
-
-    @Transactional(readOnly = true)
-    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#wId)")
-    public WordDetailDto getWordDetail(UUID wId) {
-        Word word = wordRepository.findById(wId)
-                .orElseThrow(() -> new ApiException(NO_WORD));
-
-        List<Def> definitions = defRepository.findByWord(word);
-
-        return WordDetailDto.fromEntity(word, definitions);
+        return WordDto.fromEntity(word);
     }
 
     private Difficulty getDifficulty(Integer correct, Integer incorrect) {

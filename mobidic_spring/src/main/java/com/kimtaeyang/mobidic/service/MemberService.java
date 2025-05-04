@@ -20,8 +20,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.DUPLICATED_NICKNAME;
 import static com.kimtaeyang.mobidic.code.AuthResponseCode.NO_MEMBER;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_NICKNAME;
 
 @Service
 @Slf4j
@@ -30,6 +30,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtBlacklistService jwtBlacklistService;
+    private final AuthService authService;
 
     @Transactional(readOnly = true)
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
@@ -48,11 +49,15 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
-        memberRepository.findByNickname(request.getNickname())
-                        .ifPresent((m) -> { throw new ApiException(DUPLICATED_NICKNAME); });
+        int count = memberRepository.countByNicknameAndIdNot(request.getNickname(), memberId);
+
+        System.out.println("SSOME : " + count);
+        if(count > 0) {
+            throw new ApiException(DUPLICATED_NICKNAME);
+        }
 
         member.setNickname(request.getNickname());
-        memberRepository.save(member);
+        member = memberRepository.save(member);
 
         return UpdateNicknameDto.Response.builder()
                 .nickname(member.getNickname())
@@ -63,13 +68,15 @@ public class MemberService {
     @Transactional
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public UpdatePasswordDto.Response updateMemberPassword(
-            UUID memberId, UpdatePasswordDto.Request request
+            UUID memberId, UpdatePasswordDto.Request request, String token
     ) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
         member.setPassword(passwordEncoder.encode(request.getPassword()));
         memberRepository.save(member);
+
+        authService.logout(memberId, token);
 
         return UpdatePasswordDto.Response.builder()
                 .id(member.getId())
