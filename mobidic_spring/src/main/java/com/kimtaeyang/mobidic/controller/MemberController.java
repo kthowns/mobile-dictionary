@@ -1,6 +1,11 @@
 package com.kimtaeyang.mobidic.controller;
 
-import com.kimtaeyang.mobidic.dto.*;
+import com.kimtaeyang.mobidic.dto.member.MemberDto;
+import com.kimtaeyang.mobidic.dto.member.UpdateNicknameDto;
+import com.kimtaeyang.mobidic.dto.member.UpdatePasswordDto;
+import com.kimtaeyang.mobidic.dto.member.WithdrawMemberDto;
+import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
+import com.kimtaeyang.mobidic.dto.response.GeneralResponse;
 import com.kimtaeyang.mobidic.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -1,6 +1,10 @@
 package com.kimtaeyang.mobidic.controller;
 
-import com.kimtaeyang.mobidic.dto.*;
+import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.member.LoginDto;
+import com.kimtaeyang.mobidic.dto.member.LogoutDto;
+import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
+import com.kimtaeyang.mobidic.dto.response.GeneralResponse;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import com.kimtaeyang.mobidic.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;

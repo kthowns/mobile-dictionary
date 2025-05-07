@@ -1,4 +1,4 @@
-package com.kimtaeyang.mobidic.security;
+package com.kimtaeyang.mobidic.security.accesshandler;
 
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

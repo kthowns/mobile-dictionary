@@ -1,43 +1,44 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.exception.ApiException;
+import com.kimtaeyang.mobidic.dto.quiz.QuizDto;
+import com.kimtaeyang.mobidic.entity.quiz.Quiz;
+import com.kimtaeyang.mobidic.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.INVALID_TOKEN;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class QuizService {
-    private final WordService wordService;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, List<String>> redisTemplate;
     private static final String QUIZ_PREFIX = "quiz:";
     private static final Long min = 60000L;
+    private final JwtUtil jwtUtil;
 
-    private HashMap<String, List<String>> generateQuiz() {
-       // if(isTokenLogout(token)) {
-        //    throw new ApiException(INVALID_TOKEN);
-       // }
+    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#memberId)")
+    public QuizDto getOxQuiz(UUID memberId, UUID vocabId) {
+    }
 
-        //redisTemplate.opsForValue().set(
-        //        WITHDRAWN_PREFIX + jwtUtil.getIdFromToken(token),
-        //        "true",
-         //       Duration.ofMillis(exp)
-        //);
+    private String registerQuiz(UUID owner, Quiz quiz) {
+        String token = jwtUtil.generateTokenWithExp(owner, min);
 
-        ArrayList<String> quizs = new ArrayList<>();
-        HashMap<String, List<String>> response = new HashMap<>();
+        redisTemplate.opsForValue().set(
+                QUIZ_PREFIX + token,
+                quiz.getAnswers(),
+                Duration.ofMillis(min)
+        );
 
-        response.put("quiz", quizs);
+        return token;
+    }
 
-        return response;
+    private boolean validateQuiz(String token){
+        return !(jwtUtil.validateToken(token) || redisTemplate.hasKey(QUIZ_PREFIX + token));
     }
 }

@@ -1,4 +1,4 @@
-package com.kimtaeyang.mobidic.dto;
+package com.kimtaeyang.mobidic.dto.member;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -9,15 +9,16 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-public class UpdateNicknameDto {
+public class UpdatePasswordDto {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
     public static class Request {
         @NotBlank
-        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{2,16}$", message = "Invalid nickname pattern")
-        private String nickname;
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,128}$", message = "Invalid password pattern")
+        //최소 8자, 숫자와 알파벳
+        private String password;
     }
 
     @Data
@@ -26,6 +27,5 @@ public class UpdateNicknameDto {
     @Builder
     public static class Response {
         private UUID id;
-        private String nickname;
     }
 }

@@ -1,7 +1,7 @@
 package com.kimtaeyang.mobidic.controller;
 
-import com.kimtaeyang.mobidic.dto.ErrorResponse;
-import com.kimtaeyang.mobidic.dto.GeneralResponse;
+import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
+import com.kimtaeyang.mobidic.dto.response.GeneralResponse;
 import com.kimtaeyang.mobidic.dto.RateDto;
 import com.kimtaeyang.mobidic.service.RateService;
 import io.swagger.v3.oas.annotations.Operation;

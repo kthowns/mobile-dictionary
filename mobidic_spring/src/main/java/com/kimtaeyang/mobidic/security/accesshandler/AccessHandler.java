@@ -1,4 +1,4 @@
-package com.kimtaeyang.mobidic.security;
+package com.kimtaeyang.mobidic.security.accesshandler;
 
 import com.kimtaeyang.mobidic.entity.Member;
 import org.springframework.security.core.Authentication;

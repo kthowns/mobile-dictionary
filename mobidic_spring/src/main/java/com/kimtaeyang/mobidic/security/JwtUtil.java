@@ -25,6 +25,15 @@ public class JwtUtil {
                     .compact();
     }
 
+    public String generateTokenWithExp(UUID userId, Long exp) {
+        return Jwts.builder()
+                .subject(userId.toString())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + exp))
+                .signWith(jwtProperties.getSecretKey())
+                .compact();
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parser()

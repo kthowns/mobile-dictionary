@@ -1,6 +1,9 @@
 package com.kimtaeyang.mobidic.controller;
 
-import com.kimtaeyang.mobidic.dto.ErrorResponse;
+import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
+import com.kimtaeyang.mobidic.dto.response.GeneralResponse;
+import com.kimtaeyang.mobidic.dto.quiz.QuizDto;
+import com.kimtaeyang.mobidic.security.JwtUtil;
 import com.kimtaeyang.mobidic.service.QuizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,10 +12,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
+
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.OK;
 
 @Tag(name = "퀴즈 관련 서비스", description = "문제 생성 및 채점 등")
 @RestController
@@ -21,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/quiz")
 public class QuizController {
     private final QuizService quizService;
+    private final JwtUtil jwtUtil;
 
     @Operation(
             summary = "단어 통계 조회",
@@ -38,7 +50,15 @@ public class QuizController {
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public void test(){
+    @GetMapping("/ox")
+    public ResponseEntity<GeneralResponse<QuizDto>> getOxQuiz(
+            @RequestParam("vid") UUID vId,
+            HttpServletRequest request
+    ) {
+        String token = request.getHeader("Authorization").substring(7);
+        UUID memberId = jwtUtil.getIdFromToken(token);
 
+        return GeneralResponse.toResponseEntity(OK,
+                quizService.getOxQuiz(memberId, vId));
     }
 }
