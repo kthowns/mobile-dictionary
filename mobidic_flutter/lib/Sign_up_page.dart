@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'Log_in_page.dart'; // LoginPage 경로에 맞게 import
 
 class SignUpPage extends StatefulWidget {
+  const SignUpPage({Key? key}) : super(key: key);
+
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
@@ -37,12 +40,9 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           '회원가입',
-          style: TextStyle(
-            // fontFamily: 'Baloo2', // 앱 제목 폰트
-            fontSize: 24,
-          ),
+          style: TextStyle(fontSize: 24),
         ),
       ),
       body: Padding(
@@ -55,13 +55,10 @@ class _SignUpPageState extends State<SignUpPage> {
                 labelText: '이메일 (example@naver.com)',
                 helperText: '올바른 이메일 형식을 입력하세요.',
                 errorText: emailErrorText,
-                border: OutlineInputBorder(),
-              ),
-              style: TextStyle(
-                // fontFamily: 'MPlusRounded1c', // 본문 폰트
+                border: const OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               controller: newPasswordController,
               obscureText: !isPasswordVisible,
@@ -69,7 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 labelText: '비밀번호',
                 helperText: '8자 이상 + 특수문자 1개 이상 ( - 와 = 제외 )',
                 errorText: passwordErrorText,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: Icon(
                     isPasswordVisible ? Icons.visibility : Icons.visibility_off,
@@ -81,18 +78,15 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                 ),
               ),
-              style: TextStyle(
-                //  fontFamily: 'MPlusRounded1c', // 본문 폰트
-              ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               controller: confirmPasswordController,
               obscureText: !isConfirmPasswordVisible,
               decoration: InputDecoration(
                 labelText: '비밀번호 확인',
                 errorText: confirmPasswordErrorText,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: Icon(
                     isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
@@ -104,11 +98,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                 ),
               ),
-              style: TextStyle(
-                //fontFamily: 'MPlusRounded1c', // 본문 폰트
-              ),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
                 final id = newIdController.text.trim();
@@ -144,37 +135,29 @@ class _SignUpPageState extends State<SignUpPage> {
                   hasError = true;
                 }
 
-                if (hasError) {
-                  return;
-                }
+                if (hasError) return;
 
                 showDialog(
                   context: context,
                   builder: (_) => AlertDialog(
-                    title: Text(
-                      '알림',
-                      // style: TextStyle(fontFamily: 'Baloo2'),
-                    ),
-                    content: Text(
-                      '회원가입이 완료되었습니다!',
-                      //  style: TextStyle(fontFamily: 'MPlusRounded1c'),
-                    ),
+                    title: const Text('알림'),
+                    content: const Text('회원가입이 완료되었습니다!'),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(
-                          '확인',
-                          // style: TextStyle(fontFamily: 'Quicksand'), // 버튼 폰트
-                        ),
+                        onPressed: () {
+                          Navigator.pop(context); // 먼저 다이얼로그 닫고
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => LoginPage()),
+                          );
+                        },
+                        child: const Text('로그인'),
                       ),
                     ],
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                // textStyle: TextStyle(fontFamily: 'Quicksand'), // 버튼 폰트
-              ),
-              child: Text('회원가입'),
+              child: const Text('회원가입'),
             ),
           ],
         ),
