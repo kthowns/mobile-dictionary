@@ -7,39 +7,49 @@ class DictationQuizPage extends StatefulWidget {
   State<DictationQuizPage> createState() => _DictationQuizPageState();
 }
 
-class _DictationQuizPageState extends State<DictationQuizPage> { //빈칸채우기
+class _DictationQuizPageState extends State<DictationQuizPage> {
   final TextEditingController _controller = TextEditingController();
 
-  void _checkAnswer() {
+  // 정답 통계용 상태
+  int totalAttempts = 0;
+  int correctAnswers = 0;
+
+  void _checkAnswer({bool skipped = false}) {
     String input = _controller.text.trim().toLowerCase();
 
-    if (input == 'apple') {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("정답입니다!! 🎉"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("확인"),
-            ),
-          ],
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("오답입니다. 😢"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("다시 시도"),
-            ),
-          ],
-        ),
-      );
+    setState(() {
+      totalAttempts++;
+    });
+
+    bool isCorrect = !skipped && input == 'apple';
+
+    if (isCorrect) {
+      setState(() {
+        correctAnswers++;
+      });
     }
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(isCorrect ? "정답입니다!! 🎉" : "오답입니다. 😢"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _controller.clear(); // 입력창 비우기
+            },
+            child: const Text("다음"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String getAccuracyText() {
+    if (totalAttempts == 0) return "정답률: 0%";
+    double percent = (correctAnswers / totalAttempts) * 100;
+    return "정답률: ${percent.toStringAsFixed(1)}% ($correctAnswers / $totalAttempts)";
   }
 
   @override
@@ -60,13 +70,23 @@ class _DictationQuizPageState extends State<DictationQuizPage> { //빈칸채우�
         padding: const EdgeInsets.all(32.0),
         child: Column(
           children: [
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
+
+            // 정답률 표시
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                getAccuracyText(),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            ),
+
+            const SizedBox(height: 20),
 
             const Icon(Icons.volume_up, size: 64, color: Colors.deepPurple),
 
             const SizedBox(height: 24),
 
-            // '정답 입력' 텍스트
             const Text(
               '정답 입력',
               style: TextStyle(fontSize: 20),
@@ -74,7 +94,6 @@ class _DictationQuizPageState extends State<DictationQuizPage> { //빈칸채우�
 
             const SizedBox(height: 24),
 
-            // 네모 박스 (입력창)
             TextField(
               controller: _controller,
               textAlign: TextAlign.center,
@@ -86,18 +105,32 @@ class _DictationQuizPageState extends State<DictationQuizPage> { //빈칸채우�
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onSubmitted: (_) => _checkAnswer(), // 엔터로도 제출
+              onSubmitted: (_) => _checkAnswer(),
             ),
 
             const SizedBox(height: 32),
 
-            ElevatedButton(
-              onPressed: _checkAnswer,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              ),
-              child: const Text("제출하기", style: TextStyle(fontSize: 18)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _checkAnswer,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  ),
+                  child: const Text("제출하기", style: TextStyle(fontSize: 18)),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () => _checkAnswer(skipped: true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  ),
+                  child: const Text("모르겠어요", style: TextStyle(fontSize: 18)),
+                ),
+              ],
             ),
           ],
         ),
