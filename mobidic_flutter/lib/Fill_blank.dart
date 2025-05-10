@@ -7,7 +7,7 @@ class FillBlankPage extends StatefulWidget {
   State<FillBlankPage> createState() => _FillBlankPageState();
 }
 
-class _FillBlankPageState extends State<FillBlankPage> {    //리스트
+class _FillBlankPageState extends State<FillBlankPage> {
   final List<Map<String, dynamic>> quizList = [
     {
       'word': 'apple',
@@ -29,6 +29,8 @@ class _FillBlankPageState extends State<FillBlankPage> {    //리스트
   int currentIndex = 0;
   List<String> userInput = [];
   List<TextEditingController> controllers = [];
+  int totalAttempts = 0;
+  int correctAnswers = 0;
 
   @override
   void initState() {
@@ -52,48 +54,44 @@ class _FillBlankPageState extends State<FillBlankPage> {    //리스트
 
     String answer = '';
     for (int i = 0; i < word.length; i++) {
-      answer += revealed[i] ? word[i] : (userInput[i].toLowerCase());
+      answer += revealed[i] ? word[i] : userInput[i].toLowerCase();
     }
 
-    if (answer == word) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('정답입니다!! 🎉'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                setState(() {
-                  if (currentIndex < quizList.length - 1) {
-                    currentIndex++;
-                    _setupCurrentQuestion();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("퀴즈 완료!")),
-                    );
-                  }
-                });
-              },
-              child: const Text("다음 문제"),
-            )
-          ],
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('다시 생각해보세요. 😢'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('확인'),
-            )
-          ],
-        ),
-      );
-    }
+    bool isCorrect = answer == word;
+
+    setState(() {
+      totalAttempts++;
+      if (isCorrect) correctAnswers++;
+    });
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(isCorrect ? '정답입니다!! 🎉' : '오답입니다. 😢'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                if (currentIndex < quizList.length - 1) {
+                  currentIndex++;
+                  _setupCurrentQuestion();
+                } else {
+                  // 마지막 문제인 경우: 아무것도 하지 않음
+                }
+              });
+            },
+            child: const Text("다음 문제"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String getAccuracyText() {
+    if (totalAttempts == 0) return "정답률: 0%";
+    double percent = (correctAnswers / totalAttempts) * 100;
+    return "정답률: ${percent.toStringAsFixed(1)}% ($correctAnswers / $totalAttempts)";
   }
 
   @override
@@ -120,7 +118,15 @@ class _FillBlankPageState extends State<FillBlankPage> {    //리스트
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                getAccuracyText(),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            ),
             const SizedBox(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -135,14 +141,27 @@ class _FillBlankPageState extends State<FillBlankPage> {    //리스트
             const SizedBox(height: 40),
             Text('뜻: $meaning', style: const TextStyle(fontSize: 20)),
             const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: checkAnswer,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                backgroundColor: Colors.teal,
+            Center(
+              child: ElevatedButton(
+                onPressed: checkAnswer,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  backgroundColor: Colors.teal,
+                ),
+                child: const Text('제출하기', style: TextStyle(fontSize: 18)),
               ),
-              child: const Text('제출하기', style: TextStyle(fontSize: 18)),
             ),
+            if (currentIndex == quizList.length - 1 &&
+                totalAttempts == quizList.length)
+              const Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Center(
+                  child: Text(
+                    "🎉 퀴즈 완료!",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
