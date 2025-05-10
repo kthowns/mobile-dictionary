@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'Log_in_page.dart';
 
 class FindPwPage extends StatefulWidget {
   const FindPwPage({super.key});
@@ -13,6 +14,8 @@ class _FindPwPageState extends State<FindPwPage> {
   int attemptCount = 0;
   bool isLocked = false;
   String errorMessage = "";
+  int remainingSeconds = 0;
+  Timer? countdownTimer;
 
   void tryFindPw() {
     if (isLocked) return;
@@ -24,19 +27,11 @@ class _FindPwPageState extends State<FindPwPage> {
     });
 
     if (attemptCount > 5) {
+      startLockTimer();
       setState(() {
         isLocked = true;
         errorMessage = "시도 횟수 5회를 초과했습니다. 3분 후, 다시 시도해주세요.";
       });
-
-      Timer(const Duration(minutes: 3), () {
-        setState(() {
-          isLocked = false;
-          attemptCount = 0;
-          errorMessage = "";
-        });
-      });
-
       return;
     }
 
@@ -44,12 +39,18 @@ class _FindPwPageState extends State<FindPwPage> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text("비밀번호 재설정"),
-          content: const Text("이메일로 재설정 메일이 발송되었습니다."),
+          title: const Text("비밀번호 찾기"),
+          content: const Text("당신의 비밀번호는: pw1234"),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("확인"),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => LoginPage()),
+                );
+              },
+              child: const Text("로그인"),
             )
           ],
         ),
@@ -57,12 +58,33 @@ class _FindPwPageState extends State<FindPwPage> {
     } else {
       setState(() {
         errorMessage = "등록되지 않은 이메일 입니다.";
+        emailController.clear();
       });
     }
   }
 
+  void startLockTimer() {
+    remainingSeconds = 180;
+    countdownTimer?.cancel();
+    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (remainingSeconds <= 1) {
+        timer.cancel();
+        setState(() {
+          isLocked = false;
+          attemptCount = 0;
+          errorMessage = "";
+        });
+      } else {
+        setState(() {
+          remainingSeconds--;
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
+    countdownTimer?.cancel();
     emailController.dispose();
     super.dispose();
   }
@@ -74,10 +96,12 @@ class _FindPwPageState extends State<FindPwPage> {
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: emailController,
               decoration: const InputDecoration(labelText: "가입한 이메일을 입력하세요."),
+              enabled: !isLocked,
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -90,6 +114,11 @@ class _FindPwPageState extends State<FindPwPage> {
                 errorMessage,
                 style: const TextStyle(color: Colors.red),
               ),
+            const SizedBox(height: 8),
+            if (!isLocked && attemptCount > 0)
+              Text("남은 시도 횟수: ${5 - attemptCount}회"),
+            if (isLocked)
+              Text("남은 시간: $remainingSeconds초", style: const TextStyle(color: Colors.orange)),
           ],
         ),
       ),
