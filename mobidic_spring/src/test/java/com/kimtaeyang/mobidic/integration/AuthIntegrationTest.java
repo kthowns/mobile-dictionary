@@ -113,9 +113,9 @@ public class AuthIntegrationTest {
     @Test
     void loginTest() throws Exception {
         JoinDto.Request joinRequest = JoinDto.Request.builder()
-                .email("test@test.com")
-                .nickname("test")
-                .password("testTest1")
+                .email("qwerq@test.com")
+                .nickname("qwerq")
+                .password("qwerqwe1")
                 .build();
 
         //Join

@@ -44,9 +44,9 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/login")
     public ResponseEntity<GeneralResponse<LoginDto.Response>> login(@Valid @RequestBody LoginDto.Request request) {
@@ -62,13 +62,13 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "409", description = "중복된 요청",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/join")
     public ResponseEntity<GeneralResponse<JoinDto.Response>> join(@Valid @RequestBody JoinDto.Request request) {
@@ -85,11 +85,11 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/logout")
     public ResponseEntity<GeneralResponse<LogoutDto.Response>> logout(HttpServletRequest request) {

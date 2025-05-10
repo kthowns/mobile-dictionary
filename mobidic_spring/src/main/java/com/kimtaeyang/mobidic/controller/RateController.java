@@ -38,11 +38,11 @@ public class RateController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/w")
     public ResponseEntity<GeneralResponse<RateDto>> getRateByWordId(
@@ -62,11 +62,11 @@ public class RateController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/v")
     public ResponseEntity<GeneralResponse<Double>> getVocabLearningRate(
@@ -86,11 +86,11 @@ public class RateController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(schema = @Schema(hidden = true)))
     })
     @PatchMapping("/tog/{wordId}")
     public ResponseEntity<GeneralResponse<Void>> toggleRateByWordId(
