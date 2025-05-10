@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'Log_in_page.dart'; // LoginPage 클래스가 정의된 파일 import
 
 class FindIdPage extends StatefulWidget {
   const FindIdPage({super.key});
@@ -24,13 +25,23 @@ class _FindIdPageState extends State<FindIdPage> {
           content: const Text("당신의 아이디는: junseok123"),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("확인"),
+              onPressed: () {
+                Navigator.pop(context); // 다이얼로그 닫기
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => LoginPage()),
+                );
+              },
+              child: const Text("로그인"),
             )
           ],
         ),
       );
     } else {
+      // 실패 시 입력 필드 초기화
+      nameController.clear();
+      emailController.clear();
+
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
