@@ -32,10 +32,11 @@ public class DefService {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
-        defRepository.findByDefinition(request.getDefinition())
-                .ifPresent((d) -> {
-                    throw new ApiException(DUPLICATED_DEFINITION);
-                });
+        int count = defRepository.countByDefinition(request.getDefinition());
+
+        if(count > 0) {
+            throw new ApiException(DUPLICATED_DEFINITION);
+        }
 
         Def def = Def.builder()
                 .word(word)
@@ -64,8 +65,11 @@ public class DefService {
         Def def = defRepository.findById(defId)
                 .orElseThrow(() -> new ApiException(NO_DEF));
 
-        defRepository.findByDefinition(request.getDefinition())
-                .ifPresent((d) -> { throw new ApiException(DUPLICATED_DEFINITION); });
+        int count = defRepository.countByDefinitionAndIdNot(request.getDefinition(), defId);
+
+        if(count > 0) {
+            throw new ApiException(DUPLICATED_DEFINITION);
+        }
 
         def.setDefinition(request.getDefinition());
         def.setPart(request.getPart());

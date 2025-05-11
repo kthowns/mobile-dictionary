@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'OX_Quiz.dart';
 import 'MainPage.dart';
 import 'list.dart';
+import 'MainPage.dart';
+import 'list.dart';
 
 void main() => runApp(const MyApp());
 
