@@ -7,7 +7,7 @@ class FillBlankPage extends StatefulWidget {
   State<FillBlankPage> createState() => _FillBlankPageState();
 }
 
-class _FillBlankPageState extends State<FillBlankPage> {    //리스트
+class _FillBlankPageState extends State<FillBlankPage> {
   final List<Map<String, dynamic>> quizList = [
     {
       'word': 'apple',
@@ -29,6 +29,8 @@ class _FillBlankPageState extends State<FillBlankPage> {    //리스트
   int currentIndex = 0;
   List<String> userInput = [];
   List<TextEditingController> controllers = [];
+  int totalAttempts = 0;
+  int correctAnswers = 0;
 
   @override
   void initState() {
@@ -52,48 +54,42 @@ class _FillBlankPageState extends State<FillBlankPage> {    //리스트
 
     String answer = '';
     for (int i = 0; i < word.length; i++) {
-      answer += revealed[i] ? word[i] : (userInput[i].toLowerCase());
+      answer += revealed[i] ? word[i] : userInput[i].toLowerCase();
     }
 
-    if (answer == word) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('정답입니다!! 🎉'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                setState(() {
-                  if (currentIndex < quizList.length - 1) {
-                    currentIndex++;
-                    _setupCurrentQuestion();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("퀴즈 완료!")),
-                    );
-                  }
-                });
-              },
-              child: const Text("다음 문제"),
-            )
-          ],
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('다시 생각해보세요. 😢'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('확인'),
-            )
-          ],
-        ),
-      );
-    }
+    bool isCorrect = answer == word;
+
+    setState(() {
+      totalAttempts++;
+      if (isCorrect) correctAnswers++;
+    });
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(isCorrect ? '정답입니다!! 🎉' : '오답입니다. 😢'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                if (currentIndex < quizList.length - 1) {
+                  currentIndex++;
+                  _setupCurrentQuestion();
+                }
+              });
+            },
+            child: const Text("다음 문제"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String getAccuracyText() {
+    if (totalAttempts == 0) return "정답률: 0%";
+    double percent = (correctAnswers / totalAttempts) * 100;
+    return "정답률: ${percent.toStringAsFixed(1)}% ($correctAnswers / $totalAttempts)";
   }
 
   @override
@@ -115,35 +111,88 @@ class _FillBlankPageState extends State<FillBlankPage> {    //리스트
       appBar: AppBar(
         title: const Text('빈칸 채우기'),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(word.length, (i) {
-                if (revealed[i]) {
-                  return _buildLetterBox(word[i], isRevealed: true);
-                } else {
-                  return _buildInputBox(i);
-                }
-              }),
-            ),
-            const SizedBox(height: 40),
-            Text('뜻: $meaning', style: const TextStyle(fontSize: 20)),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: checkAnswer,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                backgroundColor: Colors.teal,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFb2ebf2),
+              Color(0xFF81d4fa),
+              Color(0xFF4fc3f7),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  getAccuracyText(),
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
               ),
-              child: const Text('제출하기', style: TextStyle(fontSize: 18)),
-            ),
-          ],
+              const SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(word.length, (i) {
+                  if (revealed[i]) {
+                    return _buildLetterBox(word[i], isRevealed: true);
+                  } else {
+                    return _buildInputBox(i);
+                  }
+                }),
+              ),
+              const SizedBox(height: 40),
+              Text('뜻: $meaning', style: const TextStyle(fontSize: 20)),
+              const SizedBox(height: 40),
+              Center(
+                child: ElevatedButton(
+                  onPressed: checkAnswer,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('제출하기', style: TextStyle(fontSize: 18)),
+                ),
+              ),
+              if (currentIndex == quizList.length - 1 &&
+                  totalAttempts == quizList.length)
+                const Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: Center(
+                    child: Text(
+                      "🎉 퀴즈 완료!",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.grey[300],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: const [
+              Icon(Icons.note, color: Colors.black),
+              Icon(Icons.home, color: Colors.black),
+              Icon(Icons.exit_to_app, color: Colors.black),
+            ],
+          ),
         ),
       ),
     );
@@ -156,7 +205,7 @@ class _FillBlankPageState extends State<FillBlankPage> {    //리스트
       margin: const EdgeInsets.symmetric(horizontal: 4),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isRevealed ? Colors.grey[300] : Colors.white,
+        color: isRevealed ? Colors.lightBlue[100] : Colors.white,
         border: Border.all(color: Colors.black54),
         borderRadius: BorderRadius.circular(8),
       ),
