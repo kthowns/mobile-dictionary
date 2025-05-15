@@ -1,42 +1,17 @@
-package com.kimtaeyang.mobidic.entity.quiz;
+package com.kimtaeyang.mobidic.util;
 
+import com.kimtaeyang.mobidic.dto.QuestionRateDto;
 import com.kimtaeyang.mobidic.dto.WordDetailDto;
-import com.kimtaeyang.mobidic.dto.quiz.QuizRateDto;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import com.kimtaeyang.mobidic.entity.Question;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-@Getter
-@Setter(AccessLevel.PROTECTED)
-@Slf4j
-public abstract class Quiz {
-    private UUID id;
-    private UUID owner;
-    private List<Question> questions;
-    private List<String> answers;
-
-    abstract protected List<Question> generateQuestions(List<WordDetailDto> orgWords);
-    abstract public boolean rate(String questionToken, QuizRateDto.Request request);
-
-    protected Quiz(UUID memberId, List<WordDetailDto> orgWords) {
-        List<WordDetailDto> words = new ArrayList<>(orgWords);
-        derange(words); //derangement
-        setId(UUID.randomUUID());
-        setOwner(memberId);
-        setQuestions(generateQuestions(words));
-        setAnswers(generateAnswers());
-    }
-
-    protected List<String> generateAnswers() {
-        return getQuestions().stream().map(Question::getAnswer).collect(Collectors.toList());
-    }
+abstract public class QuestionStrategy {
+    abstract public List<Question> generateQuestions(UUID memberId, List<WordDetailDto> orgWords);
+    abstract public boolean rate(QuestionRateDto.Request request, String correctAnswer);
 
     protected static <T> void partialShuffle(int n, List<T> list) {
         List<Integer> nums = new ArrayList<>();
@@ -78,7 +53,6 @@ public abstract class Quiz {
             if (isDerangement) {
                 return;
             }
-            log.info("Derangement detected : {}", list);
         }
     }
 }

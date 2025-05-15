@@ -1,22 +1,17 @@
-package com.kimtaeyang.mobidic.entity.quiz;
+package com.kimtaeyang.mobidic.util;
 
+import com.kimtaeyang.mobidic.dto.QuestionRateDto;
 import com.kimtaeyang.mobidic.dto.WordDetailDto;
-import com.kimtaeyang.mobidic.dto.quiz.QuizRateDto;
-import lombok.extern.slf4j.Slf4j;
+import com.kimtaeyang.mobidic.entity.Question;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Slf4j
-public class OxQuiz extends Quiz {
-    public OxQuiz(UUID memberId, List<WordDetailDto> orgWords) {
-        super(memberId, orgWords);
-    }
-
+public class OxQuestionStrategy extends QuestionStrategy {
     @Override
-    public List<Question> generateQuestions(List<WordDetailDto> orgWords) {
+    public List<Question> generateQuestions(UUID memberId, List<WordDetailDto> orgWords) {
         List<WordDetailDto> words = new ArrayList<>(orgWords);
 
         ArrayList<String> options = new ArrayList<>();
@@ -36,6 +31,7 @@ public class OxQuiz extends Quiz {
                             .id(UUID.randomUUID())
                             .stem(word.getExpression())
                             .answer(option)
+                            .memberId(memberId)
                             .build()
             );
         }
@@ -49,8 +45,7 @@ public class OxQuiz extends Quiz {
     }
 
     @Override
-    public boolean rate(String questionToken, QuizRateDto.Request request) {
-
-        return false;
+    public boolean rate(QuestionRateDto.Request request, String correctAnswer) {
+        return request.getAnswer().equals(correctAnswer);
     }
 }
