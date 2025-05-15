@@ -1,6 +1,6 @@
-POST http://127.0.0.1:8080/api/vocab/a1f108c5-f266-41aa-92e4-b85a4366e501
+POST http://127.0.0.1:8080/api/vocab/1585f2b7-51d9-4cee-b2e6-a07f2ff6b01f
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhMWYxMDhjNS1mMjY2LTQxYWEtOTJlNC1iODVhNDM2NmU1MDEiLCJpYXQiOjE3NDQwOTc3MjYsImV4cCI6MTc0NDE4NDEyNn0.RBOafLOE4v8RY0JZ4m3peCpZ_1P0dI4y8IwvsGwDOgSK7ScSM5wm2v6FOrGsaKX7WVeOu36EoTP4doq4VnaYMQ
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxNTg1ZjJiNy01MWQ5LTRjZWUtYjJlNi1hMDdmMmZmNmIwMWYiLCJpYXQiOjE3NDY2ODQzMzksImV4cCI6MTc0Njc3MDczOX0.TzEucUGazE9NIWu52oEmXg9VBWxk0HfRYCdkIz471XTNRaECAACB0Azk1f4O0d9yYEUlOtBsaIdVRDKlbtmp8w
 
 {
   "title" : "testvocab2",

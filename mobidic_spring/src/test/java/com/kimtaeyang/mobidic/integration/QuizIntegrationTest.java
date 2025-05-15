@@ -1,12 +1,18 @@
 package com.kimtaeyang.mobidic.integration;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kimtaeyang.mobidic.dto.AddDefDto;
 import com.kimtaeyang.mobidic.dto.AddVocabDto;
 import com.kimtaeyang.mobidic.dto.AddWordDto;
+import com.kimtaeyang.mobidic.dto.WordDetailDto;
 import com.kimtaeyang.mobidic.dto.member.JoinDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
+import com.kimtaeyang.mobidic.dto.quiz.QuizDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
+import com.kimtaeyang.mobidic.type.PartOfSpeech;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,27 +20,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.FileInputStream;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
-import static com.kimtaeyang.mobidic.code.AuthResponseCode.UNAUTHORIZED;
-import static com.kimtaeyang.mobidic.code.GeneralResponseCode.TOO_BIG_FILE_SIZE;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
-public class PronunciationIntegrationTest {
+public class QuizIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -53,89 +53,49 @@ public class PronunciationIntegrationTest {
     }
 
     @Test
-    @DisplayName("[Pronunciation][Integration] Rate pronunciation test")
-    void ratePronunciationTest() throws Exception {
-        String token = loginAndGetToken("test@test.com", "test");
+    @DisplayName("[Quiz][Integration] Ox quiz generate test")
+    void oxQuizGenerateTest() throws Exception {
+        String token = loginAndGetToken("email@test.com", "password1");
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetId(memberId, token);
-        UUID wordId = addWordAndGetId(vocabId, token, "hello");
 
-        MockMultipartFile file = new MockMultipartFile(
-                "file", // 파일 파라미터 이름
-                "hello.m4a", // 파일 이름
-                "audio/m4a", // 파일 MIME 타입
-                new FileInputStream(Paths.get("src/test/resources/hello.m4a").toFile()) // 상대 경로
-        );
+        String[] sampleWords = {"Hello", "Apple", "Run", "Edit", "Amazing"};
+        String[] sampleDefs = {"안녕", "사과", "뛰다", "편집하다", "개쩌는"};
+        PartOfSpeech[] sampleParts = {PartOfSpeech.INTERJECTION, PartOfSpeech.NOUN, PartOfSpeech.VERB,
+                PartOfSpeech.VERB, PartOfSpeech.ADJECTIVE};
 
-        MockMultipartFile largeFile = new MockMultipartFile(
-                "file", // 파일 파라미터 이름
-                "napal.mp3", // 파일 이름
-                "audio/mp3", // 파일 MIME 타입
-                new FileInputStream(Paths.get("src/test/resources/napal.mp3").toFile()) // 상대 경로
-        );
+        List<WordDetailDto> savedWords = addWordsAndGetDetails(sampleWords, sampleDefs, sampleParts
+                ,vocabId, token);
 
-        //Success high rate
-        MvcResult result = mockMvc.perform(multipart("/api/pron/rate")
-                        .file(file) // 파일 파라미터 추가
+        MvcResult quizResult = mockMvc.perform(get("/api/quiz/ox")
                         .header("Authorization", "Bearer " + token)
-                        .param("wordId", wordId.toString())) // 문자열 파라미터 추가
-                .andExpect(status().isOk()) // 응답 상태 200
-                .andReturn();
-
-        String json = result.getResponse().getContentAsString();
-        double rate = Double.parseDouble(objectMapper.readTree(json).path("data").asText());
-
-        assertTrue(rate > 0.8);
-
-        //Success low rate
-        UUID wordId2 = addWordAndGetId(vocabId, token, "yellow");
-
-        result = mockMvc.perform(multipart("/api/pron/rate")
-                        .file(file)
-                        .header("Authorization", "Bearer " + token)
-                        .param("wordId", wordId2.toString()))
+                        .param("vId", vocabId.toString()))
                 .andExpect(status().isOk())
                 .andReturn();
+        JsonNode data = objectMapper.readTree(quizResult.getResponse().getContentAsString()).path("data");
+        QuizDto quiz = objectMapper.readValue(data.toString(), QuizDto.class);
 
-        json = result.getResponse().getContentAsString();
-        rate = Double.parseDouble(objectMapper.readTree(json).path("data").asText());
+        System.out.println(quiz);
+    }
 
-        assertTrue(rate < 0.8);
+    private List<WordDetailDto> addWordsAndGetDetails(String[] sampleWords, String[] sampleDefs,
+                                                      PartOfSpeech[] sampleParts, UUID vocabId, String token) throws Exception {
+        for (int i = 0; i < sampleWords.length; i++) {
+            UUID wordId = addWordAndGetId(vocabId, token, sampleWords[i]);
+            UUID defId = addDefAndGetId(wordId, token, sampleDefs[i], sampleParts[i]);
+        }
 
-        //Fail with too big file
-        mockMvc.perform(multipart("/api/pron/rate")
-                        .file(largeFile)
+        MvcResult wordsResult = mockMvc.perform(get("/api/word/all")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
-                        .param("wordId", wordId.toString()))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message")
-                        .value(TOO_BIG_FILE_SIZE.getMessage()));
+                        .param("vId", vocabId.toString())
+                ).andExpect(status().isOk())
+                .andReturn();
+        String json = wordsResult.getResponse().getContentAsString();
+        JsonNode data = objectMapper.readTree(json).path("data");
 
-        //Fail without token
-        mockMvc.perform(multipart("/api/pron/rate")
-                        .file(largeFile)
-                        .param("wordId", wordId.toString()))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message")
-                        .value(UNAUTHORIZED.getMessage()));
-
-        //Fail with unauthorized token
-        mockMvc.perform(multipart("/api/pron/rate")
-                        .file(largeFile)
-                        .header("Authorization", "Bearer " + jwtUtil.generateToken(UUID.randomUUID()))
-                        .param("wordId", wordId.toString()))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message")
-                        .value(UNAUTHORIZED.getMessage()));
-
-        //Fail with no resource
-        mockMvc.perform(multipart("/api/pron/rate")
-                        .file(largeFile)
-                        .header("Authorization", "Bearer " + token)
-                        .param("wordId", UUID.randomUUID().toString()))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message")
-                        .value(UNAUTHORIZED.getMessage()));
+        return objectMapper.readValue(data.toString(),
+                new TypeReference<List<WordDetailDto>>() {});
     }
 
     private UUID addVocabAndGetId(UUID memberId, String token) throws Exception {
@@ -175,6 +135,25 @@ public class PronunciationIntegrationTest {
         return UUID.fromString(wordId);
     }
 
+    private UUID addDefAndGetId(UUID wordId, String token, String def, PartOfSpeech part) throws Exception {
+        AddDefDto.Request addDefRequest = AddDefDto.Request.builder()
+                .definition(def)
+                .part(part)
+                .build();
+
+        MvcResult defResult = mockMvc.perform(post("/api/def/" + wordId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(addDefRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String defId = objectMapper.readTree(defResult.getResponse().getContentAsString())
+                .path("data").path("id").asText();
+
+        return UUID.fromString(defId);
+    }
+
     private String loginAndGetToken(String email, String nickname) throws Exception {
         JoinDto.Request joinRequest = JoinDto.Request.builder()
                 .email(email)
@@ -202,15 +181,3 @@ public class PronunciationIntegrationTest {
         return objectMapper.readTree(json).path("data").path("token").asText();
     }
 }
-
-// Resource api integration test convention
-//Success
-// -> OK
-//Fail without token
-// -> UNAUTHORIZED
-//Fail with unauthorized token
-// -> UNAUTHORIZED
-//Fail with no resource
-// -> UNAUTHORIZED
-//Fail with invalid pattern
-// -> INVALID_REQUEST_BODY

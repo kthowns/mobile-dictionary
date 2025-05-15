@@ -1,7 +1,7 @@
 package com.kimtaeyang.mobidic.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.ErrorResponse;
+import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

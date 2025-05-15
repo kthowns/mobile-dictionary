@@ -1,9 +1,9 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.LogoutDto;
-import com.kimtaeyang.mobidic.dto.MemberDto;
-import com.kimtaeyang.mobidic.dto.UpdateNicknameDto;
-import com.kimtaeyang.mobidic.dto.UpdatePasswordDto;
+import com.kimtaeyang.mobidic.dto.member.LogoutDto;
+import com.kimtaeyang.mobidic.dto.member.MemberDto;
+import com.kimtaeyang.mobidic.dto.member.UpdateNicknameDto;
+import com.kimtaeyang.mobidic.dto.member.UpdatePasswordDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtBlacklistService;

@@ -1,4 +1,4 @@
-package com.kimtaeyang.mobidic.dto;
+package com.kimtaeyang.mobidic.dto.member;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

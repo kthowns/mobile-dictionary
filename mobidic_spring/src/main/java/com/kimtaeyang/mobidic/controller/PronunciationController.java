@@ -1,7 +1,7 @@
 package com.kimtaeyang.mobidic.controller;
 
-import com.kimtaeyang.mobidic.dto.ErrorResponse;
-import com.kimtaeyang.mobidic.dto.GeneralResponse;
+import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
+import com.kimtaeyang.mobidic.dto.response.GeneralResponse;
 import com.kimtaeyang.mobidic.service.PronunciationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,13 +42,13 @@ public class PronunciationController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "413", description = "너무 큰 파일 용량",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping(value = "/rate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GeneralResponse<Double>> ratePronunciation(

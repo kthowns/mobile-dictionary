@@ -1,12 +1,14 @@
 package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.AddWordDto;
+import com.kimtaeyang.mobidic.dto.DefDto;
 import com.kimtaeyang.mobidic.dto.WordDetailDto;
 import com.kimtaeyang.mobidic.entity.*;
 import com.kimtaeyang.mobidic.repository.DefRepository;
 import com.kimtaeyang.mobidic.repository.RateRepository;
 import com.kimtaeyang.mobidic.repository.VocabRepository;
 import com.kimtaeyang.mobidic.repository.WordRepository;
+import com.kimtaeyang.mobidic.type.PartOfSpeech;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -140,7 +143,11 @@ class WordServiceTest {
                 .correctCount(3)
                 .build();
 
-        Def defaultDef = Mockito.mock(Def.class);
+        Def defaultDef = Def.builder()
+                .part(Mockito.mock(PartOfSpeech.class))
+                .word(defaultWord)
+                .definition("definition")
+                .build();
 
         ArrayList<Def> defs = new ArrayList<>();
         defs.add(defaultDef);
@@ -160,7 +167,7 @@ class WordServiceTest {
         //then
         assertEquals(vocabId, response.getId());
         assertEquals(defaultWord.getExpression(), response.getExpression());
-        assertEquals(defs, response.getDefs());
+        assertEquals(defs.stream().map(DefDto::fromEntity).collect(Collectors.toList()), response.getDefs());
     }
 
     @Test
