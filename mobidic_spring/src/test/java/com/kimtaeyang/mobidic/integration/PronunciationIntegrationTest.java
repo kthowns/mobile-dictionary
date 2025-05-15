@@ -53,8 +53,8 @@ public class PronunciationIntegrationTest {
     }
 
     @Test
-    @DisplayName("[Pronunciation][Integration] Record file check test")
-    void recordFileCheckTest() throws Exception {
+    @DisplayName("[Pronunciation][Integration] Rate pronunciation test")
+    void ratePronunciationTest() throws Exception {
         String token = loginAndGetToken("test@test.com", "test");
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetId(memberId, token);
