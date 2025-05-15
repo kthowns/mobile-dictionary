@@ -69,6 +69,8 @@ public class QuestionController {
                     content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
                     content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "408", description = "문제 풀이 1분 타임 아웃",
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(schema = @Schema(hidden = true)))
     })
