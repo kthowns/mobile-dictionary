@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/', // 앱 실행 시 LoginPage부터 시작
       routes: {
-        '/': (context) => PhonicsPage(),
+        '/': (context) => LoginPage(),
         '/signup': (context) => SignUpPage(),
         '/find/id': (context) => const FindIdPage(),
         '/find/pw': (context) => const FindPwPage(),
