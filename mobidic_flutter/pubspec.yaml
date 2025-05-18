@@ -44,7 +44,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - assets/
+    - assets/images/mobidic_icon.png
   fonts:
     - family: Baloo2
       fonts:

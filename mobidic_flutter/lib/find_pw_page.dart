@@ -41,6 +41,8 @@ class _FindPwPageState extends State<FindPwPage> {
         builder: (_) => AlertDialog(
           title: const Text("비밀번호 찾기"),
           content: const Text("당신의 비밀번호는: pw1234"),
+          title: const Text("비밀번호 찾기"),
+          content: const Text("당신의 비밀번호는: testpassword입니다."),
           actions: [
             TextButton(
               onPressed: () {
@@ -92,21 +94,65 @@ class _FindPwPageState extends State<FindPwPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("비밀번호 찾기")),
+      backgroundColor: Colors.white, // ✅ 흰 배경
+      appBar: AppBar(
+        title: const Text("비밀번호 찾기"),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: Colors.black,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Center(
+              child: Text(
+                'MOBIDIC',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Center(
+              child: Text(
+                '비밀번호를 잊으셨나요?\n가입된 이메일을 입력하면 비밀번호를 알려드립니다!',
+                style: TextStyle(fontSize: 20, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 30),
             TextField(
               controller: emailController,
               decoration: const InputDecoration(labelText: "가입한 이메일을 입력하세요."),
               enabled: !isLocked,
+              decoration: const InputDecoration(
+                labelText: "이메일 입력",
+                helperText: '가입 시 사용한 이메일을 입력하세요',
+                border: OutlineInputBorder(),
+              ),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: isLocked ? null : tryFindPw,
-              child: const Text("비밀번호 찾기"),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: isLocked ? null : tryFindPw,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.lightBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  "비밀번호 찾기",
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+              ),
             ),
             const SizedBox(height: 12),
             if (errorMessage.isNotEmpty)
@@ -119,7 +165,22 @@ class _FindPwPageState extends State<FindPwPage> {
               Text("남은 시도 횟수: ${5 - attemptCount}회"),
             if (isLocked)
               Text("남은 시간: $remainingSeconds초", style: const TextStyle(color: Colors.orange)),
+            const SizedBox(height: 40),
           ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.grey[300],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: const [
+              Icon(Icons.note, color: Colors.black),
+              Icon(Icons.home, color: Colors.black),
+              Icon(Icons.exit_to_app, color: Colors.black),
+            ],
+          ),
         ),
       ),
     );

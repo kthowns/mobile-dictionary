@@ -4,6 +4,7 @@ import com.kimtaeyang.mobidic.dto.JoinDto;
 import com.kimtaeyang.mobidic.dto.LoginDto;
 import com.kimtaeyang.mobidic.dto.LogoutDto;
 import com.kimtaeyang.mobidic.entity.Member;
+import com.kimtaeyang.mobidic.exception.ApiException;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtBlacklistService;
 import com.kimtaeyang.mobidic.security.JwtUtil;
@@ -21,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_EMAIL;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_NICKNAME;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -32,18 +36,29 @@ public class AuthService {
     private final JwtBlacklistService jwtBlacklistService;
 
     @Transactional(readOnly = true)
-    public String login(LoginDto.Request request) {
+    public LoginDto.Response login(LoginDto.Request request) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        Member claim = (Member) auth.getPrincipal();
+        Member member = (Member) auth.getPrincipal();
 
-        return jwtUtil.generateToken(claim.getId());
+        return LoginDto.Response.builder()
+                .memberId(member.getId().toString())
+                .token(jwtUtil.generateToken(member.getId()))
+                .build();
     }
 
     @Transactional
     public JoinDto.Response join(@Valid JoinDto.Request request) {
+        if(memberRepository.countByNickname(request.getNickname()) > 0){
+            throw new ApiException(DUPLICATED_NICKNAME);
+        }
+
+        if(memberRepository.countByEmail(request.getEmail()) > 0){
+            throw new ApiException(DUPLICATED_EMAIL);
+        }
+
         Member member = Member.builder()
                 .email(request.getEmail())
                 .nickname(request.getNickname())
