@@ -6,6 +6,7 @@ import com.kimtaeyang.mobidic.dto.VocabDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.entity.Vocab;
 import com.kimtaeyang.mobidic.exception.ApiException;
+import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.repository.VocabRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.NO_MEMBER;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_TITLE;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.NO_VOCAB;
 
@@ -26,22 +28,27 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.NO_VOCAB;
 @RequiredArgsConstructor
 public class VocabService {
     private final VocabRepository vocabRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public AddVocabDto.Response addVocab(
             UUID memberId,
-            AddVocabDto.@Valid Request request
+            @Valid AddVocabDto.Request request
     ) {
-        vocabRepository.findByTitle(request.getTitle())
-                .ifPresent((v) -> { throw new ApiException(DUPLICATED_TITLE); });
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ApiException(NO_MEMBER));
+
+        int count = vocabRepository.countByTitleAndMember(request.getTitle(), member);
+
+        if (count > 0) {
+            throw new ApiException(DUPLICATED_TITLE);
+        }
 
         Vocab vocab = Vocab.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .member(Member.builder()
-                        .id(memberId)
-                        .build())
+                .member(member)
                 .build();
         vocab = vocabRepository.save(vocab);
 
@@ -51,7 +58,10 @@ public class VocabService {
     @Transactional(readOnly = true)
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
     public List<VocabDto> getVocabsByMemberId(UUID memberId) {
-        return vocabRepository.findByMember(Member.builder().id(memberId).build())
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ApiException(NO_MEMBER));
+
+        return vocabRepository.findByMember(member)
                 .stream().map(VocabDto::fromEntity).collect(Collectors.toList());
     }
 
@@ -66,12 +76,16 @@ public class VocabService {
 
     @Transactional
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
-    public UpdateVocabDto.Response updateVocab(UUID vocabId, UpdateVocabDto.Request request) {
+    public UpdateVocabDto.Response updateVocab(
+            UUID vocabId, UpdateVocabDto.Request request) {
         Vocab vocab = vocabRepository.findById(vocabId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
 
-        vocabRepository.findByTitle(request.getTitle())
-                .ifPresent((v) -> { throw new ApiException(DUPLICATED_TITLE); });
+        long count = vocabRepository.countByTitleAndMemberAndIdNot(request.getTitle(), vocab.getMember(), vocabId);
+
+        if (count > 0) {
+            throw new ApiException(DUPLICATED_TITLE);
+        }
 
         vocab.setTitle(request.getTitle());
         vocab.setDescription(request.getDescription());

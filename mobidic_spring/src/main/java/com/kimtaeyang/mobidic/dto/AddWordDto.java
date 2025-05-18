@@ -17,7 +17,7 @@ public class AddWordDto {
     @Builder
     public static class Request {
         @NotBlank
-        @Size(min = 1, max = 64)
+        @Size(min = 1, max = 45, message = "Invalid expression pattern")
         private String expression;
     }
 
