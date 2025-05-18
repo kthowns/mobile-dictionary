@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'find_id_page.dart';
+import 'find_pw_page.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -12,58 +16,32 @@ class _LoginPageState extends State<LoginPage> {
 
   void handleLogin() async {
     setState(() => isLoading = true);
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
 
     final email = emailController.text;
     final password = passwordController.text;
+    final success = (email == 'testid' && password == 'testpassword');
 
-    if (email == 'testid' && password == 'testpassword') {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text(
-            '\u2705 로그인 성공',
-            style: TextStyle(fontFamily: 'Baloo2'),
-          ),
-          content: Text(
-            '환영합니다, $email 님!',
-            style: TextStyle(fontFamily: 'MPlusRounded1c'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                '확인',
-                style: TextStyle(fontFamily: 'Quicksand'),
-              ),
-            ),
-          ],
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          success ? '✅ 로그인 성공' : '❌ 로그인 실패',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text(
-            '\u274C 로그인 실패',
-            style: TextStyle(fontFamily: 'Baloo2'),
+        content: Text(success
+            ? '환영합니다, $email 님!'
+            : '아이디 또는 비밀번호가 잘못되었습니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('확인'),
           ),
-          content: Text(
-            '아이디 또는 비밀번호가 잘못되었습니다.',
-            style: TextStyle(fontFamily: 'MPlusRounded1c'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                '다시 시도',
-                style: TextStyle(fontFamily: 'Quicksand'),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+        ],
+      ),
+    );
 
     setState(() => isLoading = false);
   }
@@ -71,106 +49,108 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFb2ebf2), Color(0xFF81d4fa), Color(0xFF4fc3f7)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              children: [
-                Image.asset('assets/whale.png', height: 150),
-                const SizedBox(height: 30),
-                TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Login ID',
-                    prefixIcon: const Icon(Icons.person),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  style: const TextStyle(fontFamily: 'MPlusRounded1c'),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  style: const TextStyle(fontFamily: 'MPlusRounded1c'),
-                ),
-                const SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/find');
-                    },
-                    child: const Text(
-                      '아이디/비밀번호 찾기',
-                      style: TextStyle(fontFamily: 'Quicksand'),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : handleLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade700,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      textStyle: const TextStyle(fontFamily: 'Quicksand'),
-                    ),
-                    child: isLoading
-                        ? const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    )
-                        : const Text(
-                      'Login',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontFamily: 'Quicksand',
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                OutlinedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/signup'),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.blue.shade700),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    textStyle: const TextStyle(fontFamily: 'Quicksand'),
-                  ),
-                  child: const Text(
-                    '회원가입',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-                const SizedBox(height: 40), // 하단바를 가릴 여유 공간
-              ],
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: const Icon(Icons.arrow_back, color: Colors.black),
+        title: const Text('로그인', style: TextStyle(color: Colors.black)),
+        centerTitle: false,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(child: Image.asset('assets/images/mobidic_icon.png', height: 100)),
+            const SizedBox(height: 20),
+            const Text(
+              '안녕하세요\nMOBIDIC 입니다.',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
+            const SizedBox(height: 8),
+            const Text(
+              '회원 서비스 이용을 위해 로그인 해주세요.',
+              style: TextStyle(color: Colors.black54),
+            ),
+            const SizedBox(height: 32),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                hintText: '아이디를 입력해주세요',
+                border: UnderlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                hintText: '비밀번호를 입력해주세요',
+                border: UnderlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: Wrap(
+                spacing: 10,
+                alignment: WrapAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const FindIdPage()),
+                      );
+                    },
+                    child: const Text('아이디 찾기', style: TextStyle(color: Colors.black54)),
+                  ),
+                  const Text('|', style: TextStyle(color: Colors.black26)),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const FindPwPage()),
+                      );
+                    },
+                    child: const Text('비밀번호 찾기', style: TextStyle(color: Colors.black54)),
+                  ),
+                  const Text('|', style: TextStyle(color: Colors.black26)),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/signup');
+                    },
+                    child: const Text('회원가입', style: TextStyle(color: Colors.black54)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: isLoading ? null : handleLogin,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.lightBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: isLoading
+                    ? const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+                    : const Text(
+                  '로그인',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: BottomAppBar(
