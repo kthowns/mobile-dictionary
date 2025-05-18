@@ -8,7 +8,13 @@ class DictationQuizPage extends StatefulWidget {
 }
 
 class _DictationQuizPageState extends State<DictationQuizPage> {
+class _DictationQuizPageState extends State<DictationQuizPage> {
   final TextEditingController _controller = TextEditingController();
+
+  final List<String> answers = ['apple', 'blue', 'call'];
+  int currentIndex = 0;
+  int correctCount = 0;
+  int totalCount = 0;
 
   final List<String> answers = ['apple', 'blue', 'call'];
   int currentIndex = 0;
@@ -17,6 +23,7 @@ class _DictationQuizPageState extends State<DictationQuizPage> {
 
   void _checkAnswer() {
     String input = _controller.text.trim().toLowerCase();
+    String correctAnswer = answers[currentIndex];
     String correctAnswer = answers[currentIndex];
 
     bool isCorrect = input == correctAnswer;
@@ -116,6 +123,7 @@ class _DictationQuizPageState extends State<DictationQuizPage> {
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Center(
               child: Text(

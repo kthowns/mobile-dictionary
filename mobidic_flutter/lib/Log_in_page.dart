@@ -153,6 +153,20 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
       ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.grey[300],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: const [
+              Icon(Icons.note, color: Colors.black),
+              Icon(Icons.home, color: Colors.black),
+              Icon(Icons.exit_to_app, color: Colors.black),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

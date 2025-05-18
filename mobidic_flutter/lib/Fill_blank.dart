@@ -305,6 +305,7 @@ class _FillBlankPageState extends State<FillBlankPage> {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: isRevealed ? Colors.lightBlue[100] : Colors.white,
+        color: isRevealed ? Colors.lightBlue[100] : Colors.white,
         border: Border.all(color: Colors.black54),
         borderRadius: BorderRadius.circular(8),
       ),

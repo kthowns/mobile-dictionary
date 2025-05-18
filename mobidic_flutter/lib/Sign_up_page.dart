@@ -42,6 +42,7 @@ class _SignUpPageState extends State<SignUpPage> {
       backgroundColor: Colors.white, // 배경 흰색
       appBar: AppBar(
         title: const Text(
+        title: const Text(
           '회원가입',
           style: TextStyle(fontSize: 24),
         ),
@@ -138,9 +139,21 @@ class _SignUpPageState extends State<SignUpPage> {
                     passwordErrorText = null;
                     confirmPasswordErrorText = null;
                   });
+                  setState(() {
+                    emailErrorText = null;
+                    passwordErrorText = null;
+                    confirmPasswordErrorText = null;
+                  });
 
                   bool hasError = false;
+                  bool hasError = false;
 
+                  if (!isValidEmail(id)) {
+                    setState(() {
+                      emailErrorText = '올바른 이메일을 입력해주세요.';
+                    });
+                    hasError = true;
+                  }
                   if (!isValidEmail(id)) {
                     setState(() {
                       emailErrorText = '올바른 이메일을 입력해주세요.';
@@ -154,6 +167,12 @@ class _SignUpPageState extends State<SignUpPage> {
                     });
                     hasError = true;
                   }
+                  if (!isValidPassword(pass)) {
+                    setState(() {
+                      passwordErrorText = '비밀번호는 8자 이상, 특수문자 포함해야 하며 (-, =) 금지입니다.';
+                    });
+                    hasError = true;
+                  }
 
                   if (pass != confirm) {
                     setState(() {
@@ -161,7 +180,14 @@ class _SignUpPageState extends State<SignUpPage> {
                     });
                     hasError = true;
                   }
+                  if (pass != confirm) {
+                    setState(() {
+                      confirmPasswordErrorText = '비밀번호가 일치하지 않습니다.';
+                    });
+                    hasError = true;
+                  }
 
+                  if (hasError) return;
                   if (hasError) return;
 
                   // ✅ 회원가입 성공 → 로그인 화면으로 이동
