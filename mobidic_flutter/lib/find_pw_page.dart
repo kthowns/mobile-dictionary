@@ -45,7 +45,7 @@ class _FindPwPageState extends State<FindPwPage> {
         context: context,
         builder: (_) => AlertDialog(
           title: const Text("비밀번호 찾기"),
-          content: const Text("당신의 비밀벊호는: testpassword입니다."),
+          content: const Text("당신의 비밀번호는: testpassword입니다."),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -70,43 +70,71 @@ class _FindPwPageState extends State<FindPwPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("비밀번호 찾기")),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFb2ebf2),
-              Color(0xFF81d4fa),
-              Color(0xFF4fc3f7),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "가입한 이메일을 입력하세요."),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: isLocked ? null : tryFindPw,
-                child: const Text("비밀번호 찾기"),
-              ),
-              const SizedBox(height: 12),
-              if (errorMessage.isNotEmpty)
-                Text(
-                  errorMessage,
-                  style: const TextStyle(color: Colors.red),
+      backgroundColor: Colors.white, // ✅ 흰 배경
+      appBar: AppBar(
+        title: const Text("비밀번호 찾기"),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: Colors.black,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Center(
+              child: Text(
+                'MOBIDIC',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
-              const SizedBox(height: 40),
-            ],
-          ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Center(
+              child: Text(
+                '비밀번호를 잊으셨나요?\n가입된 이메일을 입력하면 비밀번호를 알려드립니다!',
+                style: TextStyle(fontSize: 20, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 30),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                labelText: "이메일 입력",
+                helperText: '가입 시 사용한 이메일을 입력하세요',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: isLocked ? null : tryFindPw,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.lightBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  "비밀번호 찾기",
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (errorMessage.isNotEmpty)
+              Text(
+                errorMessage,
+                style: const TextStyle(color: Colors.red),
+              ),
+            const SizedBox(height: 40),
+          ],
         ),
       ),
       bottomNavigationBar: BottomAppBar(
