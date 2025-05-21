@@ -1,8 +1,8 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.JoinDto;
-import com.kimtaeyang.mobidic.dto.LoginDto;
-import com.kimtaeyang.mobidic.dto.LogoutDto;
+import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.member.LoginDto;
+import com.kimtaeyang.mobidic.dto.member.LogoutDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.exception.ApiException;
 import com.kimtaeyang.mobidic.repository.MemberRepository;

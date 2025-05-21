@@ -1,10 +1,10 @@
 package com.kimtaeyang.mobidic.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.JoinDto;
-import com.kimtaeyang.mobidic.dto.LoginDto;
-import com.kimtaeyang.mobidic.dto.UpdateNicknameDto;
-import com.kimtaeyang.mobidic.dto.UpdatePasswordDto;
+import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.member.LoginDto;
+import com.kimtaeyang.mobidic.dto.member.UpdateNicknameDto;
+import com.kimtaeyang.mobidic.dto.member.UpdatePasswordDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import org.junit.jupiter.api.AfterEach;

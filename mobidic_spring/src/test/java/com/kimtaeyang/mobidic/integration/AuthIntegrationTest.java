@@ -1,8 +1,8 @@
 package com.kimtaeyang.mobidic.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.JoinDto;
-import com.kimtaeyang.mobidic.dto.LoginDto;
+import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.member.LoginDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -113,9 +113,9 @@ public class AuthIntegrationTest {
     @Test
     void loginTest() throws Exception {
         JoinDto.Request joinRequest = JoinDto.Request.builder()
-                .email("test@test.com")
-                .nickname("test")
-                .password("testTest1")
+                .email("qwerq@test.com")
+                .nickname("qwerq")
+                .password("qwerqwe1")
                 .build();
 
         //Join

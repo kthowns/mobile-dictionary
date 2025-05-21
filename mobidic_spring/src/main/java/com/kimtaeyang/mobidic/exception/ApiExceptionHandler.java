@@ -1,6 +1,6 @@
 package com.kimtaeyang.mobidic.exception;
 
-import com.kimtaeyang.mobidic.dto.ErrorResponse;
+import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;

@@ -3,8 +3,8 @@ package com.kimtaeyang.mobidic.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kimtaeyang.mobidic.dto.AddVocabDto;
 import com.kimtaeyang.mobidic.dto.AddWordDto;
-import com.kimtaeyang.mobidic.dto.JoinDto;
-import com.kimtaeyang.mobidic.dto.LoginDto;
+import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.member.LoginDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -53,8 +53,8 @@ public class PronunciationIntegrationTest {
     }
 
     @Test
-    @DisplayName("[Pronunciation][Integration] Record file check test")
-    void recordFileCheckTest() throws Exception {
+    @DisplayName("[Pronunciation][Integration] Rate pronunciation test")
+    void ratePronunciationTest() throws Exception {
         String token = loginAndGetToken("test@test.com", "test");
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetId(memberId, token);

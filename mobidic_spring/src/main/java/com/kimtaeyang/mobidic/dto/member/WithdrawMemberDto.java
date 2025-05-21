@@ -1,4 +1,4 @@
-package com.kimtaeyang.mobidic.dto;
+package com.kimtaeyang.mobidic.dto.member;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

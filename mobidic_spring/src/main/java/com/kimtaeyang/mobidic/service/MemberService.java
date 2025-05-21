@@ -1,9 +1,9 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.MemberDto;
-import com.kimtaeyang.mobidic.dto.UpdateNicknameDto;
-import com.kimtaeyang.mobidic.dto.UpdatePasswordDto;
-import com.kimtaeyang.mobidic.dto.WithdrawMemberDto;
+import com.kimtaeyang.mobidic.dto.member.MemberDto;
+import com.kimtaeyang.mobidic.dto.member.UpdateNicknameDto;
+import com.kimtaeyang.mobidic.dto.member.UpdatePasswordDto;
+import com.kimtaeyang.mobidic.dto.member.WithdrawMemberDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.exception.ApiException;
 import com.kimtaeyang.mobidic.repository.MemberRepository;

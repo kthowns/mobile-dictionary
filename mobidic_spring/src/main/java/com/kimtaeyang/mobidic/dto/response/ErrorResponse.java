@@ -1,4 +1,4 @@
-package com.kimtaeyang.mobidic.dto;
+package com.kimtaeyang.mobidic.dto.response;
 
 import com.kimtaeyang.mobidic.code.ApiResponseCode;
 import lombok.AllArgsConstructor;
