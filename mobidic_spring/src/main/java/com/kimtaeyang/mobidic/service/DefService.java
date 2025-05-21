@@ -32,7 +32,7 @@ public class DefService {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
-        int count = defRepository.countByDefinition(request.getDefinition());
+        int count = defRepository.countByDefinitionAndWord(request.getDefinition(), word);
 
         if(count > 0) {
             throw new ApiException(DUPLICATED_DEFINITION);
@@ -65,7 +65,7 @@ public class DefService {
         Def def = defRepository.findById(defId)
                 .orElseThrow(() -> new ApiException(NO_DEF));
 
-        int count = defRepository.countByDefinitionAndIdNot(request.getDefinition(), defId);
+        int count = defRepository.countByDefinitionAndWordAndIdNot(request.getDefinition(), def.getWord(), defId);
 
         if(count > 0) {
             throw new ApiException(DUPLICATED_DEFINITION);
