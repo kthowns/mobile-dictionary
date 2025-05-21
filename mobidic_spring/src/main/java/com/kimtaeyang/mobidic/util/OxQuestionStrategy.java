@@ -29,9 +29,10 @@ public class OxQuestionStrategy extends QuestionStrategy {
             questions.add(
                     Question.builder()
                             .id(UUID.randomUUID())
+                            .wordId(word.getId())
+                            .memberId(memberId)
                             .stem(word.getExpression())
                             .answer(option)
-                            .memberId(memberId)
                             .build()
             );
         }
