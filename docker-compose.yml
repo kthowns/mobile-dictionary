@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  mobidic-spring:
+    build:
+      context: ./spring
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - mobidic-net
+    container_name: mobidic-spring
+    restart: unless-stopped
+    depends_on:
+      - mobidic-mysql
+      - mobidic-redis
+
+  mobidic-mysql:
+    image: mysql:8.0
+    container_name: mobidic-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    networks:
+      - mobidic-net
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mobidic-mysql-data:/var/lib/mysql
+      - ./mobidic_mysql:/docker-entrypoint-initdb.d
+
+  mobidic-redis:
+    image: redis:7-alpine
+    container_name: mobidic-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - mobidic-net
+    volumes:
+      - mobidic-redis-data:/data
+
+  mobidic-flask:
+    build:
+      context: ./flask  # flask_app.py가 있는 경로로 변경
+      dockerfile: Dockerfile        # Dockerfile 이름 변경하지 않았다면 생략 가능
+    container_name: mobidic-flask
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    networks:
+      - mobidic-net
+
+networks:
+  mobidic-net:
+    external: true
+
+volumes:
+  mobidic-mysql-data:
+  mobidic-redis-data:

@@ -48,7 +48,7 @@ public class QuestionController {
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(schema = @Schema(hidden = true)))
     })
-    @GetMapping("/ox")
+    @GetMapping("/generate/ox")
     public ResponseEntity<GeneralResponse<List<QuestionDto>>> getOxQuiz(
             @RequestParam("vId") UUID vId
     ) {
@@ -74,7 +74,7 @@ public class QuestionController {
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(schema = @Schema(hidden = true)))
     })
-    @PostMapping("/rate")
+    @PostMapping("/rate/ox")
     public ResponseEntity<GeneralResponse<QuestionRateDto.Response>> rateQuiz(
             @RequestBody QuestionRateDto.Request request
     ) {

@@ -7,6 +7,7 @@ import com.kimtaeyang.mobidic.dto.WordDetailDto;
 import com.kimtaeyang.mobidic.entity.Question;
 import com.kimtaeyang.mobidic.exception.ApiException;
 import com.kimtaeyang.mobidic.security.JwtUtil;
+import com.kimtaeyang.mobidic.util.BlankQuestionStrategy;
 import com.kimtaeyang.mobidic.util.OxQuestionStrategy;
 import com.kimtaeyang.mobidic.util.QuestionStrategy;
 import com.kimtaeyang.mobidic.util.QuestionUtil;
@@ -17,7 +18,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.REQUEST_TIMEOUT;
@@ -43,6 +47,12 @@ public class QuestionService {
         return rateQuestion(request, new OxQuestionStrategy());
     }
 
+    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
+    public List<QuestionDto> getBlankQuestions(UUID vocabId) {
+        return generateQuestions(vocabId, new BlankQuestionStrategy());
+    }
+
+
     private List<QuestionDto> generateQuestions(UUID vocabId, QuestionStrategy strategy) {
         VocabDto vocab = vocabService.getVocabById(vocabId);
         List<WordDetailDto> words = wordService.getWordsByVocabId(vocabId);
@@ -65,6 +75,7 @@ public class QuestionService {
             QuestionStrategy strategy
     ) {
         String correctAnswer = findCorrectAnswer(request.getToken());
+        expireAnswer(request.getToken());
 
         return QuestionRateDto.Response.builder()
                 .isCorrect(QuestionUtil.rate(strategy, request, correctAnswer))
@@ -90,15 +101,23 @@ public class QuestionService {
 
     private String findCorrectAnswer(String token) {
         validateQuestion(token);
-        return Optional.ofNullable(redisTemplate.opsForValue().get(QUESTION_PREFIX + token))
-                .orElseThrow(() -> new ApiException(REQUEST_TIMEOUT));
+        String correctAnswer = redisTemplate.opsForValue().get(QUESTION_PREFIX + token);
+        if (correctAnswer == null) {
+            throw new ApiException(REQUEST_TIMEOUT);
+        }
+
+        return correctAnswer;
+    }
+
+    private boolean expireAnswer(String token) {
+        return redisTemplate.delete(QUESTION_PREFIX + token);
     }
 
     private void validateQuestion(String token) {
         if (!jwtUtil.validateToken(token)) {
             throw new ApiException(INVALID_REQUEST);
         }
-        if (redisTemplate.hasKey(QUESTION_PREFIX + token)) {
+        if (!redisTemplate.hasKey(QUESTION_PREFIX + token)) {
             throw new ApiException(REQUEST_TIMEOUT);
         }
     }
