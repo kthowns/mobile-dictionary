@@ -58,7 +58,7 @@ public class WordIntegrationTest {
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
         AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
-                .expression("test1")
+                .expression("test")
                 .build();
 
         //Success
@@ -132,7 +132,7 @@ public class WordIntegrationTest {
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
         AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
-                .expression("test1")
+                .expression("test")
                 .build();
 
         mockMvc.perform(post("/api/word/" + vocabId)
@@ -193,7 +193,7 @@ public class WordIntegrationTest {
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
         AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
-                .expression("test1")
+                .expression("test")
                 .build();
 
         MvcResult addWordResult = mockMvc.perform(post("/api/word/" + vocabId)
@@ -258,10 +258,10 @@ public class WordIntegrationTest {
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
         AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
-                .expression("test1")
+                .expression("test")
                 .build();
         AddWordDto.Request addWordRequest2 = AddWordDto.Request.builder()
-                .expression("test2")
+                .expression("testtest")
                 .build();
 
         MvcResult addWordResult = mockMvc.perform(post("/api/word/" + vocabId)
@@ -353,7 +353,7 @@ public class WordIntegrationTest {
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
         AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
-                .expression("test1")
+                .expression("test")
                 .build();
 
         MvcResult addWordResult = mockMvc.perform(post("/api/word/" + vocabId)
