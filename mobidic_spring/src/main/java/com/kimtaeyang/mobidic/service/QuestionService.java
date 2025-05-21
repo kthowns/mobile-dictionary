@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,11 +29,12 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 @Slf4j
 public class QuestionService {
     private final WordService wordService;
-    private final JwtUtil jwtUtil;
-    private static final String QUESTION_PREFIX = "question:";
+    private static final String QUESTION_PREFIX = "question";
     private final RedisTemplate<String, String> redisTemplate;
     private static final Long min = 60000L;
     private final VocabService vocabService;
+    private final RateService rateService;
+    private final CryptoService cryptoService;
 
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
     public List<QuestionDto> getOxQuestions(UUID vocabId) {
@@ -51,11 +51,15 @@ public class QuestionService {
         return generateQuestions(vocabId, new BlankQuestionStrategy());
     }
 
+    @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
+    public QuestionRateDto.Response rateBlankQuestion(UUID memberId, QuestionRateDto.Request request) {
+        return rateQuestion(request, new BlankQuestionStrategy());
+    }
 
     private List<QuestionDto> generateQuestions(UUID vocabId, QuestionStrategy strategy) {
         VocabDto vocab = vocabService.getVocabById(vocabId);
         List<WordDetailDto> words = wordService.getWordsByVocabId(vocabId);
-        if(words.isEmpty()){
+        if (words.isEmpty()) {
             throw new ApiException(EMPTY_VOCAB);
         }
         List<Question> questions = QuestionUtil.generateQuiz(vocab.getMemberId(), strategy, words);
@@ -76,34 +80,44 @@ public class QuestionService {
             QuestionRateDto.Request request,
             QuestionStrategy strategy
     ) {
-        String correctAnswer = findCorrectAnswer(request.getToken());
-        expireAnswer(request.getToken());
+        String key = cryptoService.decrypt(request.getToken()); //복호화
+        String correctAnswer = findCorrectAnswer(key);
+        System.out.println("Correct answer: " + correctAnswer);
+        expireAnswer(key);
 
-        return QuestionRateDto.Response.builder()
+        UUID wordId = UUID.fromString(key.split(":")[2]);
+        QuestionRateDto.Response response = QuestionRateDto.Response.builder()
                 .isCorrect(QuestionUtil.rate(strategy, request, correctAnswer))
                 .correctAnswer(correctAnswer)
                 .build();
+
+        if (response.getIsCorrect()) {
+            rateService.increaseCorrectCount(wordId);
+        } else {
+            rateService.increaseIncorrectCount(wordId);
+        }
+
+        return response;
     }
 
     private String registerQuestion(Question question) {
-        String token = jwtUtil.generateToken(question.getMemberId(), jwt -> jwt
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + min))
-                .claim("qId", question.getId())
-        );
+        String key = QUESTION_PREFIX
+                + ":" + question.getMemberId()
+                + ":" + question.getWordId()
+                + ":" + question.getId();
 
         redisTemplate.opsForValue().set(
-                QUESTION_PREFIX + token,
+                key,
                 question.getAnswer(),
                 Duration.ofMillis(min)
         );
 
-        return token;
+        return cryptoService.encrypt(key); //암호화
     }
 
     private String findCorrectAnswer(String token) {
         validateQuestion(token);
-        String correctAnswer = redisTemplate.opsForValue().get(QUESTION_PREFIX + token);
+        String correctAnswer = redisTemplate.opsForValue().get(token);
         if (correctAnswer == null) {
             throw new ApiException(REQUEST_TIMEOUT);
         }
@@ -112,14 +126,14 @@ public class QuestionService {
     }
 
     private boolean expireAnswer(String token) {
-        return redisTemplate.delete(QUESTION_PREFIX + token);
+        return redisTemplate.delete(token);
     }
 
     private void validateQuestion(String token) {
-        if (!jwtUtil.validateToken(token)) {
+        if (!token.split(":")[0].equals(QUESTION_PREFIX)) {
             throw new ApiException(INVALID_REQUEST);
         }
-        if (!redisTemplate.hasKey(QUESTION_PREFIX + token)) {
+        if (!redisTemplate.hasKey(token)) {
             throw new ApiException(REQUEST_TIMEOUT);
         }
     }
