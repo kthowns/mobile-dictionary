@@ -8,7 +8,6 @@ class FillBlankPage extends StatefulWidget {
 }
 
 class _FillBlankPageState extends State<FillBlankPage> {
-class _FillBlankPageState extends State<FillBlankPage> {
   final List<Map<String, dynamic>> quizList = [
     {
       'word': 'apple',
@@ -30,8 +29,6 @@ class _FillBlankPageState extends State<FillBlankPage> {
   int currentIndex = 0;
   List<String> userInput = [];
   List<TextEditingController> controllers = [];
-  int totalAttempts = 0;
-  int correctAnswers = 0;
   int totalAttempts = 0;
   int correctAnswers = 0;
 
@@ -156,7 +153,6 @@ class _FillBlankPageState extends State<FillBlankPage> {
         padding: const EdgeInsets.all(32.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Align(
               alignment: Alignment.centerRight,
@@ -244,7 +240,6 @@ class _FillBlankPageState extends State<FillBlankPage> {
       margin: const EdgeInsets.symmetric(horizontal: 4),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isRevealed ? Colors.lightBlue[100] : Colors.white,
         color: isRevealed ? Colors.lightBlue[100] : Colors.white,
         border: Border.all(color: Colors.black54),
         borderRadius: BorderRadius.circular(8),
