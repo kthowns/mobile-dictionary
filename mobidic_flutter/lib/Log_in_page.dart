@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'find_id_page.dart'; // ❌ 필요 없어졌지만, 추후 사용할 수도 있으므로 유지
-import 'find_pw_page.dart'; // ❌ 필요 없어졌지만, 추후 사용할 수도 있으므로 유지
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
