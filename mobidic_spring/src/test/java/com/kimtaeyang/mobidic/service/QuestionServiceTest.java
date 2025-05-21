@@ -170,6 +170,8 @@ public class QuestionServiceTest {
 
         given(redisTemplate.opsForValue())
                 .willReturn(valueOperations);
+        given(redisTemplate.hasKey(anyString()))
+                .willReturn(true);
         given(valueOperations.get(anyString()))
                 .willReturn(correctAnswers.get(0), correctAnswers.get(1), correctAnswers.get(2), correctAnswers.get(3), correctAnswers.get(4));
 
