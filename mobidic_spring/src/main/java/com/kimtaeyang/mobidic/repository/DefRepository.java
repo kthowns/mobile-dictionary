@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface DefRepository extends JpaRepository<Def, UUID> {
     List<Def> findByWord(Word word);
 
-    int countByDefinitionAndIdNot(String definition, UUID id);
+    int countByDefinitionAndWord(String definition, Word word);
 
-    int countByDefinition(String definition);
+    int countByDefinitionAndWordAndIdNot(String definition, Word word, UUID id);
 }

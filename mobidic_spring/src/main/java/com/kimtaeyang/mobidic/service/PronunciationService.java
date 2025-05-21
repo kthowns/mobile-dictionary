@@ -5,6 +5,7 @@ import com.kimtaeyang.mobidic.exception.ApiException;
 import com.kimtaeyang.mobidic.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +26,9 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.TOO_BIG_FILE_SIZE;
 public class PronunciationService {
     private final WordRepository wordRepository;
 
+    @Value("${app.whisper.flask-server-url}")
+    private String flaskServerUrl;
+
     @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
     public double ratePronunciation(UUID wordId, MultipartFile record) {
         if(record.getSize() > 1024 * 100) {
@@ -34,7 +38,7 @@ public class PronunciationService {
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
         WebClient webClient = WebClient.builder()
-                .baseUrl("http://127.0.0.1:5000")
+                .baseUrl(flaskServerUrl)
                 .build();
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("file", record.getResource());

@@ -15,10 +15,10 @@ public class OxQuestionStrategy extends QuestionStrategy {
         List<WordDetailDto> words = new ArrayList<>(orgWords);
 
         ArrayList<String> options = new ArrayList<>();
-        ArrayList<Question> questions = new ArrayList<>(words.size());
+        ArrayList<Question> questions = new ArrayList<>();
 
         for (WordDetailDto word : words) {
-            String option = "";
+            String option = null;
 
             if (word.getDefs() != null && !word.getDefs().isEmpty()) {
                 int randIdx = ThreadLocalRandom.current().nextInt(word.getDefs().size());
