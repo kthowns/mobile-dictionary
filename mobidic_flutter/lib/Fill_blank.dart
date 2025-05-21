@@ -8,6 +8,7 @@ class FillBlankPage extends StatefulWidget {
 }
 
 class _FillBlankPageState extends State<FillBlankPage> {
+class _FillBlankPageState extends State<FillBlankPage> {
   final List<Map<String, dynamic>> quizList = [
     {
       'word': 'apple',
@@ -29,6 +30,8 @@ class _FillBlankPageState extends State<FillBlankPage> {
   int currentIndex = 0;
   List<String> userInput = [];
   List<TextEditingController> controllers = [];
+  int totalAttempts = 0;
+  int correctAnswers = 0;
   int totalAttempts = 0;
   int correctAnswers = 0;
 
@@ -54,6 +57,7 @@ class _FillBlankPageState extends State<FillBlankPage> {
 
     String answer = '';
     for (int i = 0; i < word.length; i++) {
+      answer += revealed[i] ? word[i] : userInput[i].toLowerCase();
       answer += revealed[i] ? word[i] : userInput[i].toLowerCase();
       answer += revealed[i] ? word[i] : userInput[i].toLowerCase();
     }
@@ -143,6 +147,7 @@ class _FillBlankPageState extends State<FillBlankPage> {
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
+        title: const Text('MOBIDIC'),
         title: const Text('MOBIDIC'),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -241,6 +246,7 @@ class _FillBlankPageState extends State<FillBlankPage> {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: isRevealed ? Colors.lightBlue[100] : Colors.white,
+        color: isRevealed ? Colors.lightBlue[100] : Colors.white,
         border: Border.all(color: Colors.black54),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -260,6 +266,7 @@ class _FillBlankPageState extends State<FillBlankPage> {
         controller: controllers[index],
         maxLength: 1,
         textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 24, color: Colors.black),
         style: const TextStyle(fontSize: 24, color: Colors.black),
         decoration: const InputDecoration(
           counterText: '',

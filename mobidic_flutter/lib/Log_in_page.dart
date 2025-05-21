@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'find_id_page.dart';
+import 'find_pw_page.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
+
   const LoginPage({Key? key}) : super(key: key);
 
   @override
@@ -17,11 +21,33 @@ class _LoginPageState extends State<LoginPage> {
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
 
     final email = emailController.text;
     final password = passwordController.text;
     final success = (email == 'testid' && password == 'testpassword');
+    final success = (email == 'testid' && password == 'testpassword');
 
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          success ? '✅ 로그인 성공' : '❌ 로그인 실패',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Text(success
+            ? '환영합니다, $email 님!'
+            : '아이디 또는 비밀번호가 잘못되었습니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('확인'),
+          ),
+        ],
+      ),
+    );
     showDialog(
       context: context,
       builder: (_) => AlertDialog(

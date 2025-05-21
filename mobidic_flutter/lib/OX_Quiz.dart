@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class OXQuizPage extends StatefulWidget {
   const OXQuizPage({super.key});
+  const OXQuizPage({super.key});
 
   @override
   State<OXQuizPage> createState() => _OXQuizPageState();
@@ -15,6 +16,8 @@ class _OXQuizPageState extends State<OXQuizPage> {
   ];
 
   int currentIndex = 0;
+  int correctAnswers = 0;
+  int totalAttempts = 0;
   int correctAnswers = 0;
   int totalAttempts = 0;
 
