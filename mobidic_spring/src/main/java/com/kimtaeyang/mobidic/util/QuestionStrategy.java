@@ -40,12 +40,20 @@ abstract public class QuestionStrategy {
         if (list == null || list.size() < 2) {
             return;
         }
+
+        for(T item : list){
+            if(item == null){
+                return;
+            }
+        }
+
         List<T> orgList = new ArrayList<>(list);
+
         while (true) { //complete derangement
             Collections.shuffle(list);
             boolean isDerangement = true;
             for (int i = 0; i < list.size(); i++) {
-                if (list.get(i) == orgList.get(i)) {
+                if (list.get(i).equals(orgList.get(i))) {
                     isDerangement = false;
                     break;
                 }

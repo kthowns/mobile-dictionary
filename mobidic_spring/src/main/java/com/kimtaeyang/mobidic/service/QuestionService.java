@@ -23,8 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static com.kimtaeyang.mobidic.code.GeneralResponseCode.INVALID_REQUEST;
-import static com.kimtaeyang.mobidic.code.GeneralResponseCode.REQUEST_TIMEOUT;
+import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +55,9 @@ public class QuestionService {
     private List<QuestionDto> generateQuestions(UUID vocabId, QuestionStrategy strategy) {
         VocabDto vocab = vocabService.getVocabById(vocabId);
         List<WordDetailDto> words = wordService.getWordsByVocabId(vocabId);
+        if(words.isEmpty()){
+            throw new ApiException(EMPTY_VOCAB);
+        }
         List<Question> questions = QuestionUtil.generateQuiz(vocab.getMemberId(), strategy, words);
         List<QuestionDto> questionDtos = new ArrayList<>();
         for (Question question : questions) {
