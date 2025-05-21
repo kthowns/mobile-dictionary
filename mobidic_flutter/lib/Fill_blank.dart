@@ -72,17 +72,16 @@ class _FillBlankPageState extends State<FillBlankPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-
               if (currentIndex < quizList.length - 1) {
                 setState(() {
                   currentIndex++;
                   _setupCurrentQuestion();
                 });
               } else {
-                _showSummaryDialog(); // ✅ 마지막 문제 후 통계 다이얼로그 표시
+                _showSummaryDialog();
               }
             },
-            child: const Text("다음"),
+            child: const Text("다음 문제"),
           ),
         ],
       ),
@@ -141,6 +140,7 @@ class _FillBlankPageState extends State<FillBlankPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('MOBIDIC'),
         centerTitle: true,
@@ -148,11 +148,19 @@ class _FillBlankPageState extends State<FillBlankPage> {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(32.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                getAccuracyText(),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            ),
+            const SizedBox(height: 40),
             const Center(
               child: Text(
                 '빈칸채우기',
@@ -171,14 +179,6 @@ class _FillBlankPageState extends State<FillBlankPage> {
               ),
             ),
             const SizedBox(height: 30),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                getAccuracyText(),
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            ),
-            const SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(word.length, (i) {
@@ -189,25 +189,29 @@ class _FillBlankPageState extends State<FillBlankPage> {
                 }
               }),
             ),
-            const SizedBox(height: 40),
-            Text('뜻: $meaning',
-                style: const TextStyle(fontSize: 20, color: Colors.black)),
+            const SizedBox(height: 30),
+            Center(
+              child: Text('뜻: $meaning',
+                  style: const TextStyle(fontSize: 20, color: Colors.black)),
+            ),
             const SizedBox(height: 40),
             Center(
               child: ElevatedButton(
                 onPressed: checkAnswer,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  backgroundColor: Colors.lightBlue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: const Text('제출하기', style: TextStyle(fontSize: 18)),
+                child: const Text(
+                  '제출하기',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 80), // ✅ 하단바에 가려지지 않도록 여유 공간 추가
           ],
         ),
       ),
