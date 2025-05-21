@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'Log_in_page.dart';
 
 class FindPwPage extends StatefulWidget {
   const FindPwPage({super.key});
@@ -13,6 +14,8 @@ class _FindPwPageState extends State<FindPwPage> {
   int attemptCount = 0;
   bool isLocked = false;
   String errorMessage = "";
+  int remainingSeconds = 0;
+  Timer? countdownTimer;
 
   void tryFindPw() {
     if (isLocked) return;
@@ -24,19 +27,11 @@ class _FindPwPageState extends State<FindPwPage> {
     });
 
     if (attemptCount > 5) {
+      startLockTimer();
       setState(() {
         isLocked = true;
         errorMessage = "시도 횟수 5회를 초과했습니다. 3분 후, 다시 시도해주세요.";
       });
-
-      Timer(const Duration(minutes: 3), () {
-        setState(() {
-          isLocked = false;
-          attemptCount = 0;
-          errorMessage = "";
-        });
-      });
-
       return;
     }
 
@@ -45,11 +40,19 @@ class _FindPwPageState extends State<FindPwPage> {
         context: context,
         builder: (_) => AlertDialog(
           title: const Text("비밀번호 찾기"),
-          content: const Text("당신의 비밀벊호는: testpassword입니다."),
+          content: const Text("당신의 비밀번호는: pw1234"),
+          title: const Text("비밀번호 찾기"),
+          content: const Text("당신의 비밀번호는: testpassword입니다."),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("확인"),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => LoginPage()),
+                );
+              },
+              child: const Text("로그인"),
             )
           ],
         ),
@@ -57,12 +60,33 @@ class _FindPwPageState extends State<FindPwPage> {
     } else {
       setState(() {
         errorMessage = "등록되지 않은 이메일 입니다.";
+        emailController.clear();
       });
     }
   }
 
+  void startLockTimer() {
+    remainingSeconds = 180;
+    countdownTimer?.cancel();
+    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (remainingSeconds <= 1) {
+        timer.cancel();
+        setState(() {
+          isLocked = false;
+          attemptCount = 0;
+          errorMessage = "";
+        });
+      } else {
+        setState(() {
+          remainingSeconds--;
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
+    countdownTimer?.cancel();
     emailController.dispose();
     super.dispose();
   }
@@ -70,43 +94,79 @@ class _FindPwPageState extends State<FindPwPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("비밀번호 찾기")),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFb2ebf2),
-              Color(0xFF81d4fa),
-              Color(0xFF4fc3f7),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "가입한 이메일을 입력하세요."),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: isLocked ? null : tryFindPw,
-                child: const Text("비밀번호 찾기"),
-              ),
-              const SizedBox(height: 12),
-              if (errorMessage.isNotEmpty)
-                Text(
-                  errorMessage,
-                  style: const TextStyle(color: Colors.red),
+      backgroundColor: Colors.white, // ✅ 흰 배경
+      appBar: AppBar(
+        title: const Text("비밀번호 찾기"),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: Colors.black,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Center(
+              child: Text(
+                'MOBIDIC',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
-              const SizedBox(height: 40),
-            ],
-          ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Center(
+              child: Text(
+                '비밀번호를 잊으셨나요?\n가입된 이메일을 입력하면 비밀번호를 알려드립니다!',
+                style: TextStyle(fontSize: 20, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 30),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(labelText: "가입한 이메일을 입력하세요."),
+              enabled: !isLocked,
+              decoration: const InputDecoration(
+                labelText: "이메일 입력",
+                helperText: '가입 시 사용한 이메일을 입력하세요',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: isLocked ? null : tryFindPw,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.lightBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  "비밀번호 찾기",
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (errorMessage.isNotEmpty)
+              Text(
+                errorMessage,
+                style: const TextStyle(color: Colors.red),
+              ),
+            const SizedBox(height: 8),
+            if (!isLocked && attemptCount > 0)
+              Text("남은 시도 횟수: ${5 - attemptCount}회"),
+            if (isLocked)
+              Text("남은 시간: $remainingSeconds초", style: const TextStyle(color: Colors.orange)),
+            const SizedBox(height: 40),
+          ],
         ),
       ),
       bottomNavigationBar: BottomAppBar(
