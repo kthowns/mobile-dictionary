@@ -3,13 +3,9 @@ package com.kimtaeyang.mobidic.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.AddDefDto;
-import com.kimtaeyang.mobidic.dto.AddVocabDto;
-import com.kimtaeyang.mobidic.dto.AddWordDto;
-import com.kimtaeyang.mobidic.dto.WordDetailDto;
+import com.kimtaeyang.mobidic.dto.*;
 import com.kimtaeyang.mobidic.dto.member.JoinDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
-import com.kimtaeyang.mobidic.dto.quiz.QuizDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import com.kimtaeyang.mobidic.type.PartOfSpeech;
@@ -27,8 +23,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -65,17 +63,59 @@ public class QuizIntegrationTest {
                 PartOfSpeech.VERB, PartOfSpeech.ADJECTIVE};
 
         List<WordDetailDto> savedWords = addWordsAndGetDetails(sampleWords, sampleDefs, sampleParts
-                ,vocabId, token);
+                , vocabId, token);
 
-        MvcResult quizResult = mockMvc.perform(get("/api/quiz/ox")
+        MvcResult quizResult = mockMvc.perform(get("/api/quiz/generate//ox")
                         .header("Authorization", "Bearer " + token)
                         .param("vId", vocabId.toString()))
                 .andExpect(status().isOk())
                 .andReturn();
         JsonNode data = objectMapper.readTree(quizResult.getResponse().getContentAsString()).path("data");
-        QuizDto quiz = objectMapper.readValue(data.toString(), QuizDto.class);
+        List<QuestionDto> resultQuestions = objectMapper.readValue(data.toString(), new TypeReference<>() {
+        });
 
-        System.out.println(quiz);
+        assertEquals(savedWords.size(), resultQuestions.size());
+    }
+
+    @Test
+    @DisplayName("[Quiz][Integration] Ox quiz rate test")
+    void oxQuizRateTest() throws Exception {
+        String token = loginAndGetToken("email@test.com", "password1");
+        UUID memberId = jwtUtil.getIdFromToken(token);
+        UUID vocabId = addVocabAndGetId(memberId, token);
+
+        String[] sampleWords = {"Hello", "Apple", "Run", "Edit", "Amazing"};
+        String[] sampleDefs = {"안녕", "사과", "뛰다", "편집하다", "개쩌는"};
+        PartOfSpeech[] sampleParts = {PartOfSpeech.INTERJECTION, PartOfSpeech.NOUN, PartOfSpeech.VERB,
+                PartOfSpeech.VERB, PartOfSpeech.ADJECTIVE};
+
+        List<WordDetailDto> savedWords = addWordsAndGetDetails(sampleWords, sampleDefs, sampleParts
+                , vocabId, token);
+
+        MvcResult quizResult = mockMvc.perform(get("/api/quiz/generate/ox")
+                        .header("Authorization", "Bearer " + token)
+                        .param("vId", vocabId.toString()))
+                .andExpect(status().isOk())
+                .andReturn();
+        JsonNode data = objectMapper.readTree(quizResult.getResponse().getContentAsString()).path("data");
+        List<QuestionDto> quizs = objectMapper.readValue(data.toString(), new TypeReference<>() {});
+
+        for(int i=0; i<savedWords.size(); i++) {
+            QuestionRateDto.Request rateRequest = QuestionRateDto.Request.builder()
+                    .token(quizs.get(i).getToken())
+                    .answer(savedWords.get(i).getDefs().get(0).getDefinition())
+                    .build();
+
+            mockMvc.perform(post("/api/quiz/rate/ox")
+                            .header("Authorization", "Bearer " + token)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(rateRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.isCorrect")
+                            .value(true))
+                    .andExpect(jsonPath("$.data.correctAnswer")
+                            .value(savedWords.get(i).getDefs().get(0).getDefinition()));
+        }
     }
 
     private List<WordDetailDto> addWordsAndGetDetails(String[] sampleWords, String[] sampleDefs,
@@ -95,7 +135,8 @@ public class QuizIntegrationTest {
         JsonNode data = objectMapper.readTree(json).path("data");
 
         return objectMapper.readValue(data.toString(),
-                new TypeReference<List<WordDetailDto>>() {});
+                new TypeReference<List<WordDetailDto>>() {
+                });
     }
 
     private UUID addVocabAndGetId(UUID memberId, String token) throws Exception {
