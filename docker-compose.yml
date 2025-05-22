@@ -2,11 +2,9 @@ version: '3.8'
 
 services:
   mobidic-spring:
-    build:
-      context: ./spring
-      dockerfile: Dockerfile
+    image: pni2399/mobidic-spring:1.0
     ports:
-      - "8080:8080"
+      - "80:8080"
     networks:
       - mobidic-net
     container_name: mobidic-spring
@@ -41,9 +39,7 @@ services:
       - mobidic-redis-data:/data
 
   mobidic-flask:
-    build:
-      context: ./flask  # flask_app.py가 있는 경로로 변경
-      dockerfile: Dockerfile        # Dockerfile 이름 변경하지 않았다면 생략 가능
+    image: pni2399/mobidic-flask:1.0
     container_name: mobidic-flask
     restart: unless-stopped
     ports:
