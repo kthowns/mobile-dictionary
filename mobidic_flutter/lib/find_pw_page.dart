@@ -94,7 +94,7 @@ class _FindPwPageState extends State<FindPwPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // ✅ 흰 배경
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("비밀번호 찾기"),
         backgroundColor: Colors.white,
@@ -128,7 +128,6 @@ class _FindPwPageState extends State<FindPwPage> {
             const SizedBox(height: 30),
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(labelText: "가입한 이메일을 입력하세요."),
               enabled: !isLocked,
               decoration: const InputDecoration(
                 labelText: "이메일 입력",

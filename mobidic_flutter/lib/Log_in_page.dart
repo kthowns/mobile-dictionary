@@ -95,37 +95,11 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 20),
             Center(
-              child: Wrap(
-                spacing: 10,
-                alignment: WrapAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const FindIdPage()),
-                      );
-                    },
-                    child: const Text('아이디 찾기', style: TextStyle(color: Colors.black54)),
-                  ),
-                  const Text('|', style: TextStyle(color: Colors.black26)),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const FindPwPage()),
-                      );
-                    },
-                    child: const Text('비밀번호 찾기', style: TextStyle(color: Colors.black54)),
-                  ),
-                  const Text('|', style: TextStyle(color: Colors.black26)),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/signup');
-                    },
-                    child: const Text('회원가입', style: TextStyle(color: Colors.black54)),
-                  ),
-                ],
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/signup');
+                },
+                child: const Text('회원가입', style: TextStyle(color: Colors.black54)),
               ),
             ),
             const SizedBox(height: 30),
@@ -170,3 +144,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+//아이디,비밀번호 찾기 삭제
