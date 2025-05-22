@@ -38,50 +38,13 @@ class _OXQuizPageState extends State<OXQuizPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              setState(() {
-                if (currentIndex < quizList.length - 1) {
+              if (currentIndex < quizList.length - 1) {
+                setState(() {
                   currentIndex++;
-                } else {
-                  // 퀴즈 종료 메시지
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("퀴즈 완료!")),
-                  );
-                }
-              });
-            },
-            child: const Text("다음 문제"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String getAccuracyText() {
-    if (totalAttempts == 0) return "정답률: 0%";
-    double percent = (correctAnswers / totalAttempts) * 100;
-    return "정답률: ${percent.toStringAsFixed(1)}% ($correctAnswers / $totalAttempts)";
-    bool isCorrect = userAnswer == correctAnswer;
-
-    setState(() {
-      totalAttempts++;
-      if (isCorrect) correctAnswers++;
-    });
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(isCorrect ? "정답입니다!! 🎉" : "오답입니다. 😢"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                if (currentIndex < quizList.length - 1) {
-                  currentIndex++;
-                } else {
-                  _showCompletionDialog(); // ✅ 마지막 문제 시 결과 다이얼로그
-                }
-              });
+                });
+              } else {
+                _showCompletionDialog();
+              }
             },
             child: const Text("다음 문제"),
           ),
@@ -128,7 +91,7 @@ class _OXQuizPageState extends State<OXQuizPage> {
     final currentQuiz = quizList[currentIndex];
 
     return Scaffold(
-      backgroundColor: Colors.white, // ✅ 배경 흰색
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('O X 퀴즈'),
         centerTitle: true,
@@ -137,32 +100,6 @@ class _OXQuizPageState extends State<OXQuizPage> {
         elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                getAccuracyText(),
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            ),
-            const SizedBox(height: 40),
-            Center(
-              child: Column(
-                children: [
-                  Text(
-                    currentQuiz['word'],
-                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    currentQuiz['meaning'],
-                    style: const TextStyle(fontSize: 24, color: Colors.grey),
-                  ),
-                ],
-              ),
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,7 +175,6 @@ class _OXQuizPageState extends State<OXQuizPage> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -259,3 +195,4 @@ class _OXQuizPageState extends State<OXQuizPage> {
     );
   }
 }
+//OX퀴즈 오류 수정
