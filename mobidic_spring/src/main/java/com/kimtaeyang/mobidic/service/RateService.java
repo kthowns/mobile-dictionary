@@ -2,9 +2,11 @@ package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.RateDto;
 import com.kimtaeyang.mobidic.entity.Rate;
+import com.kimtaeyang.mobidic.entity.Vocab;
 import com.kimtaeyang.mobidic.entity.Word;
 import com.kimtaeyang.mobidic.exception.ApiException;
 import com.kimtaeyang.mobidic.repository.RateRepository;
+import com.kimtaeyang.mobidic.repository.VocabRepository;
 import com.kimtaeyang.mobidic.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 public class RateService {
     private final WordRepository wordRepository;
     private final RateRepository rateRepository;
+    private final VocabRepository vocabRepository;
 
     @Transactional(readOnly = true)
     @PreAuthorize("@rateAccessHandler.ownershipCheck(#wordId)")
@@ -37,7 +40,9 @@ public class RateService {
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
     @Transactional(readOnly = true)
     public Double getVocabLearningRate(UUID vocabId) {
-        return rateRepository.getVocabLearningRate(vocabId)
+        Vocab vocab = vocabRepository.findById(vocabId)
+                .orElseThrow(() -> new ApiException(NO_VOCAB));
+        return rateRepository.getVocabLearningRate(vocab)
                 .orElseThrow(() -> new ApiException(INTERNAL_SERVER_ERROR));
     }
 
@@ -56,5 +61,21 @@ public class RateService {
         }
 
         rateRepository.save(rate);
+    }
+
+    @Transactional
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
+    public void increaseCorrectCount(UUID wordId) {
+        Word word = wordRepository.findById(wordId)
+                        .orElseThrow(() -> new ApiException(NO_WORD));
+        rateRepository.increaseCorrectCount(word);
+    }
+
+    @Transactional
+    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
+    public void increaseIncorrectCount(UUID wordId) {
+        Word word = wordRepository.findById(wordId)
+                .orElseThrow(() -> new ApiException(NO_WORD));
+        rateRepository.increaseIncorrectCount(word);
     }
 }

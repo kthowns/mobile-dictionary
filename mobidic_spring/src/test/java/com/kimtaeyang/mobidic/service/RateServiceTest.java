@@ -2,8 +2,10 @@ package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.RateDto;
 import com.kimtaeyang.mobidic.entity.Rate;
+import com.kimtaeyang.mobidic.entity.Vocab;
 import com.kimtaeyang.mobidic.entity.Word;
 import com.kimtaeyang.mobidic.repository.RateRepository;
+import com.kimtaeyang.mobidic.repository.VocabRepository;
 import com.kimtaeyang.mobidic.repository.WordRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,9 @@ class RateServiceTest {
 
     @Autowired
     private WordRepository wordRepository;
+
+    @Autowired
+    private VocabRepository vocabRepository;
 
     @Autowired
     private RateService rateService;
@@ -77,8 +82,10 @@ class RateServiceTest {
         Double learningRate = 0.8;
 
         //given
-        given(rateRepository.getVocabLearningRate(any(UUID.class)))
+        given(rateRepository.getVocabLearningRate(any(Vocab.class)))
                 .willReturn(Optional.of(learningRate));
+        given(vocabRepository.findById(any(UUID.class)))
+                .willReturn(Optional.of(Mockito.mock(Vocab.class)));
 
         //when
         Double foundLearningRate = rateService.getVocabLearningRate(vocabId);
@@ -127,6 +134,9 @@ class RateServiceTest {
 
     @TestConfiguration
     static class TestConfig {
+        @Bean
+        public VocabRepository vocabRepository() { return Mockito.mock(VocabRepository.class); }
+
         @Bean
         public RateRepository rateRepository() {
             return Mockito.mock(RateRepository.class);

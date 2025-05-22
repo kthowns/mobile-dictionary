@@ -2,6 +2,7 @@ package com.kimtaeyang.mobidic.dto;
 
 import com.kimtaeyang.mobidic.entity.Word;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,7 @@ public class AddWordDto {
     public static class Request {
         @NotBlank
         @Size(min = 1, max = 45, message = "Invalid expression pattern")
+        @Pattern(regexp = "^[a-zA-Z][a-zA-Z ]*$", message = "Invalid expression pattern")
         private String expression;
     }
 

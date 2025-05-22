@@ -98,9 +98,10 @@ public class QuizIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn();
         JsonNode data = objectMapper.readTree(quizResult.getResponse().getContentAsString()).path("data");
-        List<QuestionDto> quizs = objectMapper.readValue(data.toString(), new TypeReference<>() {});
+        List<QuestionDto> quizs = objectMapper.readValue(data.toString(), new TypeReference<>() {
+        });
 
-        for(int i=0; i<savedWords.size(); i++) {
+        for (int i = 0; i < savedWords.size(); i++) {
             QuestionRateDto.Request rateRequest = QuestionRateDto.Request.builder()
                     .token(quizs.get(i).getToken())
                     .answer(savedWords.get(i).getDefs().get(0).getDefinition())
@@ -115,6 +116,109 @@ public class QuizIntegrationTest {
                             .value(true))
                     .andExpect(jsonPath("$.data.correctAnswer")
                             .value(savedWords.get(i).getDefs().get(0).getDefinition()));
+        }
+    }
+
+    @Test
+    @DisplayName("[Quiz][Integration] Blank quiz generate test")
+    void blankQuizGenerateTest() throws Exception {
+        String token = loginAndGetToken("email@test.com", "password1");
+        UUID memberId = jwtUtil.getIdFromToken(token);
+        UUID vocabId = addVocabAndGetId(memberId, token);
+
+        String[] sampleWords = {"Hello", "Apple", "Run", "Edit", "Amazing"};
+        String[] sampleDefs = {"안녕", "사과", "뛰다", "편집하다", "개쩌는"};
+        PartOfSpeech[] sampleParts = {PartOfSpeech.INTERJECTION, PartOfSpeech.NOUN, PartOfSpeech.VERB,
+                PartOfSpeech.VERB, PartOfSpeech.ADJECTIVE};
+
+        List<WordDetailDto> savedWords = addWordsAndGetDetails(sampleWords, sampleDefs, sampleParts
+                , vocabId, token);
+
+        MvcResult quizResult = mockMvc.perform(get("/api/quiz/generate/blank")
+                        .header("Authorization", "Bearer " + token)
+                        .param("vId", vocabId.toString()))
+                .andExpect(status().isOk())
+                .andReturn();
+        JsonNode data = objectMapper.readTree(quizResult.getResponse().getContentAsString()).path("data");
+        List<QuestionDto> resultQuestions = objectMapper.readValue(data.toString(), new TypeReference<>() {
+        });
+
+        assertEquals(savedWords.size(), resultQuestions.size());
+        for (QuestionDto questionDto : resultQuestions) {
+            String stem = questionDto.getStem();
+            int cnt = 0;
+            for (int i = 0; i < stem.length(); i++) {
+                if (stem.charAt(i) == '_') {
+                    cnt++;
+                }
+            }
+            assertEquals(stem.length() / 2 + 1, cnt);
+        }
+    }
+
+    @Test
+    @DisplayName("[Quiz][Integration] Blank quiz rate test")
+    void blankQuizRateTest() throws Exception {
+        String token = loginAndGetToken("email@test.com", "password1");
+        UUID memberId = jwtUtil.getIdFromToken(token);
+        UUID vocabId = addVocabAndGetId(memberId, token);
+
+        String[] sampleWords = {"Hello", "Apple", "Run", "Edit", "Amazing"};
+        String[] sampleDefs = {"안녕", "사과", "뛰다", "편집하다", "개쩌는"};
+        PartOfSpeech[] sampleParts = {PartOfSpeech.INTERJECTION, PartOfSpeech.NOUN, PartOfSpeech.VERB,
+                PartOfSpeech.VERB, PartOfSpeech.ADJECTIVE};
+
+        List<WordDetailDto> savedWords = addWordsAndGetDetails(sampleWords, sampleDefs, sampleParts
+                , vocabId, token);
+
+        MvcResult quizResult = mockMvc.perform(get("/api/quiz/generate/blank")
+                        .header("Authorization", "Bearer " + token)
+                        .param("vId", vocabId.toString()))
+                .andExpect(status().isOk())
+                .andReturn();
+        JsonNode data = objectMapper.readTree(quizResult.getResponse().getContentAsString()).path("data");
+        List<QuestionDto> quizs = objectMapper.readValue(data.toString(), new TypeReference<>() {
+        });
+
+        for (int i = 0; i < savedWords.size(); i++) {
+            String stem = quizs.get(i).getStem();
+            String fullAnswer = "";
+            for (String sample : sampleWords) {
+                boolean isSame = true;
+                if (sample.length() != stem.length()) {
+                    continue;
+                }
+                for (int j = 0; j < sample.length(); j++) {
+                    if (!(sample.charAt(j) == stem.charAt(j) || stem.charAt(j) == '_')) {
+                        isSame = false;
+                        break;
+                    }
+                }
+                if (isSame) {
+                    fullAnswer = sample;
+                    break;
+                }
+            }
+            StringBuilder realAnswer = new StringBuilder();
+            for (int j = 0; j < stem.length(); j++) {
+                if (stem.charAt(j) == '_') {
+                    realAnswer.append(fullAnswer.charAt(j));
+                }
+            }
+
+            QuestionRateDto.Request rateRequest = QuestionRateDto.Request.builder()
+                    .token(quizs.get(i).getToken())
+                    .answer(realAnswer.toString())
+                    .build();
+
+            MvcResult rateResult = mockMvc.perform(post("/api/quiz/rate/blank")
+                            .header("Authorization", "Bearer " + token)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(rateRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.isCorrect")
+                            .value(true))
+                    .andReturn();
         }
     }
 
@@ -134,9 +238,8 @@ public class QuizIntegrationTest {
         String json = wordsResult.getResponse().getContentAsString();
         JsonNode data = objectMapper.readTree(json).path("data");
 
-        return objectMapper.readValue(data.toString(),
-                new TypeReference<List<WordDetailDto>>() {
-                });
+        return objectMapper.readValue(data.toString(), new TypeReference<>() {
+        });
     }
 
     private UUID addVocabAndGetId(UUID memberId, String token) throws Exception {

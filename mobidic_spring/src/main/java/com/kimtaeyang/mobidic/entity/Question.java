@@ -15,6 +15,7 @@ import java.util.UUID;
 public class Question {
     private UUID id;
     private UUID memberId;
+    private UUID wordId;
     private String stem;
     private List<String> options;
     private String answer;

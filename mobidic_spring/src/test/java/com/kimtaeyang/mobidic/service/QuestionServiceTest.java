@@ -1,8 +1,6 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.config.JwtProperties;
 import com.kimtaeyang.mobidic.dto.*;
-import com.kimtaeyang.mobidic.security.JwtUtil;
 import com.kimtaeyang.mobidic.type.PartOfSpeech;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,11 +13,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,10 +26,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(SpringExtension.class)
-@TestPropertySource(properties = {
-        "jwt.secret=qwerqwerqwerqwerqwerqwerqwerqwer",
-        "jwt.exp=3600"
-})
 @ContextConfiguration(classes = {QuestionService.class, QuestionServiceTest.TestConfig.class})
 @ActiveProfiles("dev")
 public class QuestionServiceTest {
@@ -44,10 +36,10 @@ public class QuestionServiceTest {
     private VocabService vocabService;
 
     @Autowired
-    private JwtProperties jwtProperties;
+    private RateService rateService;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private CryptoService cryptoService;
 
     @Autowired
     private WordService wordService;
@@ -141,25 +133,23 @@ public class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("[QuizService] Rate quiz test")
-    void rateQuizTest() {
+    @DisplayName("[QuizService] Rate ox quiz test")
+    void rateOxQuizTest() {
         //given
         UUID memberId = UUID.randomUUID();
         List<String> tokens = new ArrayList<>();
-        for(int i = 0; i < words.size(); i++) {
-            String token = jwtUtil.generateToken(memberId, jwt -> jwt
-                    .issuedAt(new Date())
-                    .expiration(new Date(System.currentTimeMillis() + 60000L))
-                    .claim("qId", UUID.randomUUID())
-            );
-            tokens.add(token);
+        for (int i = 0; i < words.size(); i++) {
+            String token = "question"
+                    + ":" + words.get(i).getId()
+                    + ":" + UUID.randomUUID();
+            tokens.add(cryptoService.encrypt(token));
         }
         List<String> correctAnswers = new ArrayList<>();
-        for(WordDetailDto word : words) {
+        for (WordDetailDto word : words) {
             correctAnswers.add(word.getDefs().getFirst().getDefinition());
         }
         List<QuestionRateDto.Request> requests = new ArrayList<>();
-        for(int i = 0; i < words.size(); i++) {
+        for (int i = 0; i < words.size(); i++) {
             QuestionRateDto.Request request = QuestionRateDto.Request.builder()
                     .answer(correctAnswers.get(i))
                     .token(tokens.get(i))
@@ -175,7 +165,7 @@ public class QuestionServiceTest {
         given(valueOperations.get(anyString()))
                 .willReturn(correctAnswers.get(0), correctAnswers.get(1), correctAnswers.get(2), correctAnswers.get(3), correctAnswers.get(4));
 
-        for(int i = 0; i<words.size(); i++) {
+        for (int i = 0; i < words.size(); i++) {
             //when
             QuestionRateDto.Response response = questionService.rateOxQuestion(memberId, requests.get(i));
 
@@ -187,18 +177,18 @@ public class QuestionServiceTest {
     @TestConfiguration
     static class TestConfig {
         @Bean
+        public CryptoService cryptoService() {
+            return new CryptoService();
+        }
+
+        @Bean
         public WordService wordService() {
             return Mockito.mock(WordService.class);
         }
 
         @Bean
-        public JwtProperties jwtProperties() {
-            return new JwtProperties();
-        }
-
-        @Bean
-        public JwtUtil jwtUtil() {
-            return new JwtUtil(jwtProperties());
+        public RateService rateService() {
+            return Mockito.mock(RateService.class);
         }
 
         @Bean
