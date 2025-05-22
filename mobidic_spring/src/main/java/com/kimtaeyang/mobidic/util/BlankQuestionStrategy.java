@@ -5,6 +5,7 @@ import com.kimtaeyang.mobidic.dto.WordDetailDto;
 import com.kimtaeyang.mobidic.entity.Question;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -14,8 +15,8 @@ public class BlankQuestionStrategy extends QuestionStrategy {
     public List<Question> generateQuestions(UUID memberId, List<WordDetailDto> orgWords) {
         List<WordDetailDto> words = new ArrayList<>(orgWords);
 
+        //option은 뜻
         ArrayList<String> options = new ArrayList<>();
-        //options는 뜻
         ArrayList<Question> questions = new ArrayList<>(words.size());
 
         for (WordDetailDto word : words) {
@@ -29,20 +30,21 @@ public class BlankQuestionStrategy extends QuestionStrategy {
             options.add(option);
 
             List<Integer> nums = new ArrayList<>();
-            List<Integer> indices = new ArrayList<>();
-            for(int i=0; i<options.getFirst().length(); i++){
+            for (int i = 0; i < word.getExpression().length(); i++) {
                 nums.add(i);
             }
-
-            int blankCount = nums.size()/2+1;
+            int blankCount = nums.size() / 2 + 1;
             derange(nums);
-            for(int i=0; i<blankCount; i++){
-                indices.add(i);
+
+            List<Integer> indices = new ArrayList<>();
+            for (int i = 0; i < blankCount; i++) {
+                indices.add(nums.get(i));
             }
+            Collections.sort(indices);
 
             char[] stem = word.getExpression().toCharArray();
             StringBuilder answer = new StringBuilder();
-            for(int idx : indices){
+            for (int idx : indices) {
                 answer.append(stem[idx]);
                 stem[idx] = '_';
             }

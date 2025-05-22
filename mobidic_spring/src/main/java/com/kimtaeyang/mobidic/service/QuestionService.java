@@ -6,7 +6,6 @@ import com.kimtaeyang.mobidic.dto.VocabDto;
 import com.kimtaeyang.mobidic.dto.WordDetailDto;
 import com.kimtaeyang.mobidic.entity.Question;
 import com.kimtaeyang.mobidic.exception.ApiException;
-import com.kimtaeyang.mobidic.security.JwtUtil;
 import com.kimtaeyang.mobidic.util.BlankQuestionStrategy;
 import com.kimtaeyang.mobidic.util.OxQuestionStrategy;
 import com.kimtaeyang.mobidic.util.QuestionStrategy;
@@ -125,8 +124,8 @@ public class QuestionService {
         return correctAnswer;
     }
 
-    private boolean expireAnswer(String token) {
-        return redisTemplate.delete(token);
+    private void expireAnswer(String token) {
+        redisTemplate.delete(token);
     }
 
     private void validateQuestion(String token) {
