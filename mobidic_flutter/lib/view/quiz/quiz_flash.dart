@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'vocab_list.dart';
+import '../list/vocab_list.dart';
 
 void main() {
   runApp(MaterialApp(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'vocab_list.dart'; // 홈으로 이동을 위한 import
+import '../list/vocab_list.dart'; // 홈으로 이동을 위한 import
 
 void main() {
   runApp(const SynonymGameApp());

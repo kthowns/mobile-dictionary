@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'word_list.dart';
-import 'quiz_flash.dart';
-import 'quiz_synon.dart';
-import 'OX_Quiz.dart';
-import 'Fill_blank.dart';
-import 'Dictation.dart';
+import '../word_list.dart';
+import '../../quiz/quiz_flash.dart';
+import '../../quiz/quiz_synon.dart';
+import '../../quiz/OX_Quiz.dart';
+import '../../quiz/Fill_blank.dart';
+import '../../quiz/Dictation.dart';
 
 void main() {
   runApp(const MaterialApp(

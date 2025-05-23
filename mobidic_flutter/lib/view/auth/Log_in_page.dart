@@ -24,6 +24,8 @@ class _LoginPageState extends State<LoginPage> {
     final password = passwordController.text;
     final success = (email == 'testid' && password == 'testpassword');
 
+    Navigator.pushNamed(context, '/vocab_list');
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
