@@ -42,7 +42,6 @@ class _SignUpPageState extends State<SignUpPage> {
       backgroundColor: Colors.white, // 배경 흰색
       appBar: AppBar(
         title: const Text(
-        title: const Text(
           '회원가입',
           style: TextStyle(fontSize: 24),
         ),
@@ -145,7 +144,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     confirmPasswordErrorText = null;
                   });
 
-                  bool hasError = false;
                   bool hasError = false;
 
                   if (!isValidEmail(id)) {

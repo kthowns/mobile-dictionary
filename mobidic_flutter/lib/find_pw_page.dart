@@ -41,8 +41,6 @@ class _FindPwPageState extends State<FindPwPage> {
         builder: (_) => AlertDialog(
           title: const Text("비밀번호 찾기"),
           content: const Text("당신의 비밀번호는: pw1234"),
-          title: const Text("비밀번호 찾기"),
-          content: const Text("당신의 비밀번호는: testpassword입니다."),
           actions: [
             TextButton(
               onPressed: () {
@@ -104,7 +102,6 @@ class _FindPwPageState extends State<FindPwPage> {
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Center(

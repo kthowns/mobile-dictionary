@@ -17,8 +17,6 @@ class _OXQuizPageState extends State<OXQuizPage> {
   int currentIndex = 0;
   int correctAnswers = 0;
   int totalAttempts = 0;
-  int correctAnswers = 0;
-  int totalAttempts = 0;
 
   void _checkAnswer(bool userAnswer) {
     bool correctAnswer = quizList[currentIndex]['isCorrect'];
