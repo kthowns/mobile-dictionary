@@ -12,6 +12,6 @@ class MemberDto {
       id: json['id'],
       email: json['email'],
       nickname: json['nickname'],
-      createdAt: DateTime.parse(json['createdAt'])
+        createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null
     );
 }

@@ -27,11 +27,11 @@ class AuthRepository {
 
   Future<MemberDto> join(
     String email,
-    String password,
     String nickname,
+      String password,
   ) async {
     GeneralResponseDto body = await apiClient.post(
-      url: '/auth/login',
+      url: '/auth/join',
       body: JoinRequestDto(
         email: email,
         password: password,
