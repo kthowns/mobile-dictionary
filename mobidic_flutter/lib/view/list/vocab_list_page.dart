@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobidic_flutter/view/list/word_list.dart';
+import 'package:mobidic_flutter/view/list/word_list_page.dart';
 import 'package:mobidic_flutter/view/quiz/quiz_flash.dart';
 import 'package:mobidic_flutter/view/quiz/quiz_synon.dart';
 import 'package:mobidic_flutter/view/quiz/ox_quiz.dart';
@@ -9,19 +9,19 @@ import 'package:mobidic_flutter/view/quiz/dictation_quiz.dart';
 
 void main() {
   runApp(const MaterialApp(
-    home: VocabularyHomeScreen(),
+    home: VocabListPage(),
     debugShowCheckedModeBanner: false,
   ));
 }
 
-class VocabularyHomeScreen extends StatefulWidget {
-  const VocabularyHomeScreen({super.key});
+class VocabListPage extends StatefulWidget {
+  const VocabListPage({super.key});
 
   @override
-  State<VocabularyHomeScreen> createState() => _VocabularyHomeScreenState();
+  State<VocabListPage> createState() => _VocabListPageState();
 }
 
-class _VocabularyHomeScreenState extends State<VocabularyHomeScreen> {
+class _VocabListPageState extends State<VocabListPage> {
   List<String> vocabularyTitles = [];
   List<String> vocabularyDescriptions = [];
   List<double> learningRates = [];
@@ -33,7 +33,7 @@ class _VocabularyHomeScreenState extends State<VocabularyHomeScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => WordListScreen(
+        builder: (_) => WordListPage(
           title: title,
           wordList: List<Map<String, dynamic>>.from(wordDataSets[index]),
         ),

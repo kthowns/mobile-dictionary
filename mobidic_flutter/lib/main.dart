@@ -4,7 +4,7 @@ import 'package:mobidic_flutter/repository/auth_repository.dart';
 import 'package:mobidic_flutter/repository/member_repository.dart';
 import 'package:mobidic_flutter/view/auth/Sign_up_page.dart';
 import 'package:mobidic_flutter/view/auth/log_in_page.dart';
-import 'package:mobidic_flutter/view/list/vocab_list.dart';
+import 'package:mobidic_flutter/view/list/vocab_list_page.dart';
 import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/sign_up_view_model.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
 
       routes: {
         '/': (context) => LoginPage(),
-        '/vocab_list': (context) => VocabularyHomeScreen(),
+        '/vocab_list': (context) => VocabListPage(),
         '/sign_up':
             (context) => ChangeNotifierProvider(
               create: (_) => SignUpViewModel(

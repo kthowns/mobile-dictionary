@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../list/vocab_list.dart';
+import '../list/vocab_list_page.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -76,7 +76,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                       onPressed: () {
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (_) => const VocabularyHomeScreen()),
+                          MaterialPageRoute(builder: (_) => const VocabListPage()),
                               (route) => false,
                         );
                       },
