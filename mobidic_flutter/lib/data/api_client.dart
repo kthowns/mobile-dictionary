@@ -23,6 +23,20 @@ class ApiClient {
     return _handleResponse(response, GeneralResponseDto.fromJson);
   }
 
+  Future<GeneralResponseDto> patch({
+    required String url,
+    Object? body,
+    Map<String, String>? headers,
+  }) async {
+    final http.Response response = await http.patch(
+      Uri.parse('$_baseUrl$url'),
+      headers: {'Content-Type': 'application/json', ...?headers},
+      body: body != null ? jsonEncode(body) : null,
+    );
+
+    return _handleResponse(response, GeneralResponseDto.fromJson);
+  }
+
   Future<GeneralResponseDto> get({
     required String url,
     Map<String, dynamic>? params,
@@ -35,6 +49,20 @@ class ApiClient {
     final http.Response response = await http.get(
       uri,
       headers: {'Content-Type': 'application/json', ...?headers},
+    );
+
+    return _handleResponse(response, GeneralResponseDto.fromJson);
+  }
+
+  Future<GeneralResponseDto> delete({
+    required String url,
+    Object? body,
+    Map<String, String>? headers,
+  }) async {
+    final http.Response response = await http.delete(
+      Uri.parse('$_baseUrl$url'),
+      headers: {'Content-Type': 'application/json', ...?headers},
+      body: body != null ? jsonEncode(body) : null,
     );
 
     return _handleResponse(response, GeneralResponseDto.fromJson);

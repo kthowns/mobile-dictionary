@@ -12,7 +12,7 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final authViewModel = context.watch<AuthViewModel>();
 
-    void onLoggedIn() async{
+    void onLoggedIn() async {
       if (authViewModel.isLoggedIn) {
         Navigator.pushNamed(context, '/vocab_list');
 
@@ -20,20 +20,20 @@ class LoginPage extends StatelessWidget {
           context: context,
           builder:
               (_) => AlertDialog(
-            title: const Text(
-              '✅ 로그인 성공',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            content: Text(
-              '환영합니다, ${authViewModel.currentMember?.nickname} 님!',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('확인'),
+                title: const Text(
+                  '✅ 로그인 성공',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                content: Text(
+                  '환영합니다, ${authViewModel.currentMember?.nickname} 님!',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('확인'),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
     }
