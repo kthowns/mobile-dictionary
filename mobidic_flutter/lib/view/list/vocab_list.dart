@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../word_list.dart';
-import '../../quiz/quiz_flash.dart';
-import '../../quiz/quiz_synon.dart';
-import '../../quiz/OX_Quiz.dart';
-import '../../quiz/Fill_blank.dart';
-import '../../quiz/Dictation.dart';
+import 'package:mobidic_flutter/view/list/word_list.dart';
+import 'package:mobidic_flutter/view/quiz/quiz_flash.dart';
+import 'package:mobidic_flutter/view/quiz/quiz_synon.dart';
+import 'package:mobidic_flutter/view/quiz/ox_quiz.dart';
+import 'package:mobidic_flutter/view/quiz/fill_blank_quiz.dart';
+import 'package:mobidic_flutter/view/quiz/dictation_quiz.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -233,9 +233,18 @@ class _VocabularyHomeScreenState extends State<VocabularyHomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
+        leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        onPressed: () {
+          // 원하는 로직
+          print('뒤로가기 누름');
+
+          // 실제 뒤로 가기
+          Navigator.pop(context);
+        },
+      ),
         title: const Row(
           children: [
-            Icon(Icons.arrow_back, size: 24, color: Colors.black),
             SizedBox(width: 8),
             Text(
               '나만의 단어장',

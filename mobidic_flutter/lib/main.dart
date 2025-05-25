@@ -1,8 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:mobidic_flutter/view/test/test_page.dart';
+import 'package:mobidic_flutter/data/secure_storage_data_source.dart';
+import 'package:mobidic_flutter/repository/auth_repository.dart';
+import 'package:mobidic_flutter/repository/member_repository.dart';
+import 'package:mobidic_flutter/view/auth/Sign_up_page.dart';
+import 'package:mobidic_flutter/view/auth/log_in_page.dart';
+import 'package:mobidic_flutter/view/list/vocab_list.dart';
+import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
+import 'package:mobidic_flutter/viewmodel/sign_up_view_model.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'data/api_client.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  const String apiBaseUrl = 'http://www.mobidic.shop/api';
+
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider(create: (_) => ApiClient(apiBaseUrl)),
+        Provider(create: (_) => SecureStorageDataSource()),
+        Provider(
+          create:
+              (context) => AuthRepository(
+                context.read<SecureStorageDataSource>(),
+                context.read<ApiClient>(),
+              ),
+        ),
+        Provider(
+          create:
+              (context) => MemberRepository(
+                context.read<ApiClient>(),
+                context.read<AuthRepository>(),
+              ),
+        ),
+        ChangeNotifierProvider(
+          create:
+              (context) => AuthViewModel(
+                context.read<AuthRepository>(),
+                context.read<MemberRepository>(),
+              ),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -11,11 +53,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mobidic 로그인',
+      title: 'Mobidic',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/', // 앱 실행 시 지정 클래스부터 시작
+      initialRoute: '/',
+
       routes: {
-        '/': (context) => TestPage(),
+        '/': (context) => LoginPage(),
+        '/vocab_list': (context) => VocabularyHomeScreen(),
+        '/sign_up':
+            (context) => ChangeNotifierProvider(
+              create: (_) => SignUpViewModel(
+                context.read<AuthRepository>()
+              ),
+              child: SignUpPage(),
+            ),
       },
     );
   }

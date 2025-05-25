@@ -20,7 +20,7 @@ class GeneralResponseDto {
 class ErrorResponseDto {
   final int status;
   final String message;
-  final List<Map<String, String>> errors;
+  final Map<String, dynamic>? errors;
 
   ErrorResponseDto({
     required this.status,
