@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:mobidic_flutter/data/secure_storage_data_source.dart';
 import 'package:mobidic_flutter/repository/auth_repository.dart';
 import 'package:mobidic_flutter/repository/member_repository.dart';
-import 'package:mobidic_flutter/view/auth/Sign_up_page.dart';
+import 'package:mobidic_flutter/view/auth/join_page.dart';
 import 'package:mobidic_flutter/view/auth/log_in_page.dart';
 import 'package:mobidic_flutter/view/list/vocab_list_page.dart';
 import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
-import 'package:mobidic_flutter/viewmodel/sign_up_view_model.dart';
+import 'package:mobidic_flutter/viewmodel/join_view_model.dart';
 import 'package:provider/provider.dart';
 
 import 'data/api_client.dart';
@@ -62,10 +62,10 @@ class MyApp extends StatelessWidget {
         '/vocab_list': (context) => VocabListPage(),
         '/sign_up':
             (context) => ChangeNotifierProvider(
-              create: (_) => SignUpViewModel(
+              create: (_) => JoinViewModel(
                 context.read<AuthRepository>()
               ),
-              child: SignUpPage(),
+              child: JoinPage(),
             ),
       },
     );
