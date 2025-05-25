@@ -42,6 +42,9 @@ public class RateService {
     public Double getVocabLearningRate(UUID vocabId) {
         Vocab vocab = vocabRepository.findById(vocabId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
+        if(wordRepository.countByVocab(vocab) < 1){
+            return 0.0;
+        }
         return rateRepository.getVocabLearningRate(vocab)
                 .orElseThrow(() -> new ApiException(INTERNAL_SERVER_ERROR));
     }
