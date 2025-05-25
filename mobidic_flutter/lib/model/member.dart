@@ -1,17 +1,17 @@
-class MemberDto {
+class Member {
   final String id;
   final String email;
   final String nickname;
   final DateTime? createdAt;
 
-  MemberDto({
+  Member({
     required this.id,
     required this.email,
     required this.nickname,
     required this.createdAt,
   });
 
-  factory MemberDto.fromJson(Map<String, dynamic> json) => MemberDto(
+  factory Member.fromJson(Map<String, dynamic> json) => Member(
     id: json['id'],
     email: json['email'],
     nickname: json['nickname'],

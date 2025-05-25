@@ -3,7 +3,7 @@ import 'package:mobidic_flutter/exception/api_exception.dart';
 import 'package:mobidic_flutter/repository/auth_repository.dart';
 import 'package:mobidic_flutter/repository/member_repository.dart';
 
-import 'package:mobidic_flutter/dto/member_dto.dart';
+import 'package:mobidic_flutter/model/member.dart';
 
 class AuthViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
@@ -12,8 +12,8 @@ class AuthViewModel extends ChangeNotifier {
   bool _isLoggedIn = false;
   bool get isLoggedIn => _isLoggedIn;
 
-  MemberDto? _currentMember;
-  MemberDto? get currentMember => _currentMember;
+  Member? _currentMember;
+  Member? get currentMember => _currentMember;
 
   String? _token;
 
