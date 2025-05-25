@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'list/vocab_list.dart';
+import 'package:mobidic_flutter/view/list/vocab_list_page.dart';
 
 enum PartOfSpeech {
   NOUN('명사'),
@@ -16,21 +16,21 @@ enum PartOfSpeech {
   const PartOfSpeech(this.label);
 }
 
-class WordListScreen extends StatefulWidget {
+class WordListPage extends StatefulWidget {
   final String title;
   final List<Map<String, dynamic>> wordList;
 
-  const WordListScreen({
+  const WordListPage({
     required this.title,
     required this.wordList,
     super.key,
   });
 
   @override
-  State<WordListScreen> createState() => _WordListScreenState();
+  State<WordListPage> createState() => _WordListPageState();
 }
 
-class _WordListScreenState extends State<WordListScreen> {
+class _WordListPageState extends State<WordListPage> {
   late List<Map<String, dynamic>> wordList;
 
   @override
