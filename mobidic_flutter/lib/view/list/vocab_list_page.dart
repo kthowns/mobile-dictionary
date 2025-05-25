@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../word_list.dart';
-import '../../quiz/quiz_flash.dart';
-import '../../quiz/quiz_synon.dart';
-import '../../quiz/OX_Quiz.dart';
-import '../../quiz/Fill_blank.dart';
-import '../../quiz/Dictation.dart';
+import 'package:mobidic_flutter/view/list/word_list_page.dart';
+import 'package:mobidic_flutter/view/quiz/quiz_flash.dart';
+import 'package:mobidic_flutter/view/quiz/quiz_synon.dart';
+import 'package:mobidic_flutter/view/quiz/ox_quiz.dart';
+import 'package:mobidic_flutter/view/quiz/fill_blank_quiz.dart';
+import 'package:mobidic_flutter/view/quiz/dictation_quiz.dart';
 
 void main() {
   runApp(const MaterialApp(
-    home: VocabularyHomeScreen(),
+    home: VocabListPage(),
     debugShowCheckedModeBanner: false,
   ));
 }
 
-class VocabularyHomeScreen extends StatefulWidget {
-  const VocabularyHomeScreen({super.key});
+class VocabListPage extends StatefulWidget {
+  const VocabListPage({super.key});
 
   @override
-  State<VocabularyHomeScreen> createState() => _VocabularyHomeScreenState();
+  State<VocabListPage> createState() => _VocabListPageState();
 }
 
-class _VocabularyHomeScreenState extends State<VocabularyHomeScreen> {
+class _VocabListPageState extends State<VocabListPage> {
   List<String> vocabularyTitles = [];
   List<String> vocabularyDescriptions = [];
   List<double> learningRates = [];
@@ -33,7 +33,7 @@ class _VocabularyHomeScreenState extends State<VocabularyHomeScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => WordListScreen(
+        builder: (_) => WordListPage(
           title: title,
           wordList: List<Map<String, dynamic>>.from(wordDataSets[index]),
         ),
@@ -233,9 +233,18 @@ class _VocabularyHomeScreenState extends State<VocabularyHomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
+        leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        onPressed: () {
+          // 원하는 로직
+          print('뒤로가기 누름');
+
+          // 실제 뒤로 가기
+          Navigator.pop(context);
+        },
+      ),
         title: const Row(
           children: [
-            Icon(Icons.arrow_back, size: 24, color: Colors.black),
             SizedBox(width: 8),
             Text(
               '나만의 단어장',
@@ -426,7 +435,7 @@ class _VocabularyHomeScreenState extends State<VocabularyHomeScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const FillBlankPage())),
+                        MaterialPageRoute(builder: (_) => const FillBlankQuizPage())),
                     child: const Text('빈칸 채우기'),
                   ),
                   ElevatedButton(

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class FillBlankPage extends StatefulWidget {
-  const FillBlankPage({super.key});
+class FillBlankQuizPage extends StatefulWidget {
+  const FillBlankQuizPage({super.key});
 
   @override
-  State<FillBlankPage> createState() => _FillBlankPageState();
+  State<FillBlankQuizPage> createState() => _FillBlankQuizPageState();
 }
 
-class _FillBlankPageState extends State<FillBlankPage> {
+class _FillBlankQuizPageState extends State<FillBlankQuizPage> {
   final List<Map<String, dynamic>> quizList = [
     {
       'word': 'apple',

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../list/vocab_list.dart'; // 홈으로 이동을 위한 import
+import '../list/vocab_list_page.dart'; // 홈으로 이동을 위한 import
 
 void main() {
   runApp(const SynonymGameApp());
@@ -167,7 +167,7 @@ class _SynonymGameScreenState extends State<SynonymGameScreen> {
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (_) => const VocabularyHomeScreen()),
+                MaterialPageRoute(builder: (_) => const VocabListPage()),
                     (route) => false,
               );
             },

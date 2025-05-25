@@ -1,0 +1,100 @@
+import 'package:flutter/cupertino.dart';
+import 'package:mobidic_flutter/exception/api_exception.dart';
+import 'package:mobidic_flutter/repository/auth_repository.dart';
+import 'package:mobidic_flutter/repository/member_repository.dart';
+
+import 'package:mobidic_flutter/dto/member_dto.dart';
+
+class AuthViewModel extends ChangeNotifier {
+  final AuthRepository _authRepository;
+  final MemberRepository _memberRepository;
+
+  bool _isLoggedIn = false;
+  bool get isLoggedIn => _isLoggedIn;
+
+  MemberDto? _currentMember;
+  MemberDto? get currentMember => _currentMember;
+
+  String? _token;
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  bool _loginError = false;
+  bool get loginError => _loginError;
+  String _loginErrorMessage = '';
+  String get loginErrorMessage => _loginErrorMessage;
+
+  AuthViewModel(this._authRepository, this._memberRepository){
+    loadInitialData();
+  }
+
+  Future<void> loadInitialData() async {
+    _roadStart();
+    try {
+      _token = await _authRepository.getToken();
+      _currentMember = await _memberRepository.getMemberDetail(
+          await _authRepository.getCurrentMemberId());
+      _isLoggedIn = _token != null;
+    } catch (_) {
+      _isLoggedIn = false;
+      _token = null;
+      _currentMember = null;
+    } finally {
+      _roadStop();
+    }
+  }
+
+  Future<void> login(String username, String password) async {
+    _roadStart();
+    _loginErrorMessage = '';
+
+    if(username.isEmpty || password.isEmpty){
+      _loginError = true;
+      _loginErrorMessage = '이메일 또는 비밀번호를 입력해주세요.';
+      _roadStop();
+      return;
+    }
+
+    try {
+      final response = await _authRepository.login(username, password);
+      _isLoggedIn = true;
+      _token = response.token;
+      _currentMember = await _memberRepository.getMemberDetail(response.memberId);
+      _loginError = false;
+    } on ApiException catch (e) {
+      _isLoggedIn = false;
+      _loginError = true;
+      if(e.errors != null && e.errors is Map<String, dynamic> && e.errors!.isNotEmpty) {
+        for(var entry in e.errors!.entries){
+          _loginErrorMessage += '${entry.value}\n';
+        }
+      } else {
+        _loginErrorMessage = e.message;
+      }
+    } catch(e){
+      _loginError = true;
+      _isLoggedIn = false;
+      _loginErrorMessage = "로그인 실패";
+    } finally {
+      _roadStop();
+    }
+  }
+
+  Future<void> logout() async {
+    _authRepository.logout();
+    _isLoggedIn = false;
+    _token = null;
+    _currentMember = null;
+  }
+
+  void _roadStart(){
+    _isLoading = true;
+    notifyListeners();
+  }
+
+  void _roadStop(){
+    _isLoading = false;
+    notifyListeners();
+  }
+}
