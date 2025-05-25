@@ -16,4 +16,6 @@ public interface WordRepository extends JpaRepository<Word, UUID> {
     int countByExpressionAndIdNot(String expression, UUID id);
     int countByExpressionAndVocabAndIdNot(String expression, Vocab vocab, UUID id);
     int countByExpressionAndVocab(String expression, Vocab vocab);
+
+    long countByVocab(Vocab vocab);
 }

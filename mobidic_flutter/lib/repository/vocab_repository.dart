@@ -22,7 +22,8 @@ class VocabRepository {
       params: {'uId': memberId},
     );
 
-    print(body.data);
+    print("Body : $body.data");
+    
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(body.data);
     print(data);
     List<VocabDto> responses = data.map((v) => VocabDto.fromJson(v)).toList();
@@ -70,7 +71,7 @@ class VocabRepository {
   Future<void> deleteVocab(String vocabId) async {
     String? token = await _authRepository.getToken();
 
-    GeneralResponseDto body = await _apiClient.post(
+    GeneralResponseDto body = await _apiClient.delete(
         url: '/vocab/$vocabId',
         headers: {'Authorization': 'Bearer $token'}
     );
