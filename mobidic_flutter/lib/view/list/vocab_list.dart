@@ -435,7 +435,7 @@ class _VocabularyHomeScreenState extends State<VocabularyHomeScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const FillBlankPage())),
+                        MaterialPageRoute(builder: (_) => const FillBlankQuizPage())),
                     child: const Text('빈칸 채우기'),
                   ),
                   ElevatedButton(

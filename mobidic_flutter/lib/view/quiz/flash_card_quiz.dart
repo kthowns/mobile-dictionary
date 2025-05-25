@@ -3,19 +3,19 @@ import 'package:flutter/material.dart';
 
 void main() {
   runApp(MaterialApp(
-    home: FlashcardScreen(),
+    home: FlashcardQuizPage(),
     debugShowCheckedModeBanner: false,
   ));
 }
 
-class FlashcardScreen extends StatefulWidget {
-  const FlashcardScreen({super.key});
+class FlashcardQuizPage extends StatefulWidget {
+  const FlashcardQuizPage({super.key});
 
   @override
-  State<FlashcardScreen> createState() => _FlashcardScreenState();
+  State<FlashcardQuizPage> createState() => _FlashcardQuizPageState();
 }
 
-class _FlashcardScreenState extends State<FlashcardScreen> {
+class _FlashcardQuizPageState extends State<FlashcardQuizPage> {
   int currentIndex = 0;
   bool showWord = true;
   bool showMeaning = true;

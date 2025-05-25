@@ -1,24 +1,16 @@
 import 'package:flutter/material.dart';
-import 'Log_in_page.dart'; // 로그인 화면으로 이동하기 위해 import 필요
+import 'package:mobidic_flutter/viewmodel/sign_up_view_model.dart';
+import 'package:provider/provider.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({Key? key}) : super(key: key);
+import 'log_in_page.dart'; // 로그인 화면으로 이동하기 위해 import 필요
 
-  @override
-  State<SignUpPage> createState() => _SignUpPageState();
-}
+class SignUpPage extends StatelessWidget {
+  SignUpPage({Key? key}) : super(key: key);
 
-class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController newIdController = TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
-
-  String? emailErrorText;
-  String? passwordErrorText;
-  String? confirmPasswordErrorText;
-
-  bool isPasswordVisible = false;
-  bool isConfirmPasswordVisible = false;
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   bool isValidEmail(String email) {
     final regex = RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
@@ -28,7 +20,9 @@ class _SignUpPageState extends State<SignUpPage> {
   bool isValidPassword(String password) {
     if (password.length < 8) return false;
     final forbiddenChars = RegExp(r'[-=]');
-    final specialCharRegex = RegExp(r'''[!@#\$%^&*()_+{}\[\]:;"'<>,.?/\\|`~]''');
+    final specialCharRegex = RegExp(
+      r'''[!@#\$%^&*()_+{}\[\]:;"'<>,.?/\\|`~]''',
+    );
 
     if (forbiddenChars.hasMatch(password)) return false;
     if (!specialCharRegex.hasMatch(password)) return false;
@@ -38,13 +32,12 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final SignUpViewModel signUpViewModel = context.watch<SignUpViewModel>();
+
     return Scaffold(
       backgroundColor: Colors.white, // 배경 흰색
       appBar: AppBar(
-        title: const Text(
-          '회원가입',
-          style: TextStyle(fontSize: 24),
-        ),
+        title: const Text('회원가입', style: TextStyle(fontSize: 24)),
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: Colors.black,
@@ -77,27 +70,27 @@ class _SignUpPageState extends State<SignUpPage> {
               decoration: InputDecoration(
                 labelText: '가입할 이메일을 입력하세요',
                 helperText: 'ex ) example@naver.com',
-                errorText: emailErrorText,
+                errorText: signUpViewModel.emailErrorText,
                 border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 20),
             TextField(
               controller: newPasswordController,
-              obscureText: !isPasswordVisible,
+              obscureText: !signUpViewModel.isPasswordVisible,
               decoration: InputDecoration(
                 labelText: '사용할 비밀번호를 입력하세요.',
                 helperText: '8자 이상 + 특수문자 1개 이상 ( - 와 = 제외 )',
-                errorText: passwordErrorText,
+                errorText: signUpViewModel.passwordErrorText,
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    signUpViewModel.isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                   ),
                   onPressed: () {
-                    setState(() {
-                      isPasswordVisible = !isPasswordVisible;
-                    });
+                    signUpViewModel.togglePasswordVisibility();
                   },
                 ),
               ),
@@ -105,20 +98,20 @@ class _SignUpPageState extends State<SignUpPage> {
             const SizedBox(height: 20),
             TextField(
               controller: confirmPasswordController,
-              obscureText: !isConfirmPasswordVisible,
+              obscureText: !signUpViewModel.isConfirmPasswordVisible,
               decoration: InputDecoration(
                 labelText: '한 번 더 입력하세요.',
                 helperText: '동일한 비밀번호를 입력하세요.',
-                errorText: confirmPasswordErrorText,
+                errorText: signUpViewModel.confirmPasswordErrorText,
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    signUpViewModel.isConfirmPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                   ),
                   onPressed: () {
-                    setState(() {
-                      isConfirmPasswordVisible = !isConfirmPasswordVisible;
-                    });
+                    signUpViewModel.toggleConfirmPasswordVisibility();
                   },
                 ),
               ),
@@ -129,60 +122,36 @@ class _SignUpPageState extends State<SignUpPage> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  final id = newIdController.text.trim();
-                  final pass = newPasswordController.text;
+                  final email = newIdController.text.trim();
+                  final password = newPasswordController.text;
                   final confirm = confirmPasswordController.text;
 
-                  setState(() {
-                    emailErrorText = null;
-                    passwordErrorText = null;
-                    confirmPasswordErrorText = null;
-                  });
-
-                  bool hasError = false;
-
-                  if (!isValidEmail(id)) {
-                    setState(() {
-                      emailErrorText = '올바른 이메일을 입력해주세요.';
-                    });
-                    hasError = true;
-                  }
-
-                  if (!isValidPassword(pass)) {
-                    setState(() {
-                      passwordErrorText = '비밀번호는 8자 이상, 특수문자 포함해야 하며 (-, =) 금지입니다.';
-                    });
-                    hasError = true;
-                  }
-
-                  if (pass != confirm) {
-                    setState(() {
-                      confirmPasswordErrorText = '비밀번호가 일치하지 않습니다.';
-                    });
-                    hasError = true;
-                  }
+                  bool hasError = signUpViewModel.validate(email, password, confirm);
 
                   if (hasError) return;
 
                   // ✅ 회원가입 성공 → 로그인 화면으로 이동
                   showDialog(
                     context: context,
-                    builder: (_) => AlertDialog(
-                      title: const Text('알림'),
-                      content: const Text('회원가입이 완료되었습니다!'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context); // 닫기
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (_) => const LoginPage()),
-                            );
-                          },
-                          child: const Text('로그인 하러가기'),
+                    builder:
+                        (_) => AlertDialog(
+                          title: const Text('알림'),
+                          content: const Text('회원가입이 완료되었습니다!'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context); // 닫기
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => LoginPage(),
+                                  ),
+                                );
+                              },
+                              child: const Text('로그인 하러가기'),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
