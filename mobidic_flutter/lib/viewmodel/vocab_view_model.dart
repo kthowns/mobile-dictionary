@@ -6,8 +6,14 @@ class VocabViewModel extends ChangeNotifier {
   final VocabRepository _vocabRepository;
 
   List<Vocab> _vocabs = [];
-
   List<Vocab> get vocabs => _vocabs;
+
+  bool _editMode = false;
+  bool get editMode => _editMode;
+
+  void toggleEditMode(){
+    _editMode = !_editMode;
+  }
 
   Comparator<Vocab> comparator =
       (v1, v2) => v1.createdAt!.compareTo(v2.createdAt!);

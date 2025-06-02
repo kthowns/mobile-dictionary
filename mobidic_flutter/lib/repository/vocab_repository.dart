@@ -21,11 +21,8 @@ class VocabRepository {
       headers: {'Authorization': 'Bearer $token'},
       params: {'uId': memberId},
     );
-
-    print("Body : $body.data");
     
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(body.data);
-    print(data);
     List<VocabDto> responses = data.map((v) => VocabDto.fromJson(v)).toList();
     List<Vocab> vocabs = [];
 
