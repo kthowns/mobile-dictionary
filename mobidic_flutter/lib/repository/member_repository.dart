@@ -18,6 +18,8 @@ class MemberRepository {
       params: {'uId': memberId},
     );
 
-    return Member.fromJson(body.data);
+    MemberDto response = MemberDto.fromJson(body.data);
+
+    return Member.fromDto(response);
   }
 }

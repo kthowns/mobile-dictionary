@@ -1,6 +1,8 @@
 import 'package:mobidic_flutter/data/api_client.dart';
-import 'package:mobidic_flutter/repository/auth_repository.dart';
 import 'package:mobidic_flutter/dto/api_response_dto.dart';
+import 'package:mobidic_flutter/model/definition.dart';
+import 'package:mobidic_flutter/model/rate.dart';
+import 'package:mobidic_flutter/repository/auth_repository.dart';
 
 import '../model/word.dart';
 
@@ -20,21 +22,36 @@ class WordRepository {
       params: {'uId': memberId},
     );
 
+    List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+      body.data,
+    );
+    List<WordDto> responses = data.map((v) => WordDto.fromJson(v)).toList();
+    List<Word> words = [];
 
-    List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(body.data);
-    List<VocabDto> responses = data.map((v) => VocabDto.fromJson(v)).toList();
-    List<Vocab> vocabs = [];
-
-    for (VocabDto dto in responses) {
+    for (WordDto dto in responses) {
       GeneralResponseDto rateBody = await _apiClient.get(
-        url: '/rate/v',
+        url: '/rate/w',
         headers: {'Authorization': 'Bearer $token'},
-        params: {'vId': dto.id},
+        params: {'wId': dto.id},
       );
 
-      vocabs.add(Vocab.fromDto(dto, rateBody.data));
+      RateDto rateResponse = RateDto.fromJson(rateBody.data);
+
+      GeneralResponseDto defsBody = await _apiClient.get(
+        url: '/def/all',
+        headers: {'Authorization': 'Bearer $token'},
+        params: {'wId': dto.id},
+      );
+
+      List<Map<String, dynamic>> defsData = List<Map<String, dynamic>>.from(
+        defsBody.data,
+      );
+      List<DefDto> defDtos = data.map((d) => DefDto.fromJson(d)).toList();
+      List<Definition> defs = defDtos.map((d) => Definition.fromDto(d)).toList();
+
+      words.add(Word.fromDto(dto, rateResponse.difficulty, defs));
     }
 
-    return vocabs;
+    return words;
   }
 }
