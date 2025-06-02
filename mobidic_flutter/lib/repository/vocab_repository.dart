@@ -1,6 +1,5 @@
 import 'package:mobidic_flutter/data/api_client.dart';
 import 'package:mobidic_flutter/dto/api_response_dto.dart';
-import 'package:mobidic_flutter/dto/vocab_dto.dart';
 import 'package:mobidic_flutter/model/vocab.dart';
 import 'package:mobidic_flutter/repository/auth_repository.dart';
 
@@ -21,11 +20,8 @@ class VocabRepository {
       headers: {'Authorization': 'Bearer $token'},
       params: {'uId': memberId},
     );
-
-    print("Body : $body.data");
     
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(body.data);
-    print(data);
     List<VocabDto> responses = data.map((v) => VocabDto.fromJson(v)).toList();
     List<Vocab> vocabs = [];
 

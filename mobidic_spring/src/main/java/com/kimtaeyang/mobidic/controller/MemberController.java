@@ -1,9 +1,8 @@
 package com.kimtaeyang.mobidic.controller;
 
 import com.kimtaeyang.mobidic.dto.member.MemberDto;
-import com.kimtaeyang.mobidic.dto.member.UpdateNicknameDto;
-import com.kimtaeyang.mobidic.dto.member.UpdatePasswordDto;
-import com.kimtaeyang.mobidic.dto.member.WithdrawMemberDto;
+import com.kimtaeyang.mobidic.dto.member.UpdateNicknameRequestDto;
+import com.kimtaeyang.mobidic.dto.member.UpdatePasswordRequestDto;
 import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
 import com.kimtaeyang.mobidic.dto.response.GeneralResponse;
 import com.kimtaeyang.mobidic.service.MemberService;
@@ -76,9 +75,9 @@ public class MemberController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PatchMapping("/nckchn/{memberId}")
-    public ResponseEntity<GeneralResponse<UpdateNicknameDto.Response>> updateMemberNickname(
+    public ResponseEntity<GeneralResponse<MemberDto>> updateMemberNickname(
             @PathVariable String memberId,
-            @RequestBody @Valid UpdateNicknameDto.Request request
+            @RequestBody @Valid UpdateNicknameRequestDto request
     ) {
         return GeneralResponse.toResponseEntity(OK,
                 memberService.updateMemberNickname(UUID.fromString(memberId), request));
@@ -101,9 +100,9 @@ public class MemberController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PatchMapping("/pschn/{memberId}")
-    public ResponseEntity<GeneralResponse<UpdatePasswordDto.Response>> updateMemberPassword(
+    public ResponseEntity<GeneralResponse<MemberDto>> updateMemberPassword(
             @PathVariable String memberId,
-            @RequestBody @Valid UpdatePasswordDto.Request request,
+            @RequestBody @Valid UpdatePasswordRequestDto request,
             HttpServletRequest httpServletRequest
     ) {
         String token = httpServletRequest.getHeader("Authorization").substring(7);
@@ -129,7 +128,7 @@ public class MemberController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PatchMapping("/withdraw/{memberId}")
-    public ResponseEntity<GeneralResponse<WithdrawMemberDto.Response>> withdrawMember(
+    public ResponseEntity<GeneralResponse<MemberDto>> withdrawMember(
             @PathVariable String memberId,
             HttpServletRequest request
     ) {
@@ -156,7 +155,7 @@ public class MemberController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @DeleteMapping("/delete/{memberId}")
-    public ResponseEntity<GeneralResponse<WithdrawMemberDto.Response>> deleteMember(
+    public ResponseEntity<GeneralResponse<MemberDto>> deleteMember(
             @PathVariable String memberId,
             HttpServletRequest servletRequest
     ) {

@@ -1,8 +1,8 @@
 package com.kimtaeyang.mobidic.util;
 
 import com.kimtaeyang.mobidic.dto.QuestionRateDto;
-import com.kimtaeyang.mobidic.dto.WordDetailDto;
 import com.kimtaeyang.mobidic.entity.Question;
+import com.kimtaeyang.mobidic.model.WordWithDefs;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 abstract public class QuestionStrategy {
-    abstract public List<Question> generateQuestions(UUID memberId, List<WordDetailDto> orgWords);
+    abstract public List<Question> generateQuestions(UUID memberId, List<WordWithDefs> wordsWithDefs);
+
     abstract public boolean rate(QuestionRateDto.Request request, String correctAnswer);
 
     protected static <T> void partialShuffle(int n, List<T> list) {
@@ -31,7 +32,7 @@ abstract public class QuestionStrategy {
         }
         derange(selectedValues);
 
-        for (int i = 0; i < indices.size(); i++){
+        for (int i = 0; i < indices.size(); i++) {
             list.set(indices.get(i), selectedValues.get(i));
         }
     }
@@ -41,8 +42,8 @@ abstract public class QuestionStrategy {
             return;
         }
 
-        for(T item : list){
-            if(item == null){
+        for (T item : list) {
+            if (item == null) {
                 return;
             }
         }

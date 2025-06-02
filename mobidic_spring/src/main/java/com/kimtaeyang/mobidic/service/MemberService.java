@@ -1,9 +1,8 @@
 package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.member.MemberDto;
-import com.kimtaeyang.mobidic.dto.member.UpdateNicknameDto;
-import com.kimtaeyang.mobidic.dto.member.UpdatePasswordDto;
-import com.kimtaeyang.mobidic.dto.member.WithdrawMemberDto;
+import com.kimtaeyang.mobidic.dto.member.UpdateNicknameRequestDto;
+import com.kimtaeyang.mobidic.dto.member.UpdatePasswordRequestDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.exception.ApiException;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
@@ -43,32 +42,28 @@ public class MemberService {
 
     @Transactional
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
-    public UpdateNicknameDto.Response updateMemberNickname(
-            UUID memberId, UpdateNicknameDto.Request request
+    public MemberDto updateMemberNickname(
+            UUID memberId, UpdateNicknameRequestDto request
     ) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
         int count = memberRepository.countByNicknameAndIdNot(request.getNickname(), memberId);
 
-        System.out.println("SSOME : " + count);
-        if(count > 0) {
+        if (count > 0) {
             throw new ApiException(DUPLICATED_NICKNAME);
         }
 
         member.setNickname(request.getNickname());
         member = memberRepository.save(member);
 
-        return UpdateNicknameDto.Response.builder()
-                .nickname(member.getNickname())
-                .id(member.getId())
-                .build();
+        return MemberDto.fromEntity(member);
     }
 
     @Transactional
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
-    public UpdatePasswordDto.Response updateMemberPassword(
-            UUID memberId, UpdatePasswordDto.Request request, String token
+    public MemberDto updateMemberPassword(
+            UUID memberId, UpdatePasswordRequestDto request, String token
     ) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
@@ -78,14 +73,12 @@ public class MemberService {
 
         authService.logout(memberId, token);
 
-        return UpdatePasswordDto.Response.builder()
-                .id(member.getId())
-                .build();
+        return MemberDto.fromEntity(member);
     }
 
     @Transactional
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
-    public WithdrawMemberDto.Response withdrawMember(String token, UUID memberId) {
+    public MemberDto withdrawMember(String token, UUID memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
 
@@ -96,17 +89,12 @@ public class MemberService {
         jwtBlacklistService.withdrawToken(token);
         SecurityContextHolder.clearContext();
 
-        return WithdrawMemberDto.Response.builder()
-                .withdrawnAt(member.getWithdrawnAt())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .createdAt(member.getCreatedAt())
-                .build();
+        return MemberDto.fromEntity(member);
     }
 
     @Transactional
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
-    public WithdrawMemberDto.Response deleteMember(String token, UUID memberId) {
+    public MemberDto deleteMember(String token, UUID memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
         memberRepository.deleteById(memberId);
@@ -114,11 +102,6 @@ public class MemberService {
         jwtBlacklistService.withdrawToken(token);
         SecurityContextHolder.clearContext();
 
-        return WithdrawMemberDto.Response.builder()
-                .createdAt(member.getCreatedAt())
-                .withdrawnAt(Timestamp.valueOf(LocalDateTime.now()))
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .build();
+        return MemberDto.fromEntity(member);
     }
 }

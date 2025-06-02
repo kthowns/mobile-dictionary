@@ -1,7 +1,6 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.AddVocabDto;
-import com.kimtaeyang.mobidic.dto.UpdateVocabDto;
+import com.kimtaeyang.mobidic.dto.AddVocabRequestDto;
 import com.kimtaeyang.mobidic.dto.VocabDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.entity.Vocab;
@@ -49,7 +48,7 @@ class VocabServiceTest {
 
         UUID vocabId = UUID.randomUUID();
 
-        AddVocabDto.Request request = AddVocabDto.Request.builder()
+        AddVocabRequestDto request = AddVocabRequestDto.builder()
                 .title("title")
                 .description("description")
                 .build();
@@ -69,7 +68,7 @@ class VocabServiceTest {
                 });
 
         //when
-        AddVocabDto.Response response = vocabService.addVocab(UUID.randomUUID(), request);
+        VocabDto response = vocabService.addVocab(UUID.randomUUID(), request);
 
         //then
         verify(vocabRepository, times(1))
@@ -150,8 +149,8 @@ class VocabServiceTest {
                 .description("description")
                 .build();
 
-        UpdateVocabDto.Request request =
-                UpdateVocabDto.Request.builder()
+        AddVocabRequestDto request =
+                AddVocabRequestDto.builder()
                         .title("title2")
                         .description("description2")
                         .build();
@@ -166,14 +165,14 @@ class VocabServiceTest {
                 .willReturn(0);
         given(vocabRepository.save(any(Vocab.class)))
                 .willAnswer(invocation -> {
-                   Vocab vocabArg = invocation.getArgument(0);
-                   vocabArg.setTitle(request.getTitle());
-                   vocabArg.setDescription(request.getDescription());
-                   return vocabArg;
+                    Vocab vocabArg = invocation.getArgument(0);
+                    vocabArg.setTitle(request.getTitle());
+                    vocabArg.setDescription(request.getDescription());
+                    return vocabArg;
                 });
 
         //when
-        UpdateVocabDto.Response response =
+        VocabDto response =
                 vocabService.updateVocab(vocabId, request);
 
         //then
@@ -197,7 +196,7 @@ class VocabServiceTest {
         }
     }
 
-    private void resetMock(){
+    private void resetMock() {
         Mockito.reset(vocabRepository, memberRepository);
     }
 }

@@ -1,6 +1,6 @@
 package com.kimtaeyang.mobidic.controller;
 
-import com.kimtaeyang.mobidic.dto.AddDefDto;
+import com.kimtaeyang.mobidic.dto.AddDefRequestDto;
 import com.kimtaeyang.mobidic.dto.DefDto;
 import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
 import com.kimtaeyang.mobidic.dto.response.GeneralResponse;
@@ -48,9 +48,9 @@ public class DefController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/{wordId}")
-    public ResponseEntity<GeneralResponse<AddDefDto.Response>> addDef(
+    public ResponseEntity<GeneralResponse<DefDto>> addDef(
             @PathVariable String wordId,
-            @RequestBody @Valid AddDefDto.Request request
+            @RequestBody @Valid AddDefRequestDto request
     ) {
         return GeneralResponse.toResponseEntity(OK,
                 defService.addDef(UUID.fromString(wordId), request));
@@ -99,10 +99,10 @@ public class DefController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PatchMapping("/{defId}")
-    public ResponseEntity<GeneralResponse<AddDefDto.Response>> updateDef(
+    public ResponseEntity<GeneralResponse<DefDto>> updateDef(
             @PathVariable String defId,
-            @RequestBody @Valid AddDefDto.Request request
-    ){
+            @RequestBody @Valid AddDefRequestDto request
+    ) {
         return GeneralResponse.toResponseEntity(OK,
                 defService.updateDef(UUID.fromString(defId), request));
     }

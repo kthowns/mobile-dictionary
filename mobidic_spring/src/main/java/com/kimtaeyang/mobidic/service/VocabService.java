@@ -1,7 +1,6 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.AddVocabDto;
-import com.kimtaeyang.mobidic.dto.UpdateVocabDto;
+import com.kimtaeyang.mobidic.dto.AddVocabRequestDto;
 import com.kimtaeyang.mobidic.dto.VocabDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.entity.Vocab;
@@ -32,9 +31,9 @@ public class VocabService {
 
     @Transactional
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
-    public AddVocabDto.Response addVocab(
+    public VocabDto addVocab(
             UUID memberId,
-            @Valid AddVocabDto.Request request
+            @Valid AddVocabRequestDto request
     ) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(NO_MEMBER));
@@ -52,7 +51,7 @@ public class VocabService {
                 .build();
         vocab = vocabRepository.save(vocab);
 
-        return AddVocabDto.Response.fromEntity(vocab);
+        return VocabDto.fromEntity(vocab);
     }
 
     @Transactional(readOnly = true)
@@ -76,8 +75,8 @@ public class VocabService {
 
     @Transactional
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
-    public UpdateVocabDto.Response updateVocab(
-            UUID vocabId, UpdateVocabDto.Request request) {
+    public VocabDto updateVocab(
+            UUID vocabId, AddVocabRequestDto request) {
         Vocab vocab = vocabRepository.findById(vocabId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
 
@@ -91,7 +90,7 @@ public class VocabService {
         vocab.setDescription(request.getDescription());
         vocab = vocabRepository.save(vocab);
 
-        return UpdateVocabDto.Response.fromEntity(vocab);
+        return VocabDto.fromEntity(vocab);
     }
 
     @Transactional

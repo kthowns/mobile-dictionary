@@ -1,9 +1,9 @@
 package com.kimtaeyang.mobidic.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.AddVocabDto;
-import com.kimtaeyang.mobidic.dto.AddWordDto;
-import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.AddVocabRequestDto;
+import com.kimtaeyang.mobidic.dto.AddWordRequestDto;
+import com.kimtaeyang.mobidic.dto.member.JoinRequestDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
@@ -139,7 +139,7 @@ public class PronunciationIntegrationTest {
     }
 
     private UUID addVocabAndGetId(UUID memberId, String token) throws Exception {
-        AddVocabDto.Request addVocabRequest = AddVocabDto.Request.builder()
+        AddVocabRequestDto addVocabRequest = AddVocabRequestDto.builder()
                 .title("title")
                 .description("description")
                 .build();
@@ -158,7 +158,7 @@ public class PronunciationIntegrationTest {
     }
 
     private UUID addWordAndGetId(UUID vocabId, String token, String exp) throws Exception {
-        AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
+        AddWordRequestDto addWordRequest = AddWordRequestDto.builder()
                 .expression(exp)
                 .build();
 
@@ -176,7 +176,7 @@ public class PronunciationIntegrationTest {
     }
 
     private String loginAndGetToken(String email, String nickname) throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
+        JoinRequestDto joinRequest = JoinRequestDto.builder()
                 .email(email)
                 .nickname(nickname)
                 .password("testTest1")

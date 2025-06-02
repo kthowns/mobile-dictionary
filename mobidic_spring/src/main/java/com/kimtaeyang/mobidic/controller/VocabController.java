@@ -1,6 +1,7 @@
 package com.kimtaeyang.mobidic.controller;
 
-import com.kimtaeyang.mobidic.dto.*;
+import com.kimtaeyang.mobidic.dto.AddVocabRequestDto;
+import com.kimtaeyang.mobidic.dto.VocabDto;
 import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
 import com.kimtaeyang.mobidic.dto.response.GeneralResponse;
 import com.kimtaeyang.mobidic.service.VocabService;
@@ -49,9 +50,9 @@ public class VocabController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/{memberId}")
-    public ResponseEntity<GeneralResponse<AddVocabDto.Response>> addVocab(
+    public ResponseEntity<GeneralResponse<VocabDto>> addVocab(
             @PathVariable String memberId,
-            @RequestBody @Valid AddVocabDto.Request request
+            @RequestBody @Valid AddVocabRequestDto request
     ) {
         return GeneralResponse.toResponseEntity(OK,
                 vocabService.addVocab(UUID.fromString(memberId), request));
@@ -75,7 +76,7 @@ public class VocabController {
     })
     @GetMapping("/all")
     public ResponseEntity<GeneralResponse<List<VocabDto>>> getAllVocab(
-           @RequestParam String uId
+            @RequestParam String uId
     ) {
         return GeneralResponse.toResponseEntity(OK,
                 vocabService.getVocabsByMemberId(UUID.fromString(uId)));
@@ -124,9 +125,9 @@ public class VocabController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PatchMapping("/{vocabId}")
-    public ResponseEntity<GeneralResponse<UpdateVocabDto.Response>> updateVocab(
+    public ResponseEntity<GeneralResponse<VocabDto>> updateVocab(
             @PathVariable String vocabId,
-            @RequestBody @Valid UpdateVocabDto.Request request
+            @RequestBody @Valid AddVocabRequestDto request
     ) {
         return GeneralResponse.toResponseEntity(OK,
                 vocabService.updateVocab(UUID.fromString(vocabId), request));

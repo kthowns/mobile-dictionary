@@ -1,9 +1,9 @@
 package com.kimtaeyang.mobidic.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.AddVocabDto;
-import com.kimtaeyang.mobidic.dto.AddWordDto;
-import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.AddVocabRequestDto;
+import com.kimtaeyang.mobidic.dto.AddWordRequestDto;
+import com.kimtaeyang.mobidic.dto.member.JoinRequestDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
@@ -57,7 +57,7 @@ public class WordIntegrationTest {
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
-        AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
+        AddWordRequestDto addWordRequest = AddWordRequestDto.builder()
                 .expression("test")
                 .build();
 
@@ -131,7 +131,7 @@ public class WordIntegrationTest {
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
-        AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
+        AddWordRequestDto addWordRequest = AddWordRequestDto.builder()
                 .expression("test")
                 .build();
 
@@ -151,8 +151,6 @@ public class WordIntegrationTest {
                         .value(addWordRequest.getExpression()))
                 .andExpect(jsonPath("$.data[0].vocabId")
                         .value(vocabId.toString()))
-                .andExpect(jsonPath("$.data[0].difficulty")
-                        .value("NORMAL"))
                 .andExpect(jsonPath("$.data[0].createdAt")
                         .isNotEmpty());
 
@@ -184,71 +182,6 @@ public class WordIntegrationTest {
     }
 
     @Test
-    @DisplayName("[Word][Integration] Get word detail Test")
-    void getWordDetailTest() throws Exception {
-        String email = "test@test.com";
-        String nickname = "test";
-        String token = loginAndGetToken(email, nickname);
-        UUID memberId = jwtUtil.getIdFromToken(token);
-        UUID vocabId = addVocabAndGetVocabId(memberId, token);
-
-        AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
-                .expression("test")
-                .build();
-
-        MvcResult addWordResult = mockMvc.perform(post("/api/word/" + vocabId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content(objectMapper.writeValueAsString(addWordRequest)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String json = addWordResult.getResponse().getContentAsString();
-        String wordId = objectMapper.readTree(json).path("data").path("id").asText();
-
-        //Success
-        mockMvc.perform(get("/api/word/detail")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .param("wId", wordId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.expression")
-                        .value(addWordRequest.getExpression()))
-                .andExpect(jsonPath("$.data.vocabId")
-                        .value(vocabId.toString()))
-                .andExpect(jsonPath("$.data.difficulty")
-                        .value("NORMAL"))
-                .andExpect(jsonPath("$.data.createdAt")
-                        .isNotEmpty());
-
-        //Fail without token
-        mockMvc.perform(get("/api/word/detail")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("wId", vocabId.toString()))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message")
-                        .value(UNAUTHORIZED.getMessage()));
-
-        //Fail with unauthorized token
-        mockMvc.perform(get("/api/word/detail")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("wId", vocabId.toString())
-                        .header("Authorization", "Bearer " + jwtUtil.generateToken(UUID.randomUUID())))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message")
-                        .value(UNAUTHORIZED.getMessage()));
-
-        //Fail with no resource
-        mockMvc.perform(get("/api/word/detail")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("wId", UUID.randomUUID().toString())
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message")
-                        .value(UNAUTHORIZED.getMessage()));
-    }
-
-    @Test
     @DisplayName("[Word][Integration] Update word test")
     void updateWordTest() throws Exception {
         String email = "test@test.com";
@@ -257,10 +190,10 @@ public class WordIntegrationTest {
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
-        AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
+        AddWordRequestDto addWordRequest = AddWordRequestDto.builder()
                 .expression("test")
                 .build();
-        AddWordDto.Request addWordRequest2 = AddWordDto.Request.builder()
+        AddWordRequestDto addWordRequest2 = AddWordRequestDto.builder()
                 .expression("testtest")
                 .build();
 
@@ -352,7 +285,7 @@ public class WordIntegrationTest {
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID vocabId = addVocabAndGetVocabId(memberId, token);
 
-        AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
+        AddWordRequestDto addWordRequest = AddWordRequestDto.builder()
                 .expression("test")
                 .build();
 
@@ -402,7 +335,7 @@ public class WordIntegrationTest {
     }
 
     private UUID addVocabAndGetVocabId(UUID memberId, String token) throws Exception {
-        AddVocabDto.Request addVocabRequest = AddVocabDto.Request.builder()
+        AddVocabRequestDto addVocabRequest = AddVocabRequestDto.builder()
                 .title("title")
                 .description("description")
                 .build();
@@ -421,7 +354,7 @@ public class WordIntegrationTest {
     }
 
     private String loginAndGetToken(String email, String nickname) throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
+        JoinRequestDto joinRequest = JoinRequestDto.builder()
                 .email(email)
                 .nickname(nickname)
                 .password("testTest1")

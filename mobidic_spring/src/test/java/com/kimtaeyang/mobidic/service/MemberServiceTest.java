@@ -1,9 +1,8 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.member.LogoutDto;
 import com.kimtaeyang.mobidic.dto.member.MemberDto;
-import com.kimtaeyang.mobidic.dto.member.UpdateNicknameDto;
-import com.kimtaeyang.mobidic.dto.member.UpdatePasswordDto;
+import com.kimtaeyang.mobidic.dto.member.UpdateNicknameRequestDto;
+import com.kimtaeyang.mobidic.dto.member.UpdatePasswordRequestDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtBlacklistService;
@@ -95,7 +94,7 @@ class MemberServiceTest {
                 .password(passwordEncoder.encode("testTest1"))
                 .build();
 
-        UpdateNicknameDto.Request request = UpdateNicknameDto.Request.builder()
+        UpdateNicknameRequestDto request = UpdateNicknameRequestDto.builder()
                 .nickname("test2")
                 .build();
 
@@ -115,7 +114,7 @@ class MemberServiceTest {
                 });
 
         //when
-        UpdateNicknameDto.Response response = memberService.updateMemberNickname(UUID.fromString(UID), request);
+        MemberDto response = memberService.updateMemberNickname(UUID.fromString(UID), request);
 
         //then
         verify(memberRepository, times(1))
@@ -138,7 +137,7 @@ class MemberServiceTest {
                 .password(passwordEncoder.encode("testTest1"))
                 .build();
 
-        UpdatePasswordDto.Request request = UpdatePasswordDto.Request.builder()
+        UpdatePasswordRequestDto request = UpdatePasswordRequestDto.builder()
                 .password("testTest2")
                 .build();
 
@@ -149,7 +148,7 @@ class MemberServiceTest {
         given(memberRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(defaultMember));
         given(authService.logout(any(UUID.class), anyString()))
-                .willReturn(Mockito.mock(LogoutDto.Response.class));
+                .willReturn(Mockito.mock(MemberDto.class));
         given(memberRepository.save(any(Member.class)))
                 .willAnswer(invocation -> {
                     Member memberArg = invocation.getArgument(0);

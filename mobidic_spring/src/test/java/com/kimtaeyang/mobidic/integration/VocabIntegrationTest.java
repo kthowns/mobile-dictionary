@@ -1,10 +1,10 @@
 package com.kimtaeyang.mobidic.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.AddVocabDto;
-import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.AddVocabRequestDto;
+import com.kimtaeyang.mobidic.dto.VocabDto;
+import com.kimtaeyang.mobidic.dto.member.JoinRequestDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
-import com.kimtaeyang.mobidic.dto.UpdateVocabDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -48,7 +48,7 @@ public class VocabIntegrationTest {
         memberRepository.deleteAll();
     }
 
-    private final JoinDto.Request joinRequest = JoinDto.Request.builder()
+    private final JoinRequestDto joinRequest = JoinRequestDto.builder()
             .email("test@test.com")
             .nickname("test")
             .password("testTest1")
@@ -67,7 +67,7 @@ public class VocabIntegrationTest {
         String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
 
-        AddVocabDto.Request addVocabRequest = AddVocabDto.Request.builder()
+        AddVocabRequestDto addVocabRequest = AddVocabRequestDto.builder()
                 .title("title")
                 .description("description")
                 .build();
@@ -79,11 +79,11 @@ public class VocabIntegrationTest {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title")
-                                .value(addVocabRequest.getTitle()))
+                        .value(addVocabRequest.getTitle()))
                 .andExpect(jsonPath("$.data.description")
-                                .value(addVocabRequest.getDescription()))
+                        .value(addVocabRequest.getDescription()))
                 .andExpect(jsonPath("$.data.id")
-                                .isNotEmpty());
+                        .isNotEmpty());
 
         //Fail with duplicated title
         mockMvc.perform(post("/api/vocab/" + memberId)
@@ -92,7 +92,7 @@ public class VocabIntegrationTest {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message")
-                                .value(DUPLICATED_TITLE.getMessage()));
+                        .value(DUPLICATED_TITLE.getMessage()));
         //Fail without token
         mockMvc.perform(post("/api/vocab/" + memberId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -149,7 +149,7 @@ public class VocabIntegrationTest {
         String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
 
-        AddVocabDto.Request addVocabRequest = AddVocabDto.Request.builder()
+        AddVocabRequestDto addVocabRequest = AddVocabRequestDto.builder()
                 .title("title")
                 .description("description")
                 .build();
@@ -206,7 +206,7 @@ public class VocabIntegrationTest {
         String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
 
-        AddVocabDto.Request addVocabRequest = AddVocabDto.Request.builder()
+        AddVocabRequestDto addVocabRequest = AddVocabRequestDto.builder()
                 .title("title")
                 .description("description")
                 .build();
@@ -219,8 +219,8 @@ public class VocabIntegrationTest {
                 .andReturn();
 
         String json = addResult.getResponse().getContentAsString();
-        AddVocabDto.Response addVocabResponse = objectMapper.convertValue(
-                objectMapper.readTree(json).path("data"), AddVocabDto.Response.class
+        VocabDto addVocabResponse = objectMapper.convertValue(
+                objectMapper.readTree(json).path("data"), VocabDto.class
         );
 
         //Success
@@ -275,11 +275,11 @@ public class VocabIntegrationTest {
         String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
 
-        AddVocabDto.Request addVocabRequest = AddVocabDto.Request.builder()
+        AddVocabRequestDto addVocabRequest = AddVocabRequestDto.builder()
                 .title("title")
                 .description("description")
                 .build();
-        AddVocabDto.Request addVocabRequest2 = AddVocabDto.Request.builder()
+        AddVocabRequestDto addVocabRequest2 = AddVocabRequestDto.builder()
                 .title("title2")
                 .description("description2")
                 .build();
@@ -298,15 +298,15 @@ public class VocabIntegrationTest {
                 .andReturn();
 
         String json = addResult.getResponse().getContentAsString();
-        AddVocabDto.Response addVocabResponse = objectMapper.convertValue(
-                objectMapper.readTree(json).path("data"), AddVocabDto.Response.class
+        VocabDto addVocabResponse = objectMapper.convertValue(
+                objectMapper.readTree(json).path("data"), VocabDto.class
         );
         json = addResult2.getResponse().getContentAsString();
-        AddVocabDto.Response addVocabResponse2 = objectMapper.convertValue(
-                objectMapper.readTree(json).path("data"), AddVocabDto.Response.class
+        VocabDto addVocabResponse2 = objectMapper.convertValue(
+                objectMapper.readTree(json).path("data"), VocabDto.class
         );
 
-        UpdateVocabDto.Request updateVocabRequest = UpdateVocabDto.Request.builder()
+        AddVocabRequestDto updateVocabRequest = AddVocabRequestDto.builder()
                 .title(addVocabRequest.getTitle())
                 .description("description3")
                 .build();
@@ -370,7 +370,6 @@ public class VocabIntegrationTest {
         //Fail with invalid pattern
         updateVocabRequest.setTitle(UUID.randomUUID().toString());
         updateVocabRequest.setDescription(UUID.randomUUID().toString() + UUID.randomUUID());
-        System.out.println(updateVocabRequest.getDescription() + ", " + updateVocabRequest.getDescription().length());
         mockMvc.perform(patch("/api/vocab/" + addVocabResponse.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
@@ -392,7 +391,7 @@ public class VocabIntegrationTest {
         String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
 
-        AddVocabDto.Request addVocabRequest = AddVocabDto.Request.builder()
+        AddVocabRequestDto addVocabRequest = AddVocabRequestDto.builder()
                 .title("title")
                 .description("description")
                 .build();
@@ -405,8 +404,8 @@ public class VocabIntegrationTest {
                 .andReturn();
 
         String json = addResult.getResponse().getContentAsString();
-        AddVocabDto.Response addVocabResponse = objectMapper.convertValue(
-                objectMapper.readTree(json).path("data"), AddVocabDto.Response.class
+        VocabDto addVocabResponse = objectMapper.convertValue(
+                objectMapper.readTree(json).path("data"), VocabDto.class
         );
 
         //Fail without token
@@ -463,7 +462,7 @@ public class VocabIntegrationTest {
 
 
     private String loginAndGetToken(String email, String nickname) throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
+        JoinRequestDto joinRequest = JoinRequestDto.builder()
                 .email(email)
                 .nickname(nickname)
                 .password("testTest1")

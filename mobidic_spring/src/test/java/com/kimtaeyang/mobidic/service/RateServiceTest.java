@@ -86,6 +86,8 @@ class RateServiceTest {
                 .willReturn(Optional.of(learningRate));
         given(vocabRepository.findById(any(UUID.class)))
                 .willReturn(Optional.of(Mockito.mock(Vocab.class)));
+        given(wordRepository.countByVocab(any(Vocab.class)))
+                .willReturn(1L);
 
         //when
         Double foundLearningRate = rateService.getVocabLearningRate(vocabId);

@@ -1,7 +1,7 @@
 package com.kimtaeyang.mobidic.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.member.JoinRequestDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
@@ -54,7 +54,7 @@ public class AuthIntegrationTest {
     @Test
     @Transactional
     void joinTest() throws Exception {
-        JoinDto.Request request = JoinDto.Request.builder()
+        JoinRequestDto request = JoinRequestDto.builder()
                 .email("test@test.com")
                 .nickname("test")
                 .password("testTest1")
@@ -112,7 +112,7 @@ public class AuthIntegrationTest {
     @DisplayName("[Auth][Integration] Login test")
     @Test
     void loginTest() throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
+        JoinRequestDto joinRequest = JoinRequestDto.builder()
                 .email("qwerq@test.com")
                 .nickname("qwerq")
                 .password("qwerqwe1")
@@ -175,7 +175,7 @@ public class AuthIntegrationTest {
     @DisplayName("[Auth][Integration] Logout test")
     @Test
     void logoutTest() throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
+        JoinRequestDto joinRequest = JoinRequestDto.builder()
                 .email("test@test.com")
                 .nickname("test")
                 .password("testTest1")
@@ -236,9 +236,7 @@ public class AuthIntegrationTest {
                 .andExpect(jsonPath("$.data.email")
                         .value(email))
                 .andExpect(jsonPath("$.data.nickname")
-                        .value(nickname))
-                .andExpect(jsonPath("$.data.withdrawnAt")
-                        .isNotEmpty());
+                        .value(nickname));
 
         //Fail with invalid token
         mockMvc.perform(post("/api/auth/logout")
@@ -250,7 +248,7 @@ public class AuthIntegrationTest {
     }
 
     private String loginAndGetToken(String email, String nickname) throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
+        JoinRequestDto joinRequest = JoinRequestDto.builder()
                 .email(email)
                 .nickname(nickname)
                 .password("testTest1")

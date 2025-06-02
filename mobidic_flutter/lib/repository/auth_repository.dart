@@ -39,9 +39,9 @@ class AuthRepository {
       ),
     );
 
-    Member response = Member.fromJson(body.data);
+    MemberDto response = MemberDto.fromJson(body.data);
 
-    return response;
+    return Member.fromDto(response);
   }
 
   Future<void> logout() async {

@@ -1,6 +1,7 @@
 package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.*;
+import com.kimtaeyang.mobidic.model.WordWithDefs;
 import com.kimtaeyang.mobidic.type.PartOfSpeech;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,8 +22,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(SpringExtension.class)
@@ -34,6 +34,9 @@ public class QuestionServiceTest {
 
     @Autowired
     private VocabService vocabService;
+
+    @Autowired
+    private DefService defService;
 
     @Autowired
     private RateService rateService;
@@ -50,53 +53,79 @@ public class QuestionServiceTest {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-    List<WordDetailDto> words = List.of(
-            WordDetailDto.builder()
-                    .id(UUID.randomUUID())
-                    .expression("Apple")
-                    .defs(List.of(
-                            new DefDto(UUID.randomUUID(), UUID.randomUUID(), "사과", PartOfSpeech.NOUN)
-                    ))
-                    .build(),
-            WordDetailDto.builder()
-                    .id(UUID.randomUUID())
-                    .expression("Hello")
-                    .defs(List.of(
-                            new DefDto(UUID.randomUUID(), UUID.randomUUID(), "안녕", PartOfSpeech.INTERJECTION)
-                    ))
-                    .build(),
-            WordDetailDto.builder()
-                    .id(UUID.randomUUID())
-                    .expression("Run")
-                    .defs(List.of(
-                            new DefDto(UUID.randomUUID(), UUID.randomUUID(), "뛰다", PartOfSpeech.VERB)
-                    ))
-                    .build(),
-            WordDetailDto.builder()
-                    .id(UUID.randomUUID())
-                    .expression("Idiot")
-                    .defs(List.of(
-                            new DefDto(UUID.randomUUID(), UUID.randomUUID(), "바보", PartOfSpeech.NOUN)
-                    ))
-                    .build(),
-            WordDetailDto.builder()
-                    .id(UUID.randomUUID())
-                    .expression("Media")
-                    .defs(List.of(
-                            new DefDto(UUID.randomUUID(), UUID.randomUUID(), "매체", PartOfSpeech.NOUN)
-                    ))
-                    .build());
+    List<WordWithDefs> wordsWithDefs = List.of(
+            WordWithDefs.builder()
+                    .wordDto(
+                            WordDto.builder()
+                                    .id(UUID.randomUUID())
+                                    .expression("Apple")
+                                    .build()
+                    )
+                    .defDtos(List.of(
+                                    new DefDto(UUID.randomUUID(), UUID.randomUUID(), "사과", PartOfSpeech.NOUN)
+                            )
+                    ).build(),
+            WordWithDefs.builder()
+                    .wordDto(
+                            WordDto.builder()
+                                    .id(UUID.randomUUID())
+                                    .expression("Hello")
+                                    .build()
+                    )
+                    .defDtos(List.of(
+                                    new DefDto(UUID.randomUUID(), UUID.randomUUID(), "안녕", PartOfSpeech.INTERJECTION)
+                            )
+                    ).build(),
+            WordWithDefs.builder()
+                    .wordDto(
+                            WordDto.builder()
+                                    .id(UUID.randomUUID())
+                                    .expression("Run")
+                                    .build()
+                    )
+                    .defDtos(List.of(
+                                    new DefDto(UUID.randomUUID(), UUID.randomUUID(), "뛰다", PartOfSpeech.VERB)
+                            )
+                    ).build(),
+            WordWithDefs.builder()
+                    .wordDto(
+                            WordDto.builder()
+                                    .id(UUID.randomUUID())
+                                    .expression("Idiot")
+                                    .build()
+                    )
+                    .defDtos(List.of(
+                                    new DefDto(UUID.randomUUID(), UUID.randomUUID(), "바보", PartOfSpeech.NOUN)
+                            )
+                    ).build(), WordWithDefs.builder()
+                    .wordDto(
+                            WordDto.builder()
+                                    .id(UUID.randomUUID())
+                                    .expression("Media")
+                                    .build()
+                    )
+                    .defDtos(List.of(
+                                    new DefDto(UUID.randomUUID(), UUID.randomUUID(), "매체", PartOfSpeech.NOUN)
+                            )
+                    ).build());
 
     @Test
     @DisplayName("[QuizService] Generate OX quiz test")
     void generateOxQuizTest() {
         UUID memberId = UUID.randomUUID();
 
+        List<List<DefDto>> defDtos = wordsWithDefs.stream().map(WordWithDefs::getDefDtos).toList();
+
         //given
         given(wordService.getWordsByVocabId(any(UUID.class)))
-                .willReturn(words);
+                .willReturn(wordsWithDefs.stream().map(WordWithDefs::getWordDto).toList());
         given(redisTemplate.opsForValue())
                 .willReturn(valueOperations);
+        for (WordWithDefs w : wordsWithDefs) {
+            given(defService.getDefsByWordId(eq(w.getWordDto().getId())))
+                    .willReturn(w.getDefDtos());
+        }
+
         given(vocabService.getVocabById(any(UUID.class)))
                 .willReturn(
                         VocabDto.builder()
@@ -115,16 +144,16 @@ public class QuestionServiceTest {
             //then
             int matchCnt = 0;
             for (QuestionDto question : result) {
-                for (WordDetailDto word : words) {
-                    if (question.getStem().equals(word.getExpression())
-                            && question.getOptions().getFirst().equals(word.getDefs().getFirst().getDefinition())) {
+                for (WordWithDefs wordWithDefs : wordsWithDefs) {
+                    if (question.getStem().equals(wordWithDefs.getWordDto().getExpression())
+                            && question.getOptions().getFirst().equals(wordWithDefs.getDefDtos().getFirst().getDefinition())) {
                         matchCnt++;
                         break;
                     }
                 }
             }
 
-            if (matchCnt < (words.size() / 2) + 1) {
+            if (matchCnt < (wordsWithDefs.size() / 2) + 1) {
                 assertCnt++;
             }
         }
@@ -138,18 +167,18 @@ public class QuestionServiceTest {
         //given
         UUID memberId = UUID.randomUUID();
         List<String> tokens = new ArrayList<>();
-        for (int i = 0; i < words.size(); i++) {
+        for (int i = 0; i < wordsWithDefs.size(); i++) {
             String token = "question"
-                    + ":" + words.get(i).getId()
+                    + ":" + wordsWithDefs.get(i).getWordDto().getId()
                     + ":" + UUID.randomUUID();
             tokens.add(cryptoService.encrypt(token));
         }
         List<String> correctAnswers = new ArrayList<>();
-        for (WordDetailDto word : words) {
-            correctAnswers.add(word.getDefs().getFirst().getDefinition());
+        for (WordWithDefs wordWithDefs : wordsWithDefs) {
+            correctAnswers.add(wordWithDefs.getDefDtos().getFirst().getDefinition());
         }
         List<QuestionRateDto.Request> requests = new ArrayList<>();
-        for (int i = 0; i < words.size(); i++) {
+        for (int i = 0; i < wordsWithDefs.size(); i++) {
             QuestionRateDto.Request request = QuestionRateDto.Request.builder()
                     .answer(correctAnswers.get(i))
                     .token(tokens.get(i))
@@ -165,7 +194,7 @@ public class QuestionServiceTest {
         given(valueOperations.get(anyString()))
                 .willReturn(correctAnswers.get(0), correctAnswers.get(1), correctAnswers.get(2), correctAnswers.get(3), correctAnswers.get(4));
 
-        for (int i = 0; i < words.size(); i++) {
+        for (int i = 0; i < wordsWithDefs.size(); i++) {
             //when
             QuestionRateDto.Response response = questionService.rateOxQuestion(memberId, requests.get(i));
 
@@ -184,6 +213,11 @@ public class QuestionServiceTest {
         @Bean
         public WordService wordService() {
             return Mockito.mock(WordService.class);
+        }
+
+        @Bean
+        public DefService defService() {
+            return Mockito.mock(DefService.class);
         }
 
         @Bean
