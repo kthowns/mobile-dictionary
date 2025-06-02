@@ -5,7 +5,6 @@ import com.kimtaeyang.mobidic.dto.QuestionRateDto;
 import com.kimtaeyang.mobidic.dto.VocabDto;
 import com.kimtaeyang.mobidic.dto.WordDto;
 import com.kimtaeyang.mobidic.entity.Question;
-import com.kimtaeyang.mobidic.entity.Word;
 import com.kimtaeyang.mobidic.exception.ApiException;
 import com.kimtaeyang.mobidic.model.WordWithDefs;
 import com.kimtaeyang.mobidic.util.BlankQuestionStrategy;
@@ -63,7 +62,7 @@ public class QuestionService {
 
         List<WordWithDefs> wordsWithDefs = new ArrayList<>();
         List<WordDto> wordDtos = wordService.getWordsByVocabId(vocab.getId());
-        for(WordDto wordDto : wordDtos) {
+        for (WordDto wordDto : wordDtos) {
             WordWithDefs wordWithDefs = WordWithDefs.builder()
                     .wordDto(wordDto)
                     .defDtos(defService.getDefsByWordId(wordDto.getId()))

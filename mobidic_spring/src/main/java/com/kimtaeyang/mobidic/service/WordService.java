@@ -2,12 +2,10 @@ package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.AddWordRequestDto;
 import com.kimtaeyang.mobidic.dto.WordDto;
-import com.kimtaeyang.mobidic.entity.Def;
 import com.kimtaeyang.mobidic.entity.Rate;
 import com.kimtaeyang.mobidic.entity.Vocab;
 import com.kimtaeyang.mobidic.entity.Word;
 import com.kimtaeyang.mobidic.exception.ApiException;
-import com.kimtaeyang.mobidic.repository.DefRepository;
 import com.kimtaeyang.mobidic.repository.RateRepository;
 import com.kimtaeyang.mobidic.repository.VocabRepository;
 import com.kimtaeyang.mobidic.repository.WordRepository;
