@@ -1,6 +1,6 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.AddDefDto;
+import com.kimtaeyang.mobidic.dto.AddDefRequestDto;
 import com.kimtaeyang.mobidic.dto.DefDto;
 import com.kimtaeyang.mobidic.entity.Def;
 import com.kimtaeyang.mobidic.entity.Word;
@@ -28,13 +28,13 @@ public class DefService {
 
     @Transactional
     @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
-    public AddDefDto.Response addDef(UUID wordId, AddDefDto.Request request) {
+    public DefDto addDef(UUID wordId, AddDefRequestDto request) {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
         int count = defRepository.countByDefinitionAndWord(request.getDefinition(), word);
 
-        if(count > 0) {
+        if (count > 0) {
             throw new ApiException(DUPLICATED_DEFINITION);
         }
 
@@ -45,7 +45,7 @@ public class DefService {
                 .build();
         defRepository.save(def);
 
-        return AddDefDto.Response.fromEntity(def);
+        return DefDto.fromEntity(def);
     }
 
     @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
@@ -61,13 +61,13 @@ public class DefService {
 
     @Transactional
     @PreAuthorize("@defAccessHandler.ownershipCheck(#defId)")
-    public AddDefDto.Response updateDef(UUID defId, AddDefDto.Request request) {
+    public DefDto updateDef(UUID defId, AddDefRequestDto request) {
         Def def = defRepository.findById(defId)
                 .orElseThrow(() -> new ApiException(NO_DEF));
 
         int count = defRepository.countByDefinitionAndWordAndIdNot(request.getDefinition(), def.getWord(), defId);
 
-        if(count > 0) {
+        if (count > 0) {
             throw new ApiException(DUPLICATED_DEFINITION);
         }
 
@@ -75,7 +75,7 @@ public class DefService {
         def.setPart(request.getPart());
         defRepository.save(def);
 
-        return AddDefDto.Response.fromEntity(def);
+        return DefDto.fromEntity(def);
     }
 
     @Transactional

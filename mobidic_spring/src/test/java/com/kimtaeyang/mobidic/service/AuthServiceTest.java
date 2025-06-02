@@ -1,8 +1,9 @@
 package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.config.JwtProperties;
-import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.member.JoinRequestDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
+import com.kimtaeyang.mobidic.dto.member.MemberDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtBlacklistService;
@@ -63,7 +64,7 @@ class AuthServiceTest {
         String rawPassword = "test1234";
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
-        JoinDto.Request request = JoinDto.Request.builder()
+        JoinRequestDto request = JoinRequestDto.builder()
                 .email("user@example.com")
                 .nickname("tester")
                 .password(rawPassword)
@@ -84,7 +85,7 @@ class AuthServiceTest {
                 .thenReturn(memberToReturn);
 
         // when
-        JoinDto.Response response = authService.join(request);
+        MemberDto response = authService.join(request);
 
         // then
         assertEquals(request.getEmail(), response.getEmail());

@@ -1,6 +1,6 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.AddDefDto;
+import com.kimtaeyang.mobidic.dto.AddDefRequestDto;
 import com.kimtaeyang.mobidic.dto.DefDto;
 import com.kimtaeyang.mobidic.entity.Def;
 import com.kimtaeyang.mobidic.entity.Word;
@@ -48,7 +48,7 @@ class DefServiceTest {
 
         UUID defId = UUID.randomUUID();
 
-        AddDefDto.Request request = AddDefDto.Request.builder()
+        AddDefRequestDto request = AddDefRequestDto.builder()
                 .definition("definition")
                 .part(PartOfSpeech.NOUN)
                 .build();
@@ -67,7 +67,7 @@ class DefServiceTest {
                 });
 
         //when
-        AddDefDto.Response response = defService.addDef(UUID.randomUUID(), request);
+        DefDto response = defService.addDef(UUID.randomUUID(), request);
 
         //then
         verify(defRepository, times(1))
@@ -121,8 +121,8 @@ class DefServiceTest {
                 .part(PartOfSpeech.NOUN)
                 .build();
 
-        AddDefDto.Request request =
-                AddDefDto.Request.builder()
+        AddDefRequestDto request =
+                AddDefRequestDto.builder()
                         .definition("definition2")
                         .part(PartOfSpeech.VERB)
                         .build();
@@ -142,7 +142,7 @@ class DefServiceTest {
                 });
 
         //when
-        AddDefDto.Response response =
+        DefDto response =
                 defService.updateDef(defId, request);
 
         //then

@@ -3,9 +3,11 @@ package com.kimtaeyang.mobidic.service;
 import com.kimtaeyang.mobidic.dto.QuestionDto;
 import com.kimtaeyang.mobidic.dto.QuestionRateDto;
 import com.kimtaeyang.mobidic.dto.VocabDto;
-import com.kimtaeyang.mobidic.dto.WordDetailDto;
+import com.kimtaeyang.mobidic.dto.WordDto;
 import com.kimtaeyang.mobidic.entity.Question;
+import com.kimtaeyang.mobidic.entity.Word;
 import com.kimtaeyang.mobidic.exception.ApiException;
+import com.kimtaeyang.mobidic.model.WordWithDefs;
 import com.kimtaeyang.mobidic.util.BlankQuestionStrategy;
 import com.kimtaeyang.mobidic.util.OxQuestionStrategy;
 import com.kimtaeyang.mobidic.util.QuestionStrategy;
@@ -34,6 +36,7 @@ public class QuestionService {
     private final VocabService vocabService;
     private final RateService rateService;
     private final CryptoService cryptoService;
+    private final DefService defService;
 
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
     public List<QuestionDto> getOxQuestions(UUID vocabId) {
@@ -57,11 +60,23 @@ public class QuestionService {
 
     private List<QuestionDto> generateQuestions(UUID vocabId, QuestionStrategy strategy) {
         VocabDto vocab = vocabService.getVocabById(vocabId);
-        List<WordDetailDto> words = wordService.getWordsByVocabId(vocabId);
-        if (words.isEmpty()) {
+
+        List<WordWithDefs> wordsWithDefs = new ArrayList<>();
+        List<WordDto> wordDtos = wordService.getWordsByVocabId(vocab.getId());
+        for(WordDto wordDto : wordDtos) {
+            WordWithDefs wordWithDefs = WordWithDefs.builder()
+                    .wordDto(wordDto)
+                    .defDtos(defService.getDefsByWordId(wordDto.getId()))
+                    .build();
+
+            wordsWithDefs.add(wordWithDefs);
+        }
+
+        if (wordsWithDefs.isEmpty()) {
             throw new ApiException(EMPTY_VOCAB);
         }
-        List<Question> questions = QuestionUtil.generateQuiz(vocab.getMemberId(), strategy, words);
+
+        List<Question> questions = QuestionUtil.generateQuiz(vocab.getMemberId(), strategy, wordsWithDefs);
         List<QuestionDto> questionDtos = new ArrayList<>();
         for (Question question : questions) {
             String token = registerQuestion(question);
@@ -81,7 +96,6 @@ public class QuestionService {
     ) {
         String key = cryptoService.decrypt(request.getToken()); //복호화
         String correctAnswer = findCorrectAnswer(key);
-        System.out.println("Correct answer: " + correctAnswer);
         expireAnswer(key);
 
         UUID wordId = UUID.fromString(key.split(":")[2]);

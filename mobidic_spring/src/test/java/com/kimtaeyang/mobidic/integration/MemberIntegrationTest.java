@@ -1,10 +1,10 @@
 package com.kimtaeyang.mobidic.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.member.JoinRequestDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
-import com.kimtaeyang.mobidic.dto.member.UpdateNicknameDto;
-import com.kimtaeyang.mobidic.dto.member.UpdatePasswordDto;
+import com.kimtaeyang.mobidic.dto.member.UpdateNicknameRequestDto;
+import com.kimtaeyang.mobidic.dto.member.UpdatePasswordRequestDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -47,7 +47,7 @@ public class MemberIntegrationTest {
     void tearDown() {
         memberRepository.deleteAll();
     }
-    
+
     @Test
     @DisplayName("[Member][Integration] Get member detail")
     void getMemberDetailTest() throws Exception {
@@ -111,7 +111,7 @@ public class MemberIntegrationTest {
         UUID memberId2 = jwtUtil.getIdFromToken(token2);
 
         //Success
-        UpdateNicknameDto.Request updateNicknameRequest = UpdateNicknameDto.Request.builder()
+        UpdateNicknameRequestDto updateNicknameRequest = UpdateNicknameRequestDto.builder()
                 .nickname(nickname + "test")
                 .build();
 
@@ -200,7 +200,7 @@ public class MemberIntegrationTest {
         String token = loginAndGetToken(email, nickname);
         UUID memberId = jwtUtil.getIdFromToken(token);
 
-        UpdatePasswordDto.Request updatePasswordRequest = UpdatePasswordDto.Request.builder()
+        UpdatePasswordRequestDto updatePasswordRequest = UpdatePasswordRequestDto.builder()
                 .password("testTest2")
                 .build();
 
@@ -261,7 +261,7 @@ public class MemberIntegrationTest {
     }
 
     private String loginAndGetToken(String email, String nickname) throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
+        JoinRequestDto joinRequest = JoinRequestDto.builder()
                 .email(email)
                 .nickname(nickname)
                 .password("testTest1")

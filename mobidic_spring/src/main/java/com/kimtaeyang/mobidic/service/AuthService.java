@@ -1,8 +1,8 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.member.JoinRequestDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
-import com.kimtaeyang.mobidic.dto.member.LogoutDto;
+import com.kimtaeyang.mobidic.dto.member.MemberDto;
 import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.exception.ApiException;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.NO_MEMBER;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_EMAIL;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.DUPLICATED_NICKNAME;
 
@@ -50,12 +51,12 @@ public class AuthService {
     }
 
     @Transactional
-    public JoinDto.Response join(@Valid JoinDto.Request request) {
-        if(memberRepository.countByNickname(request.getNickname()) > 0){
+    public MemberDto join(@Valid JoinRequestDto request) {
+        if (memberRepository.countByNickname(request.getNickname()) > 0) {
             throw new ApiException(DUPLICATED_NICKNAME);
         }
 
-        if(memberRepository.countByEmail(request.getEmail()) > 0){
+        if (memberRepository.countByEmail(request.getEmail()) > 0) {
             throw new ApiException(DUPLICATED_EMAIL);
         }
 
@@ -65,20 +66,18 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
-        return JoinDto.Response.fromEntity(memberRepository.save(member));
+        return MemberDto.fromEntity(memberRepository.save(member));
     }
 
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
-    public LogoutDto.Response logout(UUID memberId, String token) {
+    public MemberDto logout(UUID memberId, String token) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ApiException(NO_MEMBER));
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         auth.setAuthenticated(false); //인증 Context 초기화
 
-        LogoutDto.Response response = LogoutDto.Response.builder()
-                .id(jwtUtil.getIdFromToken(token))
-                .build();
-
         jwtBlacklistService.logoutToken(token); //Redis 블랙리스트에 토큰 추가
 
-        return response;
+        return MemberDto.fromEntity(member);
     }
 }

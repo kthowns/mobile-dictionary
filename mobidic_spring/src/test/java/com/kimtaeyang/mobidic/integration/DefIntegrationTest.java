@@ -1,8 +1,10 @@
 package com.kimtaeyang.mobidic.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kimtaeyang.mobidic.dto.*;
-import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.AddDefRequestDto;
+import com.kimtaeyang.mobidic.dto.AddVocabRequestDto;
+import com.kimtaeyang.mobidic.dto.AddWordRequestDto;
+import com.kimtaeyang.mobidic.dto.member.JoinRequestDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
 import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.security.JwtUtil;
@@ -57,7 +59,7 @@ public class DefIntegrationTest {
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID wordId = addWordAndGetId(memberId, token);
 
-        AddDefDto.Request addDefRequest = AddDefDto.Request.builder()
+        AddDefRequestDto addDefRequest = AddDefRequestDto.builder()
                 .definition("definition")
                 .part(PartOfSpeech.NOUN)
                 .build();
@@ -132,7 +134,7 @@ public class DefIntegrationTest {
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID wordId = addWordAndGetId(memberId, token);
 
-        AddDefDto.Request addDefRequest = AddDefDto.Request.builder()
+        AddDefRequestDto addDefRequest = AddDefRequestDto.builder()
                 .definition("definition")
                 .part(PartOfSpeech.NOUN)
                 .build();
@@ -195,11 +197,11 @@ public class DefIntegrationTest {
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID wordId = addWordAndGetId(memberId, token);
 
-        AddDefDto.Request addDefRequest = AddDefDto.Request.builder()
+        AddDefRequestDto addDefRequest = AddDefRequestDto.builder()
                 .definition("definition")
                 .part(PartOfSpeech.NOUN)
                 .build();
-        AddDefDto.Request addDefRequest2 = AddDefDto.Request.builder()
+        AddDefRequestDto addDefRequest2 = AddDefRequestDto.builder()
                 .definition("definition2")
                 .part(PartOfSpeech.NOUN)
                 .build();
@@ -298,7 +300,7 @@ public class DefIntegrationTest {
 
         //Fail with invalid part pattern
         String wrongRequest = "{\"definition\":\"some def\","
-                +"\"part\":\"STRING\"}";
+                + "\"part\":\"STRING\"}";
 
         mockMvc.perform(patch("/api/def/" + defId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -318,7 +320,7 @@ public class DefIntegrationTest {
         UUID memberId = jwtUtil.getIdFromToken(token);
         UUID wordId = addWordAndGetId(memberId, token);
 
-        AddDefDto.Request addDefRequest = AddDefDto.Request.builder()
+        AddDefRequestDto addDefRequest = AddDefRequestDto.builder()
                 .definition("definition")
                 .part(PartOfSpeech.NOUN)
                 .build();
@@ -373,7 +375,7 @@ public class DefIntegrationTest {
     }
 
     private UUID addWordAndGetId(UUID memberId, String token) throws Exception {
-        AddVocabDto.Request addVocabRequest = AddVocabDto.Request.builder()
+        AddVocabRequestDto addVocabRequest = AddVocabRequestDto.builder()
                 .title("title")
                 .description("description")
                 .build();
@@ -388,7 +390,7 @@ public class DefIntegrationTest {
         String vocabId = objectMapper.readTree(result.getResponse().getContentAsString())
                 .path("data").path("id").asText();
 
-        AddWordDto.Request addWordRequest = AddWordDto.Request.builder()
+        AddWordRequestDto addWordRequest = AddWordRequestDto.builder()
                 .expression("expression")
                 .build();
 
@@ -407,7 +409,7 @@ public class DefIntegrationTest {
 
 
     private String loginAndGetToken(String email, String nickname) throws Exception {
-        JoinDto.Request joinRequest = JoinDto.Request.builder()
+        JoinRequestDto joinRequest = JoinRequestDto.builder()
                 .email(email)
                 .nickname(nickname)
                 .password("testTest1")

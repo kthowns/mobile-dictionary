@@ -1,8 +1,8 @@
 package com.kimtaeyang.mobidic.util;
 
 import com.kimtaeyang.mobidic.dto.QuestionRateDto;
-import com.kimtaeyang.mobidic.dto.WordDetailDto;
 import com.kimtaeyang.mobidic.entity.Question;
+import com.kimtaeyang.mobidic.model.WordWithDefs;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,25 +12,26 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class BlankQuestionStrategy extends QuestionStrategy {
     @Override
-    public List<Question> generateQuestions(UUID memberId, List<WordDetailDto> orgWords) {
-        List<WordDetailDto> words = new ArrayList<>(orgWords);
+    public List<Question> generateQuestions(UUID memberId, List<WordWithDefs> orgWordsWithDefs) {
+        List<WordWithDefs> wordsWithDefs = new ArrayList<>(orgWordsWithDefs);
+        derange(wordsWithDefs);
 
         //option은 뜻
         ArrayList<String> options = new ArrayList<>();
-        ArrayList<Question> questions = new ArrayList<>(words.size());
+        ArrayList<Question> questions = new ArrayList<>(wordsWithDefs.size());
 
-        for (WordDetailDto word : words) {
+        for (WordWithDefs wordWithDefs : wordsWithDefs) {
             String option = "";
 
-            if (word.getDefs() != null && !word.getDefs().isEmpty()) {
-                int randIdx = ThreadLocalRandom.current().nextInt(word.getDefs().size());
-                option = word.getDefs().get(randIdx).getDefinition();
+            if (wordWithDefs.getDefDtos() != null && !wordWithDefs.getDefDtos().isEmpty()) {
+                int randIdx = ThreadLocalRandom.current().nextInt(wordWithDefs.getDefDtos().size());
+                option = wordWithDefs.getDefDtos().get(randIdx).getDefinition();
             }
 
             options.add(option);
 
             List<Integer> nums = new ArrayList<>();
-            for (int i = 0; i < word.getExpression().length(); i++) {
+            for (int i = 0; i < wordWithDefs.getWordDto().getExpression().length(); i++) {
                 nums.add(i);
             }
             int blankCount = nums.size() / 2 + 1;
@@ -42,7 +43,7 @@ public class BlankQuestionStrategy extends QuestionStrategy {
             }
             Collections.sort(indices);
 
-            char[] stem = word.getExpression().toCharArray();
+            char[] stem = wordWithDefs.getWordDto().getExpression().toCharArray();
             StringBuilder answer = new StringBuilder();
             for (int idx : indices) {
                 answer.append(stem[idx]);
@@ -52,7 +53,7 @@ public class BlankQuestionStrategy extends QuestionStrategy {
             questions.add(
                     Question.builder()
                             .id(UUID.randomUUID())
-                            .wordId(word.getId())
+                            .wordId(wordWithDefs.getWordDto().getId())
                             .memberId(memberId)
                             .stem(new String(stem))
                             .answer(answer.toString())
@@ -60,7 +61,7 @@ public class BlankQuestionStrategy extends QuestionStrategy {
             );
         }
 
-        for (int i = 0; i < words.size(); i++) {
+        for (int i = 0; i < wordsWithDefs.size(); i++) {
             questions.get(i).setOptions(List.of(options.get(i)));
         }
 

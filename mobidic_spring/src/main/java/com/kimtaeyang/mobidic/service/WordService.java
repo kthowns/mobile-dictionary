@@ -1,7 +1,6 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.AddWordDto;
-import com.kimtaeyang.mobidic.dto.WordDetailDto;
+import com.kimtaeyang.mobidic.dto.AddWordRequestDto;
 import com.kimtaeyang.mobidic.dto.WordDto;
 import com.kimtaeyang.mobidic.entity.Def;
 import com.kimtaeyang.mobidic.entity.Rate;
@@ -31,12 +30,11 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 public class WordService {
     private final WordRepository wordRepository;
     private final VocabRepository vocabRepository;
-    private final DefRepository defRepository;
     private final RateRepository rateRepository;
 
     @Transactional
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
-    public AddWordDto.Response addWord(UUID vocabId, AddWordDto.Request request) {
+    public WordDto addWord(UUID vocabId, AddWordRequestDto request) {
         Vocab vocab = vocabRepository.findById(vocabId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
 
@@ -60,47 +58,22 @@ public class WordService {
                 .build();
         rateRepository.save(rate);
 
-        return AddWordDto.Response.fromEntity(word);
+        return WordDto.fromEntity(word);
     }
 
     @Transactional(readOnly = true)
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vId)")
-    public List<WordDetailDto> getWordsByVocabId(UUID vId) {
+    public List<WordDto> getWordsByVocabId(UUID vId) {
         Vocab vocab = vocabRepository.findById(vId)
                 .orElseThrow(() -> new ApiException(NO_VOCAB));
 
         return wordRepository.findByVocab(vocab)
-                .stream().map((word) -> {
-                    Rate rate = rateRepository.findRateByWord(word)
-                            .orElseThrow(() -> new ApiException(INTERNAL_SERVER_ERROR));
-
-                    List<Def> defs = defRepository.findByWord(word);
-
-                    Difficulty diff = getDifficulty(rate.getCorrectCount(), rate.getIncorrectCount());
-
-                    return WordDetailDto.fromEntity(word, defs, diff);
-                }).collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    @PreAuthorize("@wordAccessHandler.ownershipCheck(#wId)")
-    public WordDetailDto getWordDetail(UUID wId) {
-        Word word = wordRepository.findById(wId)
-                .orElseThrow(() -> new ApiException(NO_WORD));
-
-        List<Def> defs = defRepository.findByWord(word);
-
-        Rate rate = rateRepository.findRateByWord(word)
-                .orElseThrow(() -> new ApiException(INTERNAL_SERVER_ERROR));
-
-        Difficulty diff = getDifficulty(rate.getCorrectCount(), rate.getIncorrectCount());
-
-        return WordDetailDto.fromEntity(word, defs, diff);
+                .stream().map(WordDto::fromEntity).collect(Collectors.toList());
     }
 
     @Transactional
     @PreAuthorize("@wordAccessHandler.ownershipCheck(#wordId)")
-    public AddWordDto.Response updateWord(UUID wordId, AddWordDto.Request request) {
+    public WordDto updateWord(UUID wordId, AddWordRequestDto request) {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
 
@@ -113,7 +86,7 @@ public class WordService {
         word.setExpression(request.getExpression());
         wordRepository.save(word);
 
-        return AddWordDto.Response.fromEntity(word);
+        return WordDto.fromEntity(word);
     }
 
     @Transactional
@@ -130,7 +103,7 @@ public class WordService {
     private Difficulty getDifficulty(Integer correct, Integer incorrect) {
         double diff = calcDifficultyRatio(correct, incorrect);
 
-        if(diff < 0.3){
+        if (diff < 0.3) {
             return Difficulty.EASY;
         } else if (diff > 0.7) {
             return Difficulty.HARD;
@@ -144,10 +117,9 @@ public class WordService {
             난이도 함수 : -0.04correct + 0.05incorrect + 0.5
         */
         double diff = (-0.04 * correct) + (0.05 * incorrect) + 0.5;
-        if (diff > 1){
+        if (diff > 1) {
             diff = 1;
-        }
-        else if (diff < 0){
+        } else if (diff < 0) {
             diff = 0;
         }
 

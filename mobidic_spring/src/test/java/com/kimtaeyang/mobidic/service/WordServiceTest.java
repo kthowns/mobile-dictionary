@@ -1,14 +1,15 @@
 package com.kimtaeyang.mobidic.service;
 
-import com.kimtaeyang.mobidic.dto.AddWordDto;
-import com.kimtaeyang.mobidic.dto.DefDto;
-import com.kimtaeyang.mobidic.dto.WordDetailDto;
-import com.kimtaeyang.mobidic.entity.*;
+import com.kimtaeyang.mobidic.dto.AddWordRequestDto;
+import com.kimtaeyang.mobidic.dto.WordDto;
+import com.kimtaeyang.mobidic.entity.Member;
+import com.kimtaeyang.mobidic.entity.Rate;
+import com.kimtaeyang.mobidic.entity.Vocab;
+import com.kimtaeyang.mobidic.entity.Word;
 import com.kimtaeyang.mobidic.repository.DefRepository;
 import com.kimtaeyang.mobidic.repository.RateRepository;
 import com.kimtaeyang.mobidic.repository.VocabRepository;
 import com.kimtaeyang.mobidic.repository.WordRepository;
-import com.kimtaeyang.mobidic.type.PartOfSpeech;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -57,10 +57,10 @@ class WordServiceTest {
 
         UUID wordId = UUID.randomUUID();
 
-        AddWordDto.Request request = AddWordDto.Request.builder()
+        AddWordRequestDto request = AddWordRequestDto.builder()
                 .expression("test")
                 .build();
-        
+
         ArgumentCaptor<Word> captor =
                 ArgumentCaptor.forClass(Word.class);
 
@@ -77,7 +77,7 @@ class WordServiceTest {
                 });
 
         //when
-        AddWordDto.Response response = wordService.addWord(UUID.randomUUID(), request);
+        WordDto response = wordService.addWord(UUID.randomUUID(), request);
 
         //then
         verify(wordRepository, times(1))
@@ -116,58 +116,11 @@ class WordServiceTest {
                 .willReturn(Optional.of(defaultRate));
 
         //when
-        List<WordDetailDto> response = wordService.getWordsByVocabId(UUID.randomUUID());
+        List<WordDto> response = wordService.getWordsByVocabId(UUID.randomUUID());
 
         //then
         assertEquals(words.getFirst().getVocab().getId(), response.getFirst().getVocabId());
         assertEquals(words.getFirst().getExpression(), response.getFirst().getExpression());
-    }
-
-    @Test
-    @DisplayName("[WordService] Get word detail success")
-    void getWordDetailSuccess() {
-        resetMock();
-
-        UUID vocabId = UUID.randomUUID();
-
-        Word defaultWord = Word.builder()
-                .id(vocabId)
-                .vocab(Mockito.mock(Vocab.class))
-                .expression("expression")
-                .build();
-
-        Rate defaultRate = Rate.builder()
-                .word(defaultWord)
-                .isLearned(0)
-                .incorrectCount(4)
-                .correctCount(3)
-                .build();
-
-        Def defaultDef = Def.builder()
-                .part(Mockito.mock(PartOfSpeech.class))
-                .word(defaultWord)
-                .definition("definition")
-                .build();
-
-        ArrayList<Def> defs = new ArrayList<>();
-        defs.add(defaultDef);
-
-        //given
-        given(wordRepository.findById(any(UUID.class)))
-                .willReturn(Optional.of(defaultWord));
-        given(rateRepository.findRateByWord(any(Word.class)))
-                .willReturn(Optional.of(defaultRate));
-        given(defRepository.findByWord(any(Word.class)))
-                .willReturn(defs);
-
-        //when
-        WordDetailDto response =
-                wordService.getWordDetail(UUID.randomUUID());
-
-        //then
-        assertEquals(vocabId, response.getId());
-        assertEquals(defaultWord.getExpression(), response.getExpression());
-        assertEquals(defs.stream().map(DefDto::fromEntity).collect(Collectors.toList()), response.getDefs());
     }
 
     @Test
@@ -183,8 +136,8 @@ class WordServiceTest {
                 .expression("expression")
                 .build();
 
-        AddWordDto.Request request =
-                AddWordDto.Request.builder()
+        AddWordRequestDto request =
+                AddWordRequestDto.builder()
                         .expression("expression2")
                         .build();
 
@@ -198,13 +151,13 @@ class WordServiceTest {
                 .willReturn(0);
         given(wordRepository.save(any(Word.class)))
                 .willAnswer(invocation -> {
-                   Word wordArg = invocation.getArgument(0);
-                   wordArg.setExpression(request.getExpression());
-                   return wordArg;
+                    Word wordArg = invocation.getArgument(0);
+                    wordArg.setExpression(request.getExpression());
+                    return wordArg;
                 });
 
         //when
-        AddWordDto.Response response =
+        WordDto response =
                 wordService.updateWord(wordId, request);
 
         //then
@@ -237,7 +190,7 @@ class WordServiceTest {
         }
     }
 
-    private void resetMock(){
+    private void resetMock() {
         Mockito.reset(wordRepository, vocabRepository, defRepository, rateRepository);
     }
 }

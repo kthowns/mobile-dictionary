@@ -1,8 +1,8 @@
 package com.kimtaeyang.mobidic.controller;
 
-import com.kimtaeyang.mobidic.dto.member.JoinDto;
+import com.kimtaeyang.mobidic.dto.member.JoinRequestDto;
 import com.kimtaeyang.mobidic.dto.member.LoginDto;
-import com.kimtaeyang.mobidic.dto.member.LogoutDto;
+import com.kimtaeyang.mobidic.dto.member.MemberDto;
 import com.kimtaeyang.mobidic.dto.response.ErrorResponse;
 import com.kimtaeyang.mobidic.dto.response.GeneralResponse;
 import com.kimtaeyang.mobidic.security.JwtUtil;
@@ -71,7 +71,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/join")
-    public ResponseEntity<GeneralResponse<JoinDto.Response>> join(@Valid @RequestBody JoinDto.Request request) {
+    public ResponseEntity<GeneralResponse<MemberDto>> join(@Valid @RequestBody JoinRequestDto request) {
         return GeneralResponse.toResponseEntity(JOIN_OK, authService.join(request));
     }
 
@@ -92,7 +92,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/logout")
-    public ResponseEntity<GeneralResponse<LogoutDto.Response>> logout(HttpServletRequest request) {
+    public ResponseEntity<GeneralResponse<MemberDto>> logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);
         UUID memberId = jwtUtil.getIdFromToken(token);
 
