@@ -1,10 +1,12 @@
 package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.RateDto;
+import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.entity.Rate;
 import com.kimtaeyang.mobidic.entity.Vocab;
 import com.kimtaeyang.mobidic.entity.Word;
 import com.kimtaeyang.mobidic.exception.ApiException;
+import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.repository.RateRepository;
 import com.kimtaeyang.mobidic.repository.VocabRepository;
 import com.kimtaeyang.mobidic.repository.WordRepository;
@@ -15,8 +17,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.NO_MEMBER;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 
 @Service
@@ -25,6 +29,7 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 public class RateService {
     private final WordRepository wordRepository;
     private final RateRepository rateRepository;
+    private final MemberRepository memberRepository;
     private final VocabRepository vocabRepository;
 
     @Transactional(readOnly = true)
@@ -81,6 +86,40 @@ public class RateService {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new ApiException(NO_WORD));
         rateRepository.increaseIncorrectCount(word);
+    }
+
+    @Transactional
+    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vId)")
+    public double getAvgAccuracyByVocab(UUID vId) {
+        Vocab vocab = vocabRepository.findById(vId)
+                .orElseThrow(()-> new ApiException(NO_VOCAB));
+
+        List<Rate> rates = rateRepository.findByVocab(vocab);
+        double sum = 0.0;
+
+        for(Rate rate : rates){
+            int cntSum = rate.getCorrectCount() + rate.getIncorrectCount();
+            sum += (double) rate.getCorrectCount() / cntSum;
+        }
+
+        return sum / rates.size();
+    }
+
+    @Transactional
+    @PreAuthorize("@memberAccessHandler.ownershipCheck(#uId)")
+    public double getAvgAccuracyByMember(UUID uId) {
+        Member member = memberRepository.findById(uId)
+                .orElseThrow(()-> new ApiException(NO_MEMBER));
+
+        List<Rate> rates = rateRepository.findByMember(member);
+        double sum = 0.0;
+
+        for(Rate rate : rates){
+            int cntSum = rate.getCorrectCount() + rate.getIncorrectCount();
+            sum += (double) rate.getCorrectCount() / cntSum;
+        }
+
+        return sum / rates.size();
     }
 
     private Difficulty getDifficulty(Integer correct, Integer incorrect) {
