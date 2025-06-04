@@ -10,7 +10,6 @@ import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.repository.RateRepository;
 import com.kimtaeyang.mobidic.repository.VocabRepository;
 import com.kimtaeyang.mobidic.repository.WordRepository;
-import com.kimtaeyang.mobidic.type.Difficulty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,7 +39,7 @@ public class RateService {
         Rate rate = rateRepository.findRateByWord(word)
                 .orElseThrow(() -> new ApiException(NO_RATE));
 
-        return RateDto.fromEntity(rate, getDifficulty(rate.getCorrectCount(), rate.getIncorrectCount()));
+        return RateDto.fromEntity(rate, calcDifficultyRatio(rate.getCorrectCount(), rate.getIncorrectCount()));
     }
 
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
@@ -95,14 +94,8 @@ public class RateService {
                 .orElseThrow(()-> new ApiException(NO_VOCAB));
 
         List<Rate> rates = rateRepository.findByVocab(vocab);
-        double sum = 0.0;
 
-        for(Rate rate : rates){
-            int cntSum = rate.getCorrectCount() + rate.getIncorrectCount();
-            sum += (double) rate.getCorrectCount() / cntSum;
-        }
-
-        return sum / rates.size();
+        return calcAvgRate(rates);
     }
 
     @Transactional
@@ -112,26 +105,27 @@ public class RateService {
                 .orElseThrow(()-> new ApiException(NO_MEMBER));
 
         List<Rate> rates = rateRepository.findByMember(member);
-        double sum = 0.0;
 
+        return calcAvgRate(rates);
+    }
+
+    private double calcAvgRate(List<Rate> rates) {
+        if(rates == null || rates.isEmpty()){
+            return 0.0;
+        }
+
+        double sum = 0.0;
         for(Rate rate : rates){
-            int cntSum = rate.getCorrectCount() + rate.getIncorrectCount();
-            sum += (double) rate.getCorrectCount() / cntSum;
+            if(rate.getIncorrectCount() == 0){
+                if(rate.getCorrectCount() > 0){
+                    sum += 1;
+                }
+            } else {
+                sum += (double) rate.getCorrectCount() / (rate.getIncorrectCount() + rate.getCorrectCount());
+            }
         }
 
         return sum / rates.size();
-    }
-
-    private Difficulty getDifficulty(Integer correct, Integer incorrect) {
-        double diff = calcDifficultyRatio(correct, incorrect);
-
-        if (diff < 0.3) {
-            return Difficulty.EASY;
-        } else if (diff > 0.7) {
-            return Difficulty.HARD;
-        }
-
-        return Difficulty.NORMAL;
     }
 
     private double calcDifficultyRatio(Integer correct, Integer incorrect) {
