@@ -118,7 +118,7 @@ public class RateController {
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(schema = @Schema(hidden = true)))
     })
-    @GetMapping("/rate/accuracy")
+    @GetMapping("/accuracy")
     public ResponseEntity<GeneralResponse<Double>> getAvgAccuracyByVocab(
             @RequestParam String vId
     ) {
@@ -142,7 +142,7 @@ public class RateController {
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(schema = @Schema(hidden = true)))
     })
-    @GetMapping("/rate/accuracy/all")
+    @GetMapping("/accuracy/all")
     public ResponseEntity<GeneralResponse<Double>> getAvgAccuracyOfAll(
             @RequestParam String uId
     ) {
