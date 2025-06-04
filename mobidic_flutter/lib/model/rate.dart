@@ -5,7 +5,7 @@ class Rate {
   final int correctCount;
   final int incorrectCount;
   final int isLearned;
-  final Difficulty difficulty;
+  final double difficulty;
 
   Rate({
     required this.wordId,
@@ -29,7 +29,7 @@ class RateDto {
   final int correctCount;
   final int incorrectCount;
   final int isLearned;
-  final Difficulty difficulty;
+  final double difficulty;
 
   RateDto({
     required this.wordId,

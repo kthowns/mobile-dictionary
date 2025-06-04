@@ -34,7 +34,6 @@ class RateRepository {
       params: {'uId': memberId},
     );
 
-
     return body.data;
   }
 }
