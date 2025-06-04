@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobidic_flutter/data/secure_storage_data_source.dart';
 import 'package:mobidic_flutter/repository/auth_repository.dart';
 import 'package:mobidic_flutter/repository/member_repository.dart';
+import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/vocab_repository.dart';
 import 'package:mobidic_flutter/view/auth/join_page.dart';
 import 'package:mobidic_flutter/view/auth/log_in_page.dart';
@@ -39,9 +40,16 @@ void main() async {
         Provider(
           create:
               (context) => VocabRepository(
-            context.read<ApiClient>(),
-            context.read<AuthRepository>(),
-          ),
+                context.read<ApiClient>(),
+                context.read<AuthRepository>(),
+              ),
+        ),
+        Provider(
+          create:
+              (context) => RateRepository(
+                context.read<ApiClient>(),
+                context.read<AuthRepository>(),
+              ),
         ),
         ChangeNotifierProvider(
           create:
@@ -75,7 +83,11 @@ class MyApp extends StatelessWidget {
             ),
         '/vocab_list':
             (context) => ChangeNotifierProvider(
-              create: (_) => VocabViewModel(context.read<VocabRepository>()),
+              create:
+                  (_) => VocabViewModel(
+                    context.read<VocabRepository>(),
+                    context.read<RateRepository>(),
+                  ),
               child: VocabListPage(),
             ),
         /*

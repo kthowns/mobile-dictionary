@@ -1,18 +1,46 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mobidic_flutter/model/rate.dart';
 import 'package:mobidic_flutter/model/vocab.dart';
+import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/vocab_repository.dart';
 
 class VocabViewModel extends ChangeNotifier {
   final VocabRepository _vocabRepository;
+  final RateRepository _rateRepository;
+
+  final List<String> sortOptions = ['최신순', '알파벳순', '학습률순'];
+  int currentSortIndex = 0;
+
+  void cycleSortOption() {
+    currentSortIndex = (currentSortIndex + 1) % sortOptions.length;
+    switch (sortOptions[currentSortIndex]) {
+      case '알파벳순':
+        comparator = (a, b) => a.title.compareTo(b.title);
+        break;
+      case '학습률순':
+        comparator = (a, b) => a.learningRate.compareTo(b.learningRate);
+        break;
+      case '최신순':
+        comparator = (a, b) => a.createdAt!.compareTo(b.createdAt!);
+        break;
+    }
+    sort();
+  }
 
   List<Vocab> _vocabs = [];
+
   List<Vocab> get vocabs => _vocabs;
 
   bool _editMode = false;
+
   bool get editMode => _editMode;
 
-  void toggleEditMode(){
+  double _accuracy = 0.0;
+  double get accuracy => _accuracy;
+
+  void toggleEditMode() {
     _editMode = !_editMode;
+    notifyListeners();
   }
 
   Comparator<Vocab> comparator =
@@ -24,30 +52,30 @@ class VocabViewModel extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
-  VocabViewModel(this._vocabRepository) {
+  VocabViewModel(
+      this._vocabRepository,
+      this._rateRepository
+      ) {
     init();
   }
 
-  double getQuizAccuracy(){
-    return 0.67;
+  void getQuizAccuracy() async {
+    _accuracy = await _rateRepository.getAccuracyOfAll();
   }
 
-  double getAvgLearningRate(){
+  double getAvgLearningRate() {
     double result = 0;
-    for(Vocab vocab in vocabs){
+    for (Vocab vocab in vocabs) {
       result += vocab.learningRate;
     }
-    return result/vocabs.length;
+    return result / vocabs.length;
   }
 
   Future<void> init() async {
     await readVocabs();
   }
 
-  Future<void> addVocab(
-    String title,
-    String description,
-  ) async {
+  Future<void> addVocab(String title, String description) async {
     await _vocabRepository.addVocab(title, description);
     await readVocabs();
   }
@@ -70,6 +98,7 @@ class VocabViewModel extends ChangeNotifier {
     _roadStart();
     _vocabs = await _vocabRepository.getVocabs();
     sort();
+    getQuizAccuracy();
     _roadStop();
   }
 

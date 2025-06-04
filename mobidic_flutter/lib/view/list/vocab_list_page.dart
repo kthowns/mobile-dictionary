@@ -138,38 +138,6 @@ class VocabListPage extends StatelessWidget {
       );
     }
 
-    void _showSortMenu() {
-      showMenu(
-        context: context,
-        position: const RelativeRect.fromLTRB(1000, 80, 10, 0),
-        items: [
-          PopupMenuItem(
-            child: const Text('알파벳 순'),
-            onTap: () {
-              vocabViewModel.comparator = (a, b) => a.title.compareTo(b.title);
-              vocabViewModel.sort();
-            },
-          ),
-          PopupMenuItem(
-            child: const Text('학습률 순'),
-            onTap: () {
-              vocabViewModel.comparator =
-                  (a, b) => a.learningRate.compareTo(b.learningRate);
-              vocabViewModel.sort();
-            },
-          ),
-          PopupMenuItem(
-            child: const Text('최신순'),
-            onTap: () {
-              vocabViewModel.comparator =
-                  (a, b) => a.createdAt!.compareTo(b.createdAt!);
-              vocabViewModel.sort();
-            },
-          ),
-        ],
-      );
-    }
-
     Widget buildVocabularyCard(int index) {
       final progress = vocabViewModel.vocabs[index].learningRate;
       final isExpanded = vocabViewModel.selectedCardIndex == index;
@@ -177,8 +145,9 @@ class VocabListPage extends StatelessWidget {
       return Container(
         margin: const EdgeInsets.only(bottom: 20),
         padding: const EdgeInsets.all(16),
+
         decoration: BoxDecoration(
-          color: Colors.yellow[100],
+          color: Colors.blue[100],
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
@@ -216,32 +185,28 @@ class VocabListPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.black),
-                      onPressed: () => _showEditVocabularyDialog(index),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete_outline,
-                        color: Colors.black,
+                if (vocabViewModel.editMode)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => _showEditVocabularyDialog(index),
+                        child: const Text('수정'),
                       ),
-                      onPressed: () => _showDeleteDialog(index),
-                    ),
-                  ],
-                ),
+                      TextButton(
+                        onPressed: () => _showDeleteDialog(index),
+                        child: const Text('삭제'),
+                      ),
+                    ],
+                  ),
               ],
             ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children: [/*
-                _tagButton('퀴즈', index),
-                _tagButton('발음 체크', index),
-                _tagButton('파닉스', index),
-                */
+              children: [
+                //_tagButton('퀴즈', index), _tagButton('발음 체크', index)
               ],
             ),
             const SizedBox(height: 12),
@@ -329,10 +294,6 @@ class VocabListPage extends StatelessWidget {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black),
-            onPressed: _showSortMenu,
-          ),
           const Padding(
             padding: EdgeInsets.only(right: 12),
             child: Icon(Icons.home, color: Colors.black),
@@ -341,13 +302,7 @@ class VocabListPage extends StatelessWidget {
       ),
       extendBodyBehindAppBar: true,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFb3e5fc), Color(0xFF81d4fa)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        decoration: BoxDecoration(color: Colors.white),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,29 +313,6 @@ class VocabListPage extends StatelessWidget {
                   left: 20,
                   top: 10,
                   bottom: 4,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '평균 학습률 : ${vocabViewModel.getAvgLearningRate().toStringAsFixed(2)}',
-                        ),
-                        Text(
-                          '퀴즈 정답률 : ${vocabViewModel.getQuizAccuracy().toStringAsFixed(2)}',
-                        ),
-                        Text('단어장 개수 : ${vocabViewModel.vocabs.length}'),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 4,
                 ),
                 child: TextField(
                   decoration: InputDecoration(
@@ -397,12 +329,64 @@ class VocabListPage extends StatelessWidget {
                 ),
               ),
               Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 4,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '평균 학습률 : ${vocabViewModel.getAvgLearningRate().toStringAsFixed(2)}',
+                          ),
+                          Text(
+                            '퀴즈 정답률 : ${vocabViewModel.accuracy.toStringAsFixed(2)}',
+                          ),
+                          Text('단어장 개수 : ${vocabViewModel.vocabs.length}'),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: vocabViewModel.cycleSortOption,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[100],
+                        foregroundColor: Colors.black,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                      ),
+                      child: Text(
+                        vocabViewModel.sortOptions[vocabViewModel
+                            .currentSortIndex],
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
                       onPressed: showAddVocabularyDialog,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[100],
+                        foregroundColor: Colors.black87,
+                      ),
                       child: const Text('단어장 추가'),
                     ),
                   ],
@@ -423,6 +407,40 @@ class VocabListPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final RenderBox overlay =
+              Overlay.of(context).context.findRenderObject() as RenderBox;
+
+          final selected = await showMenu<String>(
+            context: context,
+            position: RelativeRect.fromLTRB(
+              overlay.size.width,
+              overlay.size.height - 100,
+              0,
+              0,
+            ),
+            items: [
+              const PopupMenuItem<String>(value: '랭킹', child: Text('랭킹')),
+              const PopupMenuItem<String>(value: '파닉스', child: Text('파닉스')),
+              const PopupMenuItem<String>(value: '편집', child: Text('편집')),
+            ],
+          );
+
+          if (selected != null) {
+            if (selected == '랭킹') {
+              debugPrint('랭킹 메뉴 선택됨');
+              // Navigator.push(...);
+            } else if (selected == '파닉스') {
+              debugPrint('파닉스 메뉴 선택됨');
+            } else if (selected == '편집') {
+              vocabViewModel.toggleEditMode();
+            }
+          }
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blue[100],
       ),
     );
   }
