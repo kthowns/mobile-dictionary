@@ -65,6 +65,10 @@ class AuthViewModel extends ChangeNotifier {
     } on ApiException catch (e) {
       _isLoggedIn = false;
       _loginError = true;
+      if(e.statusCode == 500){
+        _loginErrorMessage = "서버에 문제가 발생했습니다.";
+        return;
+      }
       if(e.errors != null && e.errors is Map<String, dynamic> && e.errors!.isNotEmpty) {
         for(var entry in e.errors!.entries){
           _loginErrorMessage += '${entry.value}\n';
@@ -76,6 +80,7 @@ class AuthViewModel extends ChangeNotifier {
       _loginError = true;
       _isLoggedIn = false;
       _loginErrorMessage = "로그인 실패";
+      rethrow;
     } finally {
       _roadStop();
     }
