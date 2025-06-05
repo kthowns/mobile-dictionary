@@ -50,9 +50,15 @@ abstract public class QuestionStrategy {
 
         List<T> orgList = new ArrayList<>(list);
 
+        int epoch = 30;
+        int cnt = 0;
         while (true) { //complete derangement
+            if (epoch < cnt){
+                return;
+            }
             Collections.shuffle(list);
             boolean isDerangement = true;
+            cnt++;
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).equals(orgList.get(i))) {
                     isDerangement = false;
