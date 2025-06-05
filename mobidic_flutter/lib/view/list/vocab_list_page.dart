@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobidic_flutter/repository/rate_repository.dart';
+import 'package:mobidic_flutter/repository/word_repository.dart';
+import 'package:mobidic_flutter/view/list/word_list_page.dart';
 import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
+import 'package:mobidic_flutter/viewmodel/word_view_model.dart';
 import 'package:provider/provider.dart';
 
 class VocabListPage extends StatelessWidget {
@@ -11,11 +15,31 @@ class VocabListPage extends StatelessWidget {
     final vocabViewModel = context.watch<VocabViewModel>();
 
     void navigateToWordList(int index) {
-      vocabViewModel.selectedCardIndex = index;
-      //Navigator.pushNamed(context, 'word_list');
+      vocabViewModel.currentVocab = vocabViewModel.showingVocabs[index];
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (_) => MultiProvider(
+                providers: [
+                  ChangeNotifierProvider.value(value: vocabViewModel),
+                  // 기존 인스턴스 전달
+                  ChangeNotifierProvider(
+                    create:
+                        (_) => WordViewModel(
+                          vocabViewModel,
+                          context.read<RateRepository>(),
+                          context.read<WordRepository>(),
+                        ),
+                  ),
+                ],
+                child: WordListPage(),
+              ),
+        ),
+      );
     }
 
-    void showAddVocabularyDialog() {
+    void showAddVocabDialog() {
       TextEditingController titleController = TextEditingController();
       TextEditingController descController = TextEditingController();
 
@@ -63,12 +87,12 @@ class VocabListPage extends StatelessWidget {
       );
     }
 
-    void _showEditVocabularyDialog(int index) {
+    void showEditVocabDialog(int index) {
       TextEditingController titleController = TextEditingController(
-        text: vocabViewModel.vocabs[index].title,
+        text: vocabViewModel.showingVocabs[index].title,
       );
       TextEditingController descController = TextEditingController(
-        text: vocabViewModel.vocabs[index].description,
+        text: vocabViewModel.showingVocabs[index].description,
       );
 
       showDialog(
@@ -100,7 +124,7 @@ class VocabListPage extends StatelessWidget {
                   onPressed: () {
                     if (titleController.text.trim().isNotEmpty) {
                       vocabViewModel.updateVocab(
-                        vocabViewModel.vocabs[index].id,
+                        vocabViewModel.showingVocabs[index],
                         titleController.text.trim(),
                         descController.text.trim(),
                       );
@@ -128,7 +152,9 @@ class VocabListPage extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    vocabViewModel.deleteVocab(vocabViewModel.vocabs[index].id);
+                    vocabViewModel.deleteVocab(
+                      vocabViewModel.showingVocabs[index],
+                    );
                     Navigator.pop(context);
                   },
                   child: const Text('예'),
@@ -138,8 +164,8 @@ class VocabListPage extends StatelessWidget {
       );
     }
 
-    Widget buildVocabularyCard(int index) {
-      final progress = vocabViewModel.vocabs[index].learningRate;
+    Widget buildVocabCard(int index) {
+      final progress = vocabViewModel.showingVocabs[index].learningRate;
       final isExpanded = vocabViewModel.selectedCardIndex == index;
 
       return Container(
@@ -168,7 +194,7 @@ class VocabListPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        vocabViewModel.vocabs[index].title,
+                        vocabViewModel.showingVocabs[index].title,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -176,7 +202,7 @@ class VocabListPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        vocabViewModel.vocabs[index].description,
+                        vocabViewModel.showingVocabs[index].description,
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.black54,
@@ -190,7 +216,7 @@ class VocabListPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: () => _showEditVocabularyDialog(index),
+                        onPressed: () => showEditVocabDialog(index),
                         child: const Text('수정'),
                       ),
                       TextButton(
@@ -294,6 +320,22 @@ class VocabListPage extends StatelessWidget {
           ],
         ),
         actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onSelected: (value) {
+              if (value == '랭킹') {
+                debugPrint('랭킹 메뉴 선택됨');
+                // Navigator.push(...); // 랭킹 페이지로 이동 처리
+              } else if (value == '파닉스') {
+                debugPrint('파닉스 메뉴 선택됨');
+              }
+            },
+            itemBuilder:
+                (BuildContext context) => [
+                  const PopupMenuItem<String>(value: '랭킹', child: Text('랭킹')),
+                  const PopupMenuItem<String>(value: '파닉스', child: Text('파닉스')),
+                ],
+          ),
           const Padding(
             padding: EdgeInsets.only(right: 12),
             child: Icon(Icons.home, color: Colors.black),
@@ -315,6 +357,7 @@ class VocabListPage extends StatelessWidget {
                   bottom: 4,
                 ),
                 child: TextField(
+                  controller: vocabViewModel.searchController,
                   decoration: InputDecoration(
                     hintText: '검색어를 입력하세요',
                     prefixIcon: const Icon(Icons.search),
@@ -373,35 +416,49 @@ class VocabListPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                    const SizedBox(width: 10),
                     ElevatedButton(
-                      onPressed: showAddVocabularyDialog,
+                      onPressed: vocabViewModel.toggleEditMode,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[100],
-                        foregroundColor: Colors.black87,
+                        backgroundColor:
+                            vocabViewModel.editMode
+                                ? Colors.blue[300]
+                                : Colors.blue[100],
+                        foregroundColor: Colors.black,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
                       ),
-                      child: const Text('단어장 추가'),
+                      child: Text(
+                        '편집',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
+              Padding(padding: const EdgeInsets.symmetric(vertical: 8)),
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: vocabViewModel.vocabs.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () => navigateToWordList(index),
-                      child: buildVocabularyCard(index),
-                    );
-                  },
+                child: RefreshIndicator(
+                  onRefresh: vocabViewModel.readVocabs,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(20),
+                    itemCount: vocabViewModel.showingVocabs.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () => navigateToWordList(index),
+                        child: buildVocabCard(index),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -409,38 +466,9 @@ class VocabListPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final RenderBox overlay =
-              Overlay.of(context).context.findRenderObject() as RenderBox;
-
-          final selected = await showMenu<String>(
-            context: context,
-            position: RelativeRect.fromLTRB(
-              overlay.size.width,
-              overlay.size.height - 100,
-              0,
-              0,
-            ),
-            items: [
-              const PopupMenuItem<String>(value: '랭킹', child: Text('랭킹')),
-              const PopupMenuItem<String>(value: '파닉스', child: Text('파닉스')),
-              const PopupMenuItem<String>(value: '편집', child: Text('편집')),
-            ],
-          );
-
-          if (selected != null) {
-            if (selected == '랭킹') {
-              debugPrint('랭킹 메뉴 선택됨');
-              // Navigator.push(...);
-            } else if (selected == '파닉스') {
-              debugPrint('파닉스 메뉴 선택됨');
-            } else if (selected == '편집') {
-              vocabViewModel.toggleEditMode();
-            }
-          }
-        },
-        child: const Icon(Icons.add),
+        onPressed: showAddVocabDialog,
         backgroundColor: Colors.blue[100],
+        child: const Icon(Icons.add),
       ),
     );
   }

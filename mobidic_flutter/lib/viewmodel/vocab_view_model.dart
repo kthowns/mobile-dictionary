@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:mobidic_flutter/model/rate.dart';
 import 'package:mobidic_flutter/model/vocab.dart';
 import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/vocab_repository.dart';
@@ -7,6 +6,33 @@ import 'package:mobidic_flutter/repository/vocab_repository.dart';
 class VocabViewModel extends ChangeNotifier {
   final VocabRepository _vocabRepository;
   final RateRepository _rateRepository;
+  final TextEditingController searchController = TextEditingController();
+
+  VocabViewModel(this._vocabRepository, this._rateRepository) {
+    init();
+  }
+
+  Future<void> init() async {
+    await readVocabs();
+    searchController.addListener(() {
+      searchVocabs();
+    });
+  }
+
+  Future<void> readVocabs() async {
+    _roadStart();
+    _vocabs = await _vocabRepository.getVocabs();
+    searchVocabs();
+    sort();
+    _accuracy = await getQuizAccuracy();
+    _roadStop();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   final List<String> sortOptions = ['최신순', '알파벳순', '학습률순'];
   int currentSortIndex = 0;
@@ -27,15 +53,22 @@ class VocabViewModel extends ChangeNotifier {
     sort();
   }
 
+  Vocab? currentVocab;
+
   List<Vocab> _vocabs = [];
 
   List<Vocab> get vocabs => _vocabs;
+
+  List<Vocab> _showingVocabs = [];
+
+  List<Vocab> get showingVocabs => _showingVocabs;
 
   bool _editMode = false;
 
   bool get editMode => _editMode;
 
   double _accuracy = 0.0;
+
   double get accuracy => _accuracy;
 
   void toggleEditMode() {
@@ -52,15 +85,26 @@ class VocabViewModel extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
-  VocabViewModel(
-      this._vocabRepository,
-      this._rateRepository
-      ) {
-    init();
+  void searchVocabs() {
+    String keyword = searchController.text;
+    print("searchVocab() : " + keyword);
+    if (keyword.isEmpty) {
+      _showingVocabs = _vocabs;
+    }
+    final query = searchController.text.toLowerCase();
+    _showingVocabs =
+        _vocabs
+            .where(
+              (v) =>
+                  v.title.toLowerCase().contains(query) ||
+                  v.description.toLowerCase().contains(query),
+            )
+            .toList();
+    notifyListeners();
   }
 
-  void getQuizAccuracy() async {
-    _accuracy = await _rateRepository.getAccuracyOfAll();
+  Future<double> getQuizAccuracy() async {
+    return await _rateRepository.getAccuracyOfAll();
   }
 
   double getAvgLearningRate() {
@@ -71,39 +115,28 @@ class VocabViewModel extends ChangeNotifier {
     return result / vocabs.length;
   }
 
-  Future<void> init() async {
-    await readVocabs();
-  }
-
   Future<void> addVocab(String title, String description) async {
     await _vocabRepository.addVocab(title, description);
     await readVocabs();
   }
 
   Future<void> updateVocab(
-    String vocabId,
+    Vocab vocab,
     String title,
     String description,
   ) async {
-    await _vocabRepository.updateVocab(vocabId, title, description);
+    await _vocabRepository.updateVocab(vocab.id, title, description);
     await readVocabs();
   }
 
-  Future<void> deleteVocab(String vocabId) async {
-    await _vocabRepository.deleteVocab(vocabId);
+  Future<void> deleteVocab(Vocab vocab) async {
+    await _vocabRepository.deleteVocab(vocab.id);
     await readVocabs();
-  }
-
-  Future<void> readVocabs() async {
-    _roadStart();
-    _vocabs = await _vocabRepository.getVocabs();
-    sort();
-    getQuizAccuracy();
-    _roadStop();
   }
 
   void sort() {
     _vocabs.sort(comparator);
+    searchVocabs();
     notifyListeners();
   }
 
