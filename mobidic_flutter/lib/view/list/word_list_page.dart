@@ -437,6 +437,17 @@ class WordListPage extends StatelessWidget {
                     ],
                   ),
                 ),
+                Row(
+                  children: [
+                    Switch(
+                      value: word.isLearned,
+                      onChanged: (val) {
+                        wordViewModel.toggleWordIsLearned(word);
+                      },
+                      activeTrackColor: Colors.blue[300],
+                    ),
+                  ],
+                ),
                 if (wordViewModel.editMode)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -545,9 +556,16 @@ class WordListPage extends StatelessWidget {
                       ),
                     ],
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(right: 12),
-                child: Icon(Icons.home, color: Colors.black),
+                child: IconButton(
+                  icon: const Icon(Icons.home, color: Colors.black),
+                  onPressed: () {
+                    Navigator.popUntil(context, (route) {
+                      return route.settings.name == '/vocab_list'; // 특정 route 이름 기준
+                    });
+                  },
+                ),
               ),
             ],
           ),

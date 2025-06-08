@@ -164,6 +164,94 @@ class VocabListPage extends StatelessWidget {
       );
     }
 
+    Widget tagButton(String label, int index) {
+      return ElevatedButton(
+        onPressed: () {
+          if (label == '퀴즈') {
+            showModalBottomSheet(
+              context: context,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              backgroundColor: Colors.yellow[100],
+              builder: (BuildContext context) {
+                return Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Center(
+                        child: Text(
+                          '퀴즈 선택',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      GridView.count(
+                        crossAxisCount: 2,
+                        shrinkWrap: true,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 2.5, // 버튼 너비 비율 조정
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              //Navigator.push(context,
+                              //    MaterialPageRoute(builder: (_) => const FlashcardScreen()));
+                            },
+                            child: const Text('플래시카드'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              //Navigator.push(context,
+                              //    MaterialPageRoute(builder: (_) => const OXQuizPage()));
+                            },
+                            child: const Text('O/X 퀴즈'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              //Navigator.push(context,
+                              //    MaterialPageRoute(builder: (_) => const DictationQuizPage()));
+                            },
+                            child: const Text('받아쓰기'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              //Navigator.push(context,
+                              //    MaterialPageRoute(builder: (_) => const FillBlankPage()));
+                            },
+                            child: const Text('빈칸 채우기'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          } else if (label == '발음 체크') {
+            //Navigator.push(
+            //  context,
+            //  MaterialPageRoute(builder: (_) => const PronunciationScreen()),
+            //);
+          }
+        },
+        child: Text(label),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          textStyle: const TextStyle(fontSize: 12),
+          backgroundColor: Colors.grey[300],
+          foregroundColor: Colors.black87,
+          shape: const StadiumBorder(),
+        ),
+      );
+    }
+
     Widget buildVocabCard(int index) {
       final progress = vocabViewModel.showingVocabs[index].learningRate;
       final isExpanded = vocabViewModel.selectedCardIndex == index;
@@ -232,7 +320,8 @@ class VocabListPage extends StatelessWidget {
               spacing: 8,
               runSpacing: 4,
               children: [
-                //_tagButton('퀴즈', index), _tagButton('발음 체크', index)
+                tagButton('퀴즈', index),
+                tagButton('발음 체크', index)
               ],
             ),
             const SizedBox(height: 12),
@@ -266,28 +355,6 @@ class VocabListPage extends StatelessWidget {
               },
             ),
           ],
-        ),
-      );
-    }
-
-    Widget _tagButton(String label, int index) {
-      return ElevatedButton(
-        onPressed: () {
-          if (label == '퀴즈') {
-            /*
-            setState(() {
-              selectedCardIndex = selectedCardIndex == index ? -1 : index;
-            });
-             */
-          }
-        },
-        child: Text(label),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          textStyle: const TextStyle(fontSize: 12),
-          backgroundColor: Colors.grey[300],
-          foregroundColor: Colors.black87,
-          shape: const StadiumBorder(),
         ),
       );
     }
@@ -351,9 +418,16 @@ class VocabListPage extends StatelessWidget {
                       ),
                     ],
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(right: 12),
-                child: Icon(Icons.home, color: Colors.black),
+                child: IconButton(
+                  icon: const Icon(Icons.home, color: Colors.black),
+                  onPressed: () {
+                    Navigator.popUntil(context, (route) {
+                      return route.settings.name == '/vocab_list'; // 특정 route 이름 기준
+                    });
+                  },
+                ),
               ),
             ],
           ),

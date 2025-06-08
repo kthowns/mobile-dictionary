@@ -1,19 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    home: PhonicsPage(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
-
 class PhonicsPage extends StatelessWidget {
   const PhonicsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -53,15 +45,19 @@ class PhonicsPage extends StatelessWidget {
             },
             itemBuilder:
                 (BuildContext context) => [
-              const PopupMenuItem<String>(
-                value: '파닉스',
-                child: Text('파닉스'),
-              ),
-            ],
+                  const PopupMenuItem<String>(value: '파닉스', child: Text('파닉스')),
+                ],
           ),
-          const Padding(
-            padding: EdgeInsets.only(right: 12),
-            child: Icon(Icons.home, color: Colors.black),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.home, color: Colors.black),
+              onPressed: () {
+                Navigator.popUntil(context, (route) {
+                  return route.settings.name == '/vocab_list'; // 특정 route 이름 기준
+                });
+              },
+            ),
           ),
         ],
       ),
@@ -101,11 +97,29 @@ class PhonicsPage extends StatelessWidget {
                   style: TextStyle(fontSize: 16, color: Colors.black87),
                 ),
               ),
-              _buildButton(context, '단모음', Colors.green, '난이도: 하', const ShortVowelPage()),
+              _buildButton(
+                context,
+                '단모음',
+                Colors.green,
+                '난이도: 하',
+                const ShortVowelPage(),
+              ),
               const SizedBox(height: 24),
-              _buildButton(context, '중모음', Colors.blue, '난이도: 중', const LongVowelPage()),
+              _buildButton(
+                context,
+                '중모음',
+                Colors.blue,
+                '난이도: 중',
+                const LongVowelPage(),
+              ),
               const SizedBox(height: 24),
-              _buildButton(context, '이중모음', Colors.red, '난이도: 상', const DiphthongPage()),
+              _buildButton(
+                context,
+                '이중모음',
+                Colors.red,
+                '난이도: 상',
+                const DiphthongPage(),
+              ),
             ],
           ),
         ),
@@ -113,15 +127,22 @@ class PhonicsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(BuildContext context, String label, Color color, String subtitle, Widget page) {
+  Widget _buildButton(
+    BuildContext context,
+    String label,
+    Color color,
+    String subtitle,
+    Widget page,
+  ) {
     return SizedBox(
       width: 280,
       height: 80,
       child: ElevatedButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => page),
-        ),
+        onPressed:
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => page),
+            ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           padding: const EdgeInsets.all(12),
@@ -136,7 +157,11 @@ class PhonicsPage extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 label,
-                style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             Positioned(
@@ -222,7 +247,11 @@ class DiphthongPage extends StatelessWidget {
 
 // ------------------------ 공통 단어 목록 UI ------------------------
 
-Widget _buildListScreen(BuildContext context, String title, List<String> items) {
+Widget _buildListScreen(
+  BuildContext context,
+  String title,
+  List<String> items,
+) {
   return Scaffold(
     appBar: AppBar(
       title: Text(title),
