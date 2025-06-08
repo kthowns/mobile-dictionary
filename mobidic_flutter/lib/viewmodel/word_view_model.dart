@@ -180,6 +180,11 @@ class WordViewModel extends ChangeNotifier {
     await loadData();
   }
 
+  Future<void> toggleWordIsLearned(Word word) async {
+    await _rateRepository.toggleWordLearned(word);
+    await loadData();
+  }
+
   Future<void> deleteWord(Word word) async {
     await _wordRepository.deleteWord(word);
     await loadData();
