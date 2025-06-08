@@ -30,8 +30,6 @@ class WordRepository {
       body.data,
     );
 
-    print("data : ${data}");
-
     List<WordDto> responses = data.map((v) => WordDto.fromJson(v)).toList();
     List<Word> words = [];
 
@@ -55,8 +53,8 @@ class WordRepository {
       );
       List<DefDto> defDtos = defsData.map((d) => DefDto.fromJson(d)).toList();
       List<Definition> defs = defDtos.map((d) => Definition.fromDto(d)).toList();
-      Word word = Word.fromDto(dto, rateResponse.difficulty, defs);
-      print(word);
+
+      Word word = Word.fromDto(dto, Rate.fromDto(rateResponse), defs);
 
       words.add(word);
     }
@@ -107,7 +105,6 @@ class WordRepository {
     );
 
     for (Definition def in defs) {
-      print("def.id : ${def.id}");
       if(def.id.isEmpty){
         GeneralResponseDto body = await _apiClient.post(
           url: '/def/${word.id}',
