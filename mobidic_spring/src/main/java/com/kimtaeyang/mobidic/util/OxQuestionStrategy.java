@@ -19,11 +19,15 @@ public class OxQuestionStrategy extends QuestionStrategy {
         ArrayList<Question> questions = new ArrayList<>();
 
         for (WordWithDefs wordWithDefs : wordsWithDefs) {
-            String option = null;
+            String option = "";
+            String answer = "0";
 
             if (wordWithDefs.getDefDtos() != null && !wordWithDefs.getDefDtos().isEmpty()) {
                 int randIdx = ThreadLocalRandom.current().nextInt(wordWithDefs.getDefDtos().size());
                 option = wordWithDefs.getDefDtos().get(randIdx).getDefinition();
+                if(option.equals(wordWithDefs.getDefDtos().get(randIdx).getDefinition())){
+                    answer = "1";
+                }
             }
 
             options.add(option);
@@ -33,7 +37,8 @@ public class OxQuestionStrategy extends QuestionStrategy {
                             .wordId(wordWithDefs.getWordDto().getId())
                             .memberId(memberId)
                             .stem(wordWithDefs.getWordDto().getExpression())
-                            .answer(option)
+                            .options(options)
+                            .answer(answer)
                             .build()
             );
         }
