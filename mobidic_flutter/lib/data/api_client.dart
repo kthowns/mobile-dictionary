@@ -14,6 +14,7 @@ class ApiClient {
     Object? body,
     Map<String, String>? headers,
   }) async {
+    print("Request uri : $_baseUrl$url");
     final http.Response response = await http.post(
       Uri.parse('$_baseUrl$url'),
       headers: {'Content-Type': 'application/json', ...?headers},
@@ -28,6 +29,7 @@ class ApiClient {
     Object? body,
     Map<String, String>? headers,
   }) async {
+    print("Request uri : $_baseUrl$url");
     final http.Response response = await http.patch(
       Uri.parse('$_baseUrl$url'),
       headers: {'Content-Type': 'application/json', ...?headers},
@@ -45,6 +47,7 @@ class ApiClient {
     final uri = Uri.parse('$_baseUrl$url').replace(
       queryParameters: params?.map((k, v) => MapEntry(k, v.toString())),
     );
+    print("Request uri : $_baseUrl$url");
 
     final http.Response response = await http.get(
       uri,
@@ -59,6 +62,7 @@ class ApiClient {
     Object? body,
     Map<String, String>? headers,
   }) async {
+    print("Request uri : $_baseUrl$url");
     final http.Response response = await http.delete(
       Uri.parse('$_baseUrl$url'),
       headers: {'Content-Type': 'application/json', ...?headers},
@@ -73,6 +77,8 @@ class ApiClient {
     T Function(Map<String, dynamic>) fromJson,
   ) async {
     final Map<String, dynamic> bodyJson = jsonDecode(response.body);
+
+    print(bodyJson);
 
     if (response.statusCode != 200) {
       final errorBody = ErrorResponseDto.fromJson(bodyJson);
