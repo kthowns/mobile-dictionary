@@ -498,7 +498,7 @@ class VocabListPage extends StatelessWidget {
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: vocabViewModel.loadData,
-                      child: ListView.builder(
+                      child: vocabViewModel.vocabs.isNotEmpty ? ListView.builder(
                         padding: const EdgeInsets.all(20),
                         itemCount: vocabViewModel.showingVocabs.length,
                         itemBuilder: (context, index) {
@@ -507,6 +507,14 @@ class VocabListPage extends StatelessWidget {
                             child: buildVocabCard(index),
                           );
                         },
+                      ) : Center(
+                        child: Text(
+                          "단어장을 추가해주세요.",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
