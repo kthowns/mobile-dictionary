@@ -340,7 +340,7 @@ class VocabListPage extends StatelessWidget {
                 icon: const Icon(Icons.menu, color: Colors.black),
                 onSelected: (value) {
                   if (value == '파닉스') {
-                    debugPrint('파닉스 메뉴 선택됨');
+                    Navigator.pushNamed(context, '/phonics');
                   }
                 },
                 itemBuilder:

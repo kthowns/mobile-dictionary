@@ -7,6 +7,7 @@ import 'package:mobidic_flutter/repository/vocab_repository.dart';
 import 'package:mobidic_flutter/repository/word_repository.dart';
 import 'package:mobidic_flutter/view/auth/join_page.dart';
 import 'package:mobidic_flutter/view/auth/log_in_page.dart';
+import 'package:mobidic_flutter/view/learning/phonics_page.dart';
 import 'package:mobidic_flutter/view/list/vocab_list_page.dart';
 import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/join_view_model.dart';
@@ -98,6 +99,8 @@ class MyApp extends StatelessWidget {
                   ),
               child: VocabListPage(),
             ),
+        '/phonics':
+        (context) => PhonicsPage()
       },
     );
   }

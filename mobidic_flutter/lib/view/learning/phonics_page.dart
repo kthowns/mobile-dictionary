@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -7,47 +8,64 @@ void main() {
   ));
 }
 
-// ------------------------ 공통 하단 바 ------------------------
-
-Widget buildBottomNavBar(BuildContext context) {
-  return Container(
-    color: Colors.grey[200],
-    padding: const EdgeInsets.symmetric(vertical: 12.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.note_outlined, size: 32),
-          onPressed: () {
-            // 단어장 이동
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.home, size: 32),
-          onPressed: () {
-            Navigator.popUntil(context, (route) => route.isFirst);
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.exit_to_app, size: 32),
-          onPressed: () {
-            // 로그아웃 또는 종료
-          },
-        ),
-      ],
-    ),
-  );
-}
-
-// ------------------------ 메인 파닉스 페이지 ------------------------
-
 class PhonicsPage extends StatelessWidget {
   const PhonicsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.white,
+
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            // 원하는 로직
+            print('뒤로가기 누름');
+
+            // 실제 뒤로 가기
+            Navigator.pop(context);
+          },
+        ),
+        title: const Row(
+          children: [
+            SizedBox(width: 8),
+            Text(
+              '파닉스 학습',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onSelected: (value) {
+              if (value == '파닉스') {
+                Navigator.pushNamed(context, '/phonics');
+              }
+            },
+            itemBuilder:
+                (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: '파닉스',
+                child: Text('파닉스'),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: Icon(Icons.home, color: Colors.black),
+          ),
+        ],
+      ),
+      extendBodyBehindAppBar: true,
       body: SafeArea(
         bottom: false,
         child: Container(
@@ -92,7 +110,6 @@ class PhonicsPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: buildBottomNavBar(context),
     );
   }
 
@@ -253,6 +270,5 @@ Widget _buildListScreen(BuildContext context, String title, List<String> items) 
         },
       ),
     ),
-    bottomNavigationBar: buildBottomNavBar(context),
   );
 }
