@@ -195,6 +195,7 @@ class WordListPage extends StatelessWidget {
 
       // 초기값 세팅 (Dialog 열 때마다 초기화 필요)
       wordViewModel.editingExpController.text = word.expression;
+      wordViewModel.removingDefs.clear();
       wordViewModel.editingDefs
         ..clear()
         ..addAll(word.defs);
@@ -240,7 +241,8 @@ class WordListPage extends StatelessWidget {
                                 controller: controller,
                                 onChanged: (value) {
                                   wordViewModel.editingDefs[idx] = Definition(
-                                    id: ,
+                                    id: wordViewModel.editingDefs[idx].id,
+                                    wordId: wordViewModel.editingDefs[idx].wordId,
                                     definition: value,
                                     part: def.part,
                                   );
@@ -262,6 +264,8 @@ class WordListPage extends StatelessWidget {
                               onChanged: (newValue) {
                                 setDialogState(() {
                                   wordViewModel.editingDefs[idx] = Definition(
+                                    id: wordViewModel.editingDefs[idx].id,
+                                    wordId: wordViewModel.editingDefs[idx].wordId,
                                     definition: def.definition,
                                     part: newValue!,
                                   );
@@ -273,6 +277,9 @@ class WordListPage extends StatelessWidget {
                                 icon: const Icon(Icons.remove_circle, color: Colors.red),
                                 onPressed: () {
                                   setDialogState(() {
+                                    wordViewModel.removingDefs.add(
+                                        wordViewModel.editingDefs[index]
+                                    );
                                     wordViewModel.editingDefs.removeAt(idx);
                                   });
                                 },
@@ -295,7 +302,11 @@ class WordListPage extends StatelessWidget {
                             setDialogState(() {
                               wordViewModel.setEditingErrorMessage("");
                               wordViewModel.editingDefs.add(
-                                Definition(definition: '', part: PartOfSpeech.NOUN),
+                                Definition(
+                                    id: "",
+                                    wordId: "",
+                                    definition: '',
+                                    part: PartOfSpeech.NOUN),
                               );
                             });
                           }
@@ -314,14 +325,14 @@ class WordListPage extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    final editedWord = wordViewModel.editingExpController.text.trim();
+                    final String editedExp = wordViewModel.editingExpController.text.trim();
                     final defs = wordViewModel.editingDefs
                         .where((d) => d.definition.trim().isNotEmpty)
                         .toList();
 
-                    if (editedWord.isNotEmpty && defs.isNotEmpty) {
+                    if (editedExp.isNotEmpty && defs.isNotEmpty) {
                       // 단어 수정 저장 로직 예시
-                      wordViewModel.updateWord(word, editedWord, defs);
+                      wordViewModel.updateWord(word, editedExp, defs);
                       Navigator.pop(context);
                     } else {
                       wordViewModel.setEditingErrorMessage("단어와 뜻을 모두 입력해주세요.");

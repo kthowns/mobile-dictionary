@@ -97,22 +97,40 @@ class WordRepository {
     );
   }
 
-  Future<void> updateWord(Word word, List<Definition> defs) async {
+  Future<void> updateWord(Word word, String exp, List<Definition> defs) async {
     String? token = await _authRepository.getToken();
 
     GeneralResponseDto body = await _apiClient.patch(
       url: '/word/${word.id}',
       headers: {'Authorization': 'Bearer $token'},
-      body: AddWordRequestDto(expression: word.expression),
+      body: AddWordRequestDto(expression: exp),
     );
 
     for (Definition def in defs) {
-      GeneralResponseDto body = await _apiClient.patch(
-        url: '/def/${def.id}',
-        headers: {'Authorization': 'Bearer $token'},
-        body: AddDefRequestDto(definition: def.definition, part: def.part),
-      );
+      print("def.id : ${def.id}");
+      if(def.id.isEmpty){
+        GeneralResponseDto body = await _apiClient.post(
+          url: '/def/${word.id}',
+          headers: {'Authorization': 'Bearer $token'},
+          body: AddDefRequestDto(definition: def.definition, part: def.part),
+        );
+      } else {
+        GeneralResponseDto body = await _apiClient.patch(
+          url: '/def/${def.id}',
+          headers: {'Authorization': 'Bearer $token'},
+          body: AddDefRequestDto(definition: def.definition, part: def.part),
+        );
+      }
     }
   }
 
+  Future<void> deleteDef(Definition def) async {
+    String? token = await _authRepository.getToken();
+    String? memberId = await _authRepository.getCurrentMemberId();
+
+    GeneralResponseDto body = await _apiClient.delete(
+      url: '/def/${def.id}',
+      headers: {'Authorization': 'Bearer $token'},
+    );
+  }
 }

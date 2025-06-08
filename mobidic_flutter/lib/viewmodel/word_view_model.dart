@@ -74,8 +74,7 @@ class WordViewModel extends ChangeNotifier {
   String _addingErrorMessage = "";
   String get addingErrorMessage => _addingErrorMessage;
 
-  final List<DefWithPart> _addingDefs = [DefWithPart(definition: "", part: PartOfSpeech.NOUN)];
-  List<DefWithPart> get addingDefs => _addingDefs;
+  final List<DefWithPart> addingDefs = [DefWithPart(definition: "", part: PartOfSpeech.NOUN)];
 
   final TextEditingController _editingExpController = TextEditingController();
   TextEditingController get editingExpController => _editingExpController;
@@ -83,8 +82,8 @@ class WordViewModel extends ChangeNotifier {
   String _editingErrorMessage = "";
   String get editingErrorMessage => _editingErrorMessage;
 
-  final List<Definition> _editingDefs = [];
-  List<Definition> get editingDefs => _editingDefs;
+  final List<Definition> editingDefs = [];
+  final List<Definition> removingDefs = [];
 
   Word? currentVocab;
 
@@ -147,6 +146,11 @@ class WordViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setEditingErrorMessage(String message){
+    _addingErrorMessage = message;
+    notifyListeners();
+  }
+
   Future<double> getQuizAccuracy() async {
     return await _rateRepository.getAccuracy(_vocabViewModel.currentVocab?.id);
   }
@@ -166,8 +170,13 @@ class WordViewModel extends ChangeNotifier {
     await loadData();
   }
 
-  Future<void> updateWord(Word word, List<Definition> defs) async {
-    await _wordRepository.updateWord(word, defs);
+  Future<void> updateWord(Word word, String exp, List<Definition> defs) async {
+    await _wordRepository.updateWord(word, exp, defs);
+    if(removingDefs.isNotEmpty){
+      for(Definition def in removingDefs){
+        await _wordRepository.deleteDef(def);
+      }
+    }
     await loadData();
   }
 
