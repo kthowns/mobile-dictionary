@@ -50,8 +50,8 @@ class DefDto {
 }
 
 class DefWithPart {
-  final String def;
+  final String definition;
   final PartOfSpeech part;
 
-  DefWithPart({required this.def, required this.part});
+  DefWithPart({required this.definition, required this.part});
 }

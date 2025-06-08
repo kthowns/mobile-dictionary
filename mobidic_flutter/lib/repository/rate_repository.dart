@@ -36,4 +36,30 @@ class RateRepository {
 
     return body.data;
   }
+
+  Future<double> getAccuracy(String? vocabId) async {
+    String? token = await _authRepository.getToken();
+    String? memberId = await _authRepository.getCurrentMemberId();
+
+    GeneralResponseDto body = await _apiClient.get(
+      url: '/rate/accuracy',
+      headers: {'Authorization': 'Bearer $token'},
+      params: {'vId': vocabId},
+    );
+
+    return body.data;
+  }
+
+  Future<double> getLearningRate(String? vocabId) async {
+    String? token = await _authRepository.getToken();
+    String? memberId = await _authRepository.getCurrentMemberId();
+
+    GeneralResponseDto body = await _apiClient.get(
+      url: '/rate/v',
+      headers: {'Authorization': 'Bearer $token'},
+      params: {'vId': vocabId},
+    );
+
+    return body.data;
+  }
 }

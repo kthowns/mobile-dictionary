@@ -1,11 +1,10 @@
 import 'package:mobidic_flutter/model/definition.dart';
-import 'package:mobidic_flutter/type/difficulty.dart';
 
 class Word {
   String id;
   String vocabId;
   String expression;
-  Difficulty difficulty;
+  double difficulty;
   List<Definition> defs;
   DateTime? createdAt;
 
@@ -20,7 +19,7 @@ class Word {
 
   factory Word.fromDto(
     WordDto wordDto,
-    Difficulty difficulty,
+    double difficulty,
     List<Definition> defs,
   ) => Word(
     id: wordDto.id,

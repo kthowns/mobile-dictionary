@@ -16,46 +16,176 @@ class WordListPage extends StatelessWidget {
     final wordViewModel = context.watch<WordViewModel>();
 
     void showAddWordDialog() {
-      List<Map<String, dynamic>> addingDefs = [
-        {
-          'controller': TextEditingController(),
-          'partOfSpeech': PartOfSpeech.NOUN,
-        },
-      ];
-
       showDialog(
         context: context,
         builder:
-            (context) => StatefulBuilder(
-              builder:
-                  (context, setDialogState) => AlertDialog(
-                    title: const Text('단어 추가'),
-                    content: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextField(
-                            controller: wordViewModel.addingExpController,
-                            decoration: const InputDecoration(hintText: '단어를 입력하세요'),
-                          ),
-                        ],
+            (context) => ChangeNotifierProvider.value(
+              value: wordViewModel,
+              child: StatefulBuilder(
+                builder:
+                    (context, setDialogState) => AlertDialog(
+                      title: const Text('단어 추가'),
+                      content: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextField(
+                              controller: wordViewModel.addingExpController,
+                              decoration: const InputDecoration(
+                                hintText: '단어를 입력하세요',
+                              ),
+                            ),
+                            Consumer<WordViewModel>(
+                              builder:
+                                  (context, model, child) => Text(
+                                    model.addingErrorMessage,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                            ),
+                            const SizedBox(height: 10),
+                            ...wordViewModel.addingDefs.asMap().entries.map((
+                              entry,
+                            ) {
+                              final index = entry.key;
+                              final def = entry.value;
+
+                              final controller = TextEditingController(
+                                text: def.definition,
+                              );
+
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: controller,
+                                        onChanged: (value) {
+                                          wordViewModel
+                                              .addingDefs[index] = DefWithPart(
+                                            definition: value,
+                                            part: def.part,
+                                          );
+                                        },
+                                        decoration: const InputDecoration(
+                                          hintText: '뜻을 입력하세요',
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    DropdownButton<PartOfSpeech>(
+                                      value: def.part,
+                                      items:
+                                          PartOfSpeech.values.map((pos) {
+                                            return DropdownMenuItem(
+                                              value: pos,
+                                              child: Text(pos.label),
+                                            );
+                                          }).toList(),
+                                      onChanged: (newValue) {
+                                        setDialogState(() {
+                                          wordViewModel
+                                              .addingDefs[index] = DefWithPart(
+                                            definition: def.definition,
+                                            part: newValue!,
+                                          );
+                                        });
+                                      },
+                                    ),
+                                    if (wordViewModel.addingDefs.length > 1)
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.remove_circle,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () {
+                                          setDialogState(() {
+                                            wordViewModel.addingDefs.removeAt(
+                                              index,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                  ],
+                                ),
+                              );
+                            }),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton.icon(
+                                onPressed: () {
+                                  final hasText = wordViewModel.addingDefs
+                                      .every((d) => d.definition.trim().isNotEmpty);
+                                  if (wordViewModel
+                                      .addingExpController
+                                      .text
+                                      .isEmpty) {
+                                    wordViewModel.setAddingErrorMessage(
+                                      "단어를 입력해주세요.",
+                                    );
+                                  } else if (!hasText) {
+                                    wordViewModel.setAddingErrorMessage(
+                                      "뜻을 입력해주세요.",
+                                    );
+                                  } else {
+                                    setDialogState(() {
+                                      wordViewModel.setAddingErrorMessage("");
+                                      wordViewModel.addingDefs.add(
+                                        DefWithPart(
+                                          definition: '',
+                                          part: PartOfSpeech.NOUN,
+                                        ),
+                                      );
+                                    });
+                                  }
+                                },
+                                icon: const Icon(Icons.add),
+                                label: const Text('뜻 추가'),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('취소'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            final word =
+                                wordViewModel.addingExpController.text.trim();
+                            final defs =
+                                wordViewModel.addingDefs
+                                    .where((d) => d.definition.trim().isNotEmpty)
+                                    .toList();
+
+                            if (word.isNotEmpty && defs.isNotEmpty) {
+                              // 단어 저장 로직 (예시)
+                              wordViewModel.addWord(word, defs);
+                              print("추가된 단어: $word");
+                              print(
+                                "뜻 목록: ${defs.map((d) => '${d.definition} (${d.part.label})').join(', ')}",
+                              );
+
+                              // 초기화
+                              wordViewModel.addingExpController.clear();
+                              wordViewModel.addingDefs
+                                ..clear()
+                                ..add(
+                                  DefWithPart(definition: '', part: PartOfSpeech.NOUN),
+                                );
+
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: const Text('추가'),
+                        ),
+                      ],
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('취소'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          final String expression = wordViewModel.addingExpController.text.trim();
-                          final List<Definition> meaningList = [];
-                          Navigator.pop(context);
-                        },
-                        child: const Text('추가'),
-                      ),
-                    ],
-                  ),
+              ),
             ),
       );
     }
@@ -73,38 +203,41 @@ class WordListPage extends StatelessWidget {
       showDialog(
         context: context,
         builder:
-            (context) => AlertDialog(
-              title: const Text('단어장 편집'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: titleController,
-                    decoration: const InputDecoration(hintText: '단어장 이름'),
+            (context) => ChangeNotifierProvider.value(
+              value: wordViewModel,
+              child: AlertDialog(
+                title: const Text('단어장 편집'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(hintText: '단어장 이름'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: descController,
+                      decoration: const InputDecoration(hintText: '세부 설명'),
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('취소'),
                   ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: descController,
-                    decoration: const InputDecoration(hintText: '세부 설명'),
-                    style: const TextStyle(fontSize: 13),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (titleController.text.trim().isNotEmpty) {
+                        //wordViewModel.updateWord(wordViewModel.words[index], titleController.text.trim(), descController.text.trim(),);
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('저장'),
                   ),
                 ],
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('취소'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (titleController.text.trim().isNotEmpty) {
-                      //wordViewModel.updateWord(wordViewModel.words[index], titleController.text.trim(), descController.text.trim(),);
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text('저장'),
-                ),
-              ],
             ),
       );
     }
@@ -187,7 +320,9 @@ class WordListPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        word.defs.map((d) => "${d.definition}(${d.part.label})").join(', '),
+                        word.defs
+                            .map((d) => "${d.definition}(${d.part.label})")
+                            .join(', '),
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.black54,
@@ -460,23 +595,26 @@ class WordListPage extends StatelessWidget {
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: wordViewModel.loadData,
-                      child: wordViewModel.words.isNotEmpty ? ListView.builder(
-                        padding: const EdgeInsets.all(20),
-                        itemCount: wordViewModel.words.length,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            child: buildVocabularyCard(index),
-                          );
-                        },
-                      ) : Center(
-                        child: Text(
-                          "단어를 추가해주세요.",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                      child:
+                          wordViewModel.words.isNotEmpty
+                              ? ListView.builder(
+                                padding: const EdgeInsets.all(20),
+                                itemCount: wordViewModel.words.length,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    child: buildVocabularyCard(index),
+                                  );
+                                },
+                              )
+                              : Center(
+                                child: Text(
+                                  "단어를 추가해주세요.",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                     ),
                   ),
                 ],
