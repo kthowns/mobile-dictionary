@@ -27,9 +27,9 @@ class VocabListPage extends StatelessWidget {
                   ChangeNotifierProvider(
                     create:
                         (_) => WordViewModel(
-                          vocabViewModel,
-                          context.read<RateRepository>(),
                           context.read<WordRepository>(),
+                          context.read<RateRepository>(),
+                          vocabViewModel,
                         ),
                   ),
                 ],
@@ -292,184 +292,240 @@ class VocabListPage extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            // 원하는 로직
-            print('뒤로가기 누름');
+    Color getRateColor(double value) {
+      value = value.clamp(0.0, 1.0);
 
-            // 실제 뒤로 가기
-            Navigator.pop(context);
-          },
-        ),
-        title: const Row(
-          children: [
-            SizedBox(width: 8),
-            Text(
-              '나만의 단어장',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
+      if (value < 0.5) {
+        // 0.0 ~ 0.5 → 파랑 → 노랑
+        double t = value / 0.5; // 0~1
+        return Color.lerp(Colors.blue, Colors.yellow, t)!;
+      } else {
+        // 0.5 ~ 1.0 → 노랑 → 빨강
+        double t = (value - 0.5) / 0.5; // 0~1
+        return Color.lerp(Colors.yellow, Colors.red, t)!;
+      }
+    }
+
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            systemOverlayStyle: SystemUiOverlayStyle.dark,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () {
+                // 원하는 로직
+                print('뒤로가기 누름');
+
+                // 실제 뒤로 가기
+                Navigator.pop(context);
+              },
             ),
-          ],
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.menu, color: Colors.black),
-            onSelected: (value) {
-              if (value == '랭킹') {
-                debugPrint('랭킹 메뉴 선택됨');
-                // Navigator.push(...); // 랭킹 페이지로 이동 처리
-              } else if (value == '파닉스') {
-                debugPrint('파닉스 메뉴 선택됨');
-              }
-            },
-            itemBuilder:
-                (BuildContext context) => [
-                  const PopupMenuItem<String>(value: '랭킹', child: Text('랭킹')),
-                  const PopupMenuItem<String>(value: '파닉스', child: Text('파닉스')),
-                ],
-          ),
-          const Padding(
-            padding: EdgeInsets.only(right: 12),
-            child: Icon(Icons.home, color: Colors.black),
-          ),
-        ],
-      ),
-      extendBodyBehindAppBar: true,
-      body: Container(
-        decoration: BoxDecoration(color: Colors.white),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  right: 20,
-                  left: 20,
-                  top: 10,
-                  bottom: 4,
-                ),
-                child: TextField(
-                  controller: vocabViewModel.searchController,
-                  decoration: InputDecoration(
-                    hintText: '검색어를 입력하세요',
-                    prefixIcon: const Icon(Icons.search),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
-                    ),
+            title: const Row(
+              children: [
+                SizedBox(width: 8),
+                Text(
+                  '나만의 단어장',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+              ],
+            ),
+            actions: [
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.menu, color: Colors.black),
+                onSelected: (value) {
+                  if (value == '파닉스') {
+                    debugPrint('파닉스 메뉴 선택됨');
+                  }
+                },
+                itemBuilder:
+                    (BuildContext context) => [
+                      const PopupMenuItem<String>(
+                        value: '파닉스',
+                        child: Text('파닉스'),
+                      ),
+                    ],
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 4,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '평균 학습률 : ${vocabViewModel.getAvgLearningRate().toStringAsFixed(2)}',
-                          ),
-                          Text(
-                            '퀴즈 정답률 : ${vocabViewModel.accuracy.toStringAsFixed(2)}',
-                          ),
-                          Text('단어장 개수 : ${vocabViewModel.vocabs.length}'),
-                        ],
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: vocabViewModel.cycleSortOption,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[100],
-                        foregroundColor: Colors.black,
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                      ),
-                      child: Text(
-                        vocabViewModel.sortOptions[vocabViewModel
-                            .currentSortIndex],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: vocabViewModel.toggleEditMode,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            vocabViewModel.editMode
-                                ? Colors.blue[300]
-                                : Colors.blue[100],
-                        foregroundColor: Colors.black,
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                      ),
-                      child: Text(
-                        '편집',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(padding: const EdgeInsets.symmetric(vertical: 8)),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: vocabViewModel.readVocabs,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: vocabViewModel.showingVocabs.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () => navigateToWordList(index),
-                        child: buildVocabCard(index),
-                      );
-                    },
-                  ),
-                ),
+              const Padding(
+                padding: EdgeInsets.only(right: 12),
+                child: Icon(Icons.home, color: Colors.black),
               ),
             ],
           ),
+          extendBodyBehindAppBar: true,
+          body: Container(
+            decoration: BoxDecoration(color: Colors.white),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      right: 20,
+                      left: 20,
+                      top: 10,
+                      bottom: 4,
+                    ),
+                    child: TextField(
+                      controller: vocabViewModel.searchController,
+                      decoration: InputDecoration(
+                        hintText: '검색어를 입력하세요',
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.blue[100],
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 4,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text('평균 학습률'),
+                                  SizedBox(width: 8), // 텍스트와 프로그레스 바 사이 간격
+                                  Expanded(
+                                    child: LinearProgressIndicator(
+                                      value: vocabViewModel.avgLearningRate
+                                          .clamp(0.0, 1.0),
+                                      backgroundColor: Colors.grey[300],
+                                      color: getRateColor(
+                                        vocabViewModel.avgLearningRate,
+                                      ),
+                                      minHeight: 6,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text('평균 정답률'),
+                                  SizedBox(width: 8), // 텍스트와 프로그레스 바 사이 간격
+                                  Expanded(
+                                    child: LinearProgressIndicator(
+                                      value: vocabViewModel.avgAccuracy.clamp(
+                                        0.0,
+                                        1.0,
+                                      ),
+                                      backgroundColor: Colors.grey[300],
+                                      color: getRateColor(
+                                        vocabViewModel.avgAccuracy,
+                                      ),
+                                      minHeight: 6,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text('단어장 개수 : ${vocabViewModel.vocabs.length}'),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: vocabViewModel.cycleSortOption,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue[100],
+                            foregroundColor: Colors.black,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                          ),
+                          child: Text(
+                            vocabViewModel.sortOptions[vocabViewModel
+                                .currentSortIndex],
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: vocabViewModel.toggleEditMode,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                vocabViewModel.editMode
+                                    ? Colors.blue[300]
+                                    : Colors.blue[100],
+                            foregroundColor: Colors.black,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                          ),
+                          child: Text(
+                            '편집',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: vocabViewModel.loadData,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(20),
+                        itemCount: vocabViewModel.showingVocabs.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () => navigateToWordList(index),
+                            child: buildVocabCard(index),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: showAddVocabDialog,
+            backgroundColor: Colors.blue[100],
+            child: const Icon(Icons.add),
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: showAddVocabDialog,
-        backgroundColor: Colors.blue[100],
-        child: const Icon(Icons.add),
-      ),
+        if (vocabViewModel.isLoading)
+          Container(
+            color: const Color(0x80000000), // 배경 어둡게
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+      ],
     );
   }
 }
