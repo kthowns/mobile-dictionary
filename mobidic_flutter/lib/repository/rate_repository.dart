@@ -1,6 +1,7 @@
 import 'package:mobidic_flutter/data/api_client.dart';
 import 'package:mobidic_flutter/dto/api_response_dto.dart';
 import 'package:mobidic_flutter/model/rate.dart';
+import 'package:mobidic_flutter/model/word.dart';
 import 'package:mobidic_flutter/repository/auth_repository.dart';
 
 class RateRepository {
@@ -35,6 +36,16 @@ class RateRepository {
     );
 
     return body.data;
+  }
+
+  Future<void> toggleWordLearned(Word word) async {
+    String? token = await _authRepository.getToken();
+    String? memberId = await _authRepository.getCurrentMemberId();
+
+    GeneralResponseDto body = await _apiClient.patch(
+      url: '/rate/tog/${word.id}',
+      headers: {'Authorization': 'Bearer $token'},
+    );
   }
 
   Future<double> getAccuracy(String? vocabId) async {
