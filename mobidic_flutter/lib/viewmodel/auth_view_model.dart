@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mobidic_flutter/exception/api_exception.dart';
+import 'package:mobidic_flutter/mixin/LoadingMixin.dart';
 import 'package:mobidic_flutter/repository/auth_repository.dart';
 import 'package:mobidic_flutter/repository/member_repository.dart';
 
 import 'package:mobidic_flutter/model/member.dart';
 
-class AuthViewModel extends ChangeNotifier {
+class AuthViewModel extends ChangeNotifier with LoadingMixin {
   final AuthRepository _authRepository;
   final MemberRepository _memberRepository;
 
@@ -17,9 +18,6 @@ class AuthViewModel extends ChangeNotifier {
 
   String? _token;
 
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-
   bool _loginError = false;
   bool get loginError => _loginError;
   String _loginErrorMessage = '';
@@ -30,7 +28,7 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   Future<void> loadInitialData() async {
-    _roadStart();
+    startLoading();
     try {
       _token = await _authRepository.getToken();
       _currentMember = await _memberRepository.getMemberDetail(
@@ -41,18 +39,18 @@ class AuthViewModel extends ChangeNotifier {
       _token = null;
       _currentMember = null;
     } finally {
-      _roadStop();
+      stopLoading();
     }
   }
 
   Future<void> login(String username, String password) async {
-    _roadStart();
+    startLoading();
     _loginErrorMessage = '';
 
     if(username.isEmpty || password.isEmpty){
       _loginError = true;
       _loginErrorMessage = '이메일 또는 비밀번호를 입력해주세요.';
-      _roadStop();
+      stopLoading();
       return;
     }
 
@@ -82,7 +80,7 @@ class AuthViewModel extends ChangeNotifier {
       _loginErrorMessage = "로그인 실패";
       rethrow;
     } finally {
-      _roadStop();
+      stopLoading();
     }
   }
 
@@ -91,15 +89,5 @@ class AuthViewModel extends ChangeNotifier {
     _isLoggedIn = false;
     _token = null;
     _currentMember = null;
-  }
-
-  void _roadStart(){
-    _isLoading = true;
-    notifyListeners();
-  }
-
-  void _roadStop(){
-    _isLoading = false;
-    notifyListeners();
   }
 }

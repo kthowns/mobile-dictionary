@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mobidic_flutter/mixin/LoadingMixin.dart';
 import 'package:mobidic_flutter/model/vocab.dart';
 import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/vocab_repository.dart';
 
-class VocabViewModel extends ChangeNotifier {
+class VocabViewModel extends ChangeNotifier with LoadingMixin {
   final VocabRepository _vocabRepository;
   final RateRepository _rateRepository;
   final TextEditingController searchController = TextEditingController();
@@ -20,12 +21,12 @@ class VocabViewModel extends ChangeNotifier {
   }
 
   Future<void> loadData() async {
-    _loadStart();
+    startLoading();
     _vocabs = await _vocabRepository.getVocabs();
     sort();
     searchVocabs();
     updateRates();
-    _loadStop();
+    stopLoading();
   }
 
   Future<void> updateRates() async {
@@ -149,16 +150,6 @@ class VocabViewModel extends ChangeNotifier {
 
   void sort() {
     _vocabs.sort(comparator);
-    notifyListeners();
-  }
-
-  void _loadStart() {
-    _isLoading = true;
-    notifyListeners();
-  }
-
-  void _loadStop() {
-    _isLoading = false;
     notifyListeners();
   }
 }
