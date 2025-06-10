@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobidic_flutter/view/quiz/dictation_quiz.dart';
 import 'package:mobidic_flutter/view/quiz/fill_blank_quiz.dart';
-import 'package:mobidic_flutter/view/quiz/flash_card_page.dart';
 import 'package:mobidic_flutter/view/quiz/ox_quiz.dart';
 import 'package:mobidic_flutter/view/util/navigation_helper.dart';
 import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
@@ -114,7 +113,7 @@ class VocabListPage extends StatelessWidget {
       );
     }
 
-    void _showDeleteDialog(int index) {
+    void showDeleteDialog(int index) {
       showDialog(
         context: context,
         builder:
@@ -178,7 +177,12 @@ class VocabListPage extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              NavigationHelper.navigateToFlashCard(context, vocabViewModel);
+                              vocabViewModel.selectVocabAt(index);
+                              NavigationHelper.navigateToFlashCard(
+                                context,
+                                vocabViewModel,
+                                index,
+                              );
                             },
                             child: const Text('플래시카드'),
                           ),
@@ -297,7 +301,7 @@ class VocabListPage extends StatelessWidget {
                         child: const Text('수정'),
                       ),
                       TextButton(
-                        onPressed: () => _showDeleteDialog(index),
+                        onPressed: () => showDeleteDialog(index),
                         child: const Text('삭제'),
                       ),
                     ],
@@ -305,9 +309,8 @@ class VocabListPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Wrap(
+            Row(
               spacing: 8,
-              runSpacing: 4,
               children: [tagButton('퀴즈', index), tagButton('발음 체크', index)],
             ),
             const SizedBox(height: 12),
@@ -509,7 +512,7 @@ class VocabListPage extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: vocabViewModel.cycleSortOption,
                           style: ElevatedButton.styleFrom(
