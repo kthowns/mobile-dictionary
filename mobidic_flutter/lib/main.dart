@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobidic_flutter/data/secure_storage_data_source.dart';
 import 'package:mobidic_flutter/repository/auth_repository.dart';
 import 'package:mobidic_flutter/repository/member_repository.dart';
+import 'package:mobidic_flutter/repository/pronunciation_repository.dart';
 import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/vocab_repository.dart';
 import 'package:mobidic_flutter/repository/word_repository.dart';
@@ -59,6 +60,12 @@ void main() async {
                 context.read<ApiClient>(),
                 context.read<AuthRepository>(),
               ),
+        ),Provider(
+          create:
+              (context) => PronunciationRepository(
+            context.read<ApiClient>(),
+            context.read<AuthRepository>(),
+          ),
         ),
         ChangeNotifierProvider(
           create:

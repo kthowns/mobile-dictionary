@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobidic_flutter/dto/api_response_dto.dart';
 import 'package:mobidic_flutter/exception/api_exception.dart';
@@ -70,6 +71,22 @@ class ApiClient {
     );
 
     return _handleResponse(response, GeneralResponseDto.fromJson);
+  }
+
+  Future<GeneralResponseDto> multiPartPost({
+    required String url,
+    FormData? formData,
+    Map<String, dynamic>? headers,
+  }) async {
+    print("Request uri : POST $_baseUrl$url");
+    Dio dio = Dio();
+    Response response = await dio.post(
+      '$_baseUrl$url',
+      data: formData,
+      options: Options(headers: headers),
+    );
+
+    return _handleResponse(response.data, GeneralResponseDto.fromJson);
   }
 
   Future<T> _handleResponse<T>(
