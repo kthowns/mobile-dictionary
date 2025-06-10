@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobidic_flutter/repository/pronunciation_repository.dart';
 import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/word_repository.dart';
+import 'package:mobidic_flutter/view/learning/pronunciation_check_page.dart';
 import 'package:mobidic_flutter/view/list/word_list_page.dart';
+import 'package:mobidic_flutter/view/quiz/dictation_quiz.dart';
+import 'package:mobidic_flutter/view/quiz/fill_blank_quiz.dart';
+import 'package:mobidic_flutter/view/quiz/ox_quiz.dart';
+import 'package:mobidic_flutter/view/quiz/flash_card.dart';
+import 'package:mobidic_flutter/viewmodel/pronunciation_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/word_view_model.dart';
 import 'package:provider/provider.dart';
@@ -34,6 +41,33 @@ class VocabListPage extends StatelessWidget {
                   ),
                 ],
                 child: WordListPage(),
+              ),
+        ),
+      );
+    }
+
+    void navigateToPronunciationCheck(int index) {
+      vocabViewModel.currentVocab = vocabViewModel.vocabs[index];
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (_) => MultiProvider(
+                providers: [
+                  //ChangeNotifierProvider.value(value: vocabViewModel),
+                  // 기존 인스턴스 전달
+                  ChangeNotifierProvider(
+                    create:
+                        (_) => PronunciationViewModel(
+                          context.read<PronunciationRepository>(),
+                          context.read<WordRepository>(),
+                          context.read<RateRepository>(),
+                          vocabViewModel,
+                        ),
+                  ),
+                ],
+                child: PronunciationCheckPage(),
               ),
         ),
       );
@@ -183,7 +217,10 @@ class VocabListPage extends StatelessWidget {
                       const Center(
                         child: Text(
                           '퀴즈 선택',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -192,38 +229,39 @@ class VocabListPage extends StatelessWidget {
                         shrinkWrap: true,
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
-                        childAspectRatio: 2.5, // 버튼 너비 비율 조정
+                        childAspectRatio: 2.5,
+                        // 버튼 너비 비율 조정
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              //Navigator.push(context,
-                              //    MaterialPageRoute(builder: (_) => const FlashcardScreen()));
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (_) => FlashcardScreen()));
                             },
                             child: const Text('플래시카드'),
                           ),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              //Navigator.push(context,
-                              //    MaterialPageRoute(builder: (_) => const OXQuizPage()));
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (_) => OXQuizPage()));
                             },
                             child: const Text('O/X 퀴즈'),
                           ),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              //Navigator.push(context,
-                              //    MaterialPageRoute(builder: (_) => const DictationQuizPage()));
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (_) => DictationQuizPage()));
                             },
                             child: const Text('받아쓰기'),
                           ),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              //Navigator.push(context,
-                              //    MaterialPageRoute(builder: (_) => const FillBlankPage()));
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (_) => FillBlankQuizPage()));
                             },
                             child: const Text('빈칸 채우기'),
                           ),
@@ -235,10 +273,7 @@ class VocabListPage extends StatelessWidget {
               },
             );
           } else if (label == '발음 체크') {
-            //Navigator.push(
-            //  context,
-            //  MaterialPageRoute(builder: (_) => const PronunciationScreen()),
-            //);
+            navigateToPronunciationCheck(index);
           }
         },
         child: Text(label),
@@ -319,10 +354,7 @@ class VocabListPage extends StatelessWidget {
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children: [
-                tagButton('퀴즈', index),
-                tagButton('발음 체크', index)
-              ],
+              children: [tagButton('퀴즈', index), tagButton('발음 체크', index)],
             ),
             const SizedBox(height: 12),
             LayoutBuilder(
@@ -424,7 +456,8 @@ class VocabListPage extends StatelessWidget {
                   icon: const Icon(Icons.home, color: Colors.black),
                   onPressed: () {
                     Navigator.popUntil(context, (route) {
-                      return route.settings.name == '/vocab_list'; // 특정 route 이름 기준
+                      return route.settings.name ==
+                          '/vocab_list'; // 특정 route 이름 기준
                     });
                   },
                 ),
@@ -572,24 +605,27 @@ class VocabListPage extends StatelessWidget {
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: vocabViewModel.loadData,
-                      child: vocabViewModel.vocabs.isNotEmpty ? ListView.builder(
-                        padding: const EdgeInsets.all(20),
-                        itemCount: vocabViewModel.showingVocabs.length,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () => navigateToWordList(index),
-                            child: buildVocabCard(index),
-                          );
-                        },
-                      ) : Center(
-                        child: Text(
-                          "단어장을 추가해주세요.",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                      child:
+                          vocabViewModel.vocabs.isNotEmpty
+                              ? ListView.builder(
+                                padding: const EdgeInsets.all(20),
+                                itemCount: vocabViewModel.showingVocabs.length,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () => navigateToWordList(index),
+                                    child: buildVocabCard(index),
+                                  );
+                                },
+                              )
+                              : Center(
+                                child: Text(
+                                  "단어장을 추가해주세요.",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                     ),
                   ),
                 ],
