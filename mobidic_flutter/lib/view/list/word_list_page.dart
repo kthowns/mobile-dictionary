@@ -179,6 +179,12 @@ class WordListPage extends StatelessWidget {
                                 );
 
                               Navigator.pop(context);
+                            } else {
+                              if (word.isEmpty){
+                                wordViewModel.setAddingErrorMessage("단어를 입력하세요.");
+                              } else {
+                                wordViewModel.setAddingErrorMessage("뜻을 입력하세요.");
+                              }
                             }
                           },
                           child: const Text('추가'),
