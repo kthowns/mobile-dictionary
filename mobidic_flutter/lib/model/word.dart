@@ -7,7 +7,7 @@ class Word {
   String expression;
   double difficulty;
   bool isLearned = false;
-  List<Definition> defs;
+  List<Definition> defs = [];
   DateTime? createdAt;
 
   Word({
