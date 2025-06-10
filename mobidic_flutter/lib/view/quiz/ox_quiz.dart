@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class OXQuizPage extends StatefulWidget {
   const OXQuizPage({super.key});
@@ -29,51 +30,54 @@ class _OXQuizPageState extends State<OXQuizPage> {
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(isCorrect ? "정답입니다!! 🎉" : "오답입니다. 😢"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              if (currentIndex < quizList.length - 1) {
-                setState(() {
-                  currentIndex++;
-                });
-              } else {
-                _showCompletionDialog();
-              }
-            },
-            child: const Text("다음 문제"),
+      builder:
+          (_) => AlertDialog(
+            title: Text(isCorrect ? "정답입니다!! 🎉" : "오답입니다. 😢"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  if (currentIndex < quizList.length - 1) {
+                    setState(() {
+                      currentIndex++;
+                    });
+                  } else {
+                    _showCompletionDialog();
+                  }
+                },
+                child: const Text("다음 문제"),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
   void _showCompletionDialog() {
     int wrongAnswers = totalAttempts - correctAnswers;
-    double percent = totalAttempts == 0 ? 0 : (correctAnswers / totalAttempts) * 100;
+    double percent =
+        totalAttempts == 0 ? 0 : (correctAnswers / totalAttempts) * 100;
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("🎉 퀴즈 완료!"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("총 문제 수: $totalAttempts"),
-            Text("정답 수: $correctAnswers"),
-            Text("오답 수: $wrongAnswers"),
-            Text("정답률: ${percent.toStringAsFixed(1)}%"),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("닫기"),
-          )
-        ],
-      ),
+      builder:
+          (_) => AlertDialog(
+            title: const Text("🎉 퀴즈 완료!"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("총 문제 수: $totalAttempts"),
+                Text("정답 수: $correctAnswers"),
+                Text("오답 수: $wrongAnswers"),
+                Text("정답률: ${percent.toStringAsFixed(1)}%"),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("닫기"),
+              ),
+            ],
+          ),
     );
   }
 
@@ -86,105 +90,180 @@ class _OXQuizPageState extends State<OXQuizPage> {
   @override
   Widget build(BuildContext context) {
     final currentQuiz = quizList[currentIndex];
+    final int quizColor = 0xFFb3e5fc;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('O X 퀴즈'),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: Color(quizColor),
         elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            // 원하는 로직
+            print('뒤로가기 누름');
+            // 실제 뒤로 가기
+            Navigator.pop(context);
+          },
+        ),
+        title: Row(
           children: [
-            const Center(
-              child: Text(
-                'MOBIDIC',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Center(
-              child: Text(
-                '제시된 단어의 뜻이 맞는지 OX로 판단해보세요!',
-                style: TextStyle(fontSize: 16, color: Colors.black54),
-              ),
-            ),
-            const SizedBox(height: 30),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                getAccuracyText(),
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            ),
-            const SizedBox(height: 40),
             Center(
-              child: Column(
-                children: [
-                  Text(
-                    currentQuiz['word'],
-                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    currentQuiz['meaning'],
-                    style: const TextStyle(fontSize: 24, color: Colors.grey),
-                  ),
-                ],
+              child: Image.asset('assets/images/mobidic_icon.png', height: 40),
+            ),
+            SizedBox(width: 8),
+            Text(
+              'MOBIDIC',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 60),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _checkAnswer(true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  ),
-                  child: const Text('O', style: TextStyle(fontSize: 24)),
-                ),
-                ElevatedButton(
-                  onPressed: () => _checkAnswer(false),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  ),
-                  child: const Text('X', style: TextStyle(fontSize: 24)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 40),
-            if (currentIndex == quizList.length - 1 && totalAttempts == quizList.length)
-              const Center(
-                child: Text(
-                  "🎉 퀴즈 완료!",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
           ],
         ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onSelected: (value) {
+              if (value == '파닉스') {
+                Navigator.pushNamed(context, '/phonics');
+              }
+            },
+            itemBuilder:
+                (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: '파닉스',
+                child: Text('파닉스'),
+              ),
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.home, color: Colors.black),
+              onPressed: () {
+                Navigator.popUntil(context, (route) {
+                  return route.settings.name ==
+                      '/vocab_list'; // 특정 route 이름 기준
+                });
+              },
+            ),
+          ),
+        ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.grey[300],
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              Icon(Icons.note, color: Colors.black),
-              Icon(Icons.home, color: Colors.black),
-              Icon(Icons.exit_to_app, color: Colors.black),
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: Color(0xFFb3e5fc),
+        ),
+
+        child: SafeArea(
+          child: Column(
+            children: [
+              // 카드 내용
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6,
+                          offset: Offset(2, 4),
+                        ),
+                      ],
+                    ),
+                    child: Stack(
+                      children: [
+                        // 카드 내용
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // 영단어 영역
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('영단어',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Text(
+                                  quizList[0]['word']!,
+                                  style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            const Divider(height: 50, thickness: 1),
+
+                            // 뜻 영역
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('뜻',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Text(
+                                  quizList[0]['meaning']!,
+                                  style: const TextStyle(fontSize: 28),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        // 진행률 우측 상단
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Text(
+                            '${currentIndex + 1}/${quizList.length}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // 이전 / 다음 버튼
+              Padding(
+                padding: const EdgeInsets.only(bottom: 30.0, top: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios),
+                      iconSize: 32,
+                      onPressed: (){},
+                    ),
+                    const SizedBox(width: 40),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_forward_ios),
+                      iconSize: 32,
+                      onPressed: (){},
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -192,4 +271,5 @@ class _OXQuizPageState extends State<OXQuizPage> {
     );
   }
 }
+
 //OX퀴즈 오류 수정

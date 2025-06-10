@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobidic_flutter/view/util/navigation_helper.dart';
 import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -103,7 +104,7 @@ class LoginPage extends StatelessWidget {
             Center(
               child: TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/sign_up');
+                  NavigationHelper.navigateToVocabList(context);
                 },
                 child: const Text(
                   '회원가입',

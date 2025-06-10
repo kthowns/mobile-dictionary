@@ -8,7 +8,7 @@ import 'package:mobidic_flutter/viewmodel/word_view_model.dart';
 import 'package:provider/provider.dart';
 
 class WordListPage extends StatelessWidget {
-  WordListPage({super.key});
+  const WordListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -354,7 +354,7 @@ class WordListPage extends StatelessWidget {
     }
 
 
-    void _showDeleteDialog(int index) {
+    void showDeleteDialog(int index) {
       Word word = wordViewModel.words[index];
       showDialog(
         context: context,
@@ -396,7 +396,6 @@ class WordListPage extends StatelessWidget {
 
     Widget buildVocabularyCard(int index) {
       final word = wordViewModel.words[index];
-      final isExpanded = wordViewModel.selectedCardIndex == index;
 
       return Container(
         margin: const EdgeInsets.only(bottom: 20),
@@ -463,7 +462,7 @@ class WordListPage extends StatelessWidget {
                         child: const Text('수정'),
                       ),
                       TextButton(
-                        onPressed: () => _showDeleteDialog(index),
+                        onPressed: () => showDeleteDialog(index),
                         child: const Text('삭제'),
                       ),
                     ],
@@ -480,28 +479,6 @@ class WordListPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
           ],
-        ),
-      );
-    }
-
-    Widget _tagButton(String label, int index) {
-      return ElevatedButton(
-        onPressed: () {
-          if (label == '퀴즈') {
-            /*
-            setState(() {
-              selectedCardIndex = selectedCardIndex == index ? -1 : index;
-            });
-             */
-          }
-        },
-        child: Text(label),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          textStyle: const TextStyle(fontSize: 12),
-          backgroundColor: Colors.grey[300],
-          foregroundColor: Colors.black87,
-          shape: const StadiumBorder(),
         ),
       );
     }

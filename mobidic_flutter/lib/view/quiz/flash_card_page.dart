@@ -1,21 +1,9 @@
 import 'package:flutter/material.dart';
-import '../list/vocab_list_page.dart';
+import 'package:flutter/services.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: FlashcardScreen(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
+class FlashCardPage extends StatelessWidget {
+  FlashCardPage({super.key});
 
-class FlashcardScreen extends StatefulWidget {
-  const FlashcardScreen({super.key});
-
-  @override
-  State<FlashcardScreen> createState() => _FlashcardScreenState();
-}
-
-class _FlashcardScreenState extends State<FlashcardScreen> {
   int currentIndex = 0;
   bool showWord = true;
   bool showMeaning = true;
@@ -27,22 +15,74 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
   ];
 
   void _nextCard() {
-    setState(() {
       currentIndex = (currentIndex + 1) % cards.length;
-    });
   }
 
   void _prevCard() {
-    setState(() {
       currentIndex = (currentIndex - 1 + cards.length) % cards.length;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     final card = cards[currentIndex];
+    final int quizColor = 0xFFb3e5fc;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(quizColor),
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            // 원하는 로직
+            print('뒤로가기 누름');
+            // 실제 뒤로 가기
+            Navigator.pop(context);
+          },
+        ),
+        title: Row(
+          children: [
+            Center(
+              child: Image.asset('assets/images/mobidic_icon.png', height: 40),
+            ),
+            SizedBox(width: 8),
+            Text(
+              'MOBIDIC',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onSelected: (value) {
+              if (value == '파닉스') {
+                Navigator.pushNamed(context, '/phonics');
+              }
+            },
+            itemBuilder:
+                (BuildContext context) => [
+                  const PopupMenuItem<String>(value: '파닉스', child: Text('파닉스')),
+                ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.home, color: Colors.black),
+              onPressed: () {
+                Navigator.popUntil(context, (route) {
+                  return route.settings.name == '/vocab_list'; // 특정 route 이름 기준
+                });
+              },
+            ),
+          ),
+        ],
+      ),
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -55,37 +95,6 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // 상단 바
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, size: 28),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const Text(
-                      '플래시카드',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.home, size: 28),
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => VocabListPage()),
-                              (route) => false,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-
               // 카드 내용
               Expanded(
                 child: Padding(
@@ -113,16 +122,23 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('영단어',
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                const Text(
+                                  '영단어',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 IconButton(
-                                  icon: Icon(showWord ? Icons.visibility : Icons.visibility_off),
+                                  icon: Icon(
+                                    showWord
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                  ),
                                   onPressed: () {
-                                    setState(() {
                                       showWord = !showWord;
-                                    });
                                   },
-                                )
+                                ),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -131,7 +147,10 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                               children: [
                                 Text(
                                   card['word']!,
-                                  style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 if (!showWord)
                                   Positioned.fill(
@@ -145,16 +164,23 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('뜻',
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                const Text(
+                                  '뜻',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 IconButton(
-                                  icon: Icon(showMeaning ? Icons.visibility : Icons.visibility_off),
+                                  icon: Icon(
+                                    showMeaning
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                  ),
                                   onPressed: () {
-                                    setState(() {
                                       showMeaning = !showMeaning;
-                                    });
                                   },
-                                )
+                                ),
                               ],
                             ),
                             const SizedBox(height: 20),

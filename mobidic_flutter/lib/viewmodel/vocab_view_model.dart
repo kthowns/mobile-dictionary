@@ -58,14 +58,20 @@ class VocabViewModel extends ChangeNotifier with LoadingMixin {
         break;
       case '정답률순':
         comparator = (b, a) => a.accuracy.compareTo(b.accuracy);
-        print("Accuracies : ${vocabs.map((v)=>v.accuracy).toList()}");
+        print("Accuracies : ${vocabs.map((v) => v.accuracy).toList()}");
         break;
     }
     sort();
     searchVocabs();
   }
 
-  Vocab? currentVocab;
+  Vocab? _currentVocab;
+
+  Vocab? get currentVocab => _currentVocab;
+
+  void selectVocabAt(int index) {
+    _currentVocab = _vocabs[index];
+  }
 
   List<Vocab> _vocabs = [];
 
@@ -80,9 +86,11 @@ class VocabViewModel extends ChangeNotifier with LoadingMixin {
   bool get editMode => _editMode;
 
   double _avgAccuracy = 0.0;
+
   double get avgAccuracy => _avgAccuracy;
 
   double _avgLearningRate = 0.0;
+
   double get avgLearningRate => _avgLearningRate;
 
   void toggleEditMode() {
