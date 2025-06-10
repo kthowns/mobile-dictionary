@@ -1,15 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mobidic_flutter/mixin/LoadingMixin.dart';
+import 'package:mobidic_flutter/model/member.dart';
 import 'package:mobidic_flutter/model/vocab.dart';
 import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/vocab_repository.dart';
+import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
 
 class VocabViewModel extends ChangeNotifier with LoadingMixin {
   final VocabRepository _vocabRepository;
   final RateRepository _rateRepository;
+  final AuthViewModel _authViewModel;
   final TextEditingController searchController = TextEditingController();
 
-  VocabViewModel(this._vocabRepository, this._rateRepository) {
+  VocabViewModel(this._vocabRepository, this._rateRepository, this._authViewModel) {
     init();
   }
 
@@ -69,6 +72,8 @@ class VocabViewModel extends ChangeNotifier with LoadingMixin {
 
   Vocab? get currentVocab => _currentVocab;
 
+  Member? get currentMember => _authViewModel.currentMember;
+
   void selectVocabAt(int index) {
     _currentVocab = _vocabs[index];
   }
@@ -102,10 +107,6 @@ class VocabViewModel extends ChangeNotifier with LoadingMixin {
       (v2, v1) => v1.createdAt!.compareTo(v2.createdAt!);
 
   int selectedCardIndex = -1;
-
-  bool _isLoading = false;
-
-  bool get isLoading => _isLoading;
 
   void searchVocabs() {
     String keyword = searchController.text;
