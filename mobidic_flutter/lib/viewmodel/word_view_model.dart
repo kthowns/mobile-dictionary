@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mobidic_flutter/mixin/LoadingMixin.dart';
 import 'package:mobidic_flutter/model/definition.dart';
+import 'package:mobidic_flutter/model/vocab.dart';
 import 'package:mobidic_flutter/model/word.dart';
 import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/word_repository.dart';
@@ -49,6 +50,8 @@ class WordViewModel extends ChangeNotifier with LoadingMixin {
     super.dispose();
   }
 
+  Vocab? get currentVocab => _vocabViewModel.currentVocab;
+
   final List<String> sortOptions = ['최신순', '난이도순', '알파벳순'];
   int currentSortIndex = 0;
 
@@ -86,8 +89,6 @@ class WordViewModel extends ChangeNotifier with LoadingMixin {
   final List<Definition> editingDefs = [];
   final List<Definition> removingDefs = [];
 
-  Word? currentVocab;
-
   List<Word> _words = [];
 
   List<Word> get words => _words;
@@ -117,6 +118,8 @@ class WordViewModel extends ChangeNotifier with LoadingMixin {
       (w2, w1) => w1.createdAt!.compareTo(w2.createdAt!);
 
   int selectedCardIndex = -1;
+
+  double get avgLearningRate => _vocabViewModel.avgLearningRate;
 
   void searchWords() {
     String keyword = searchController.text;

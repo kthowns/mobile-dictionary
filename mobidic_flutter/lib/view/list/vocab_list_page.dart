@@ -178,12 +178,7 @@ class VocabListPage extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => FlashCardPage(),
-                                ),
-                              );
+                              NavigationHelper.navigateToFlashCard(context, vocabViewModel);
                             },
                             child: const Text('플래시카드'),
                           ),

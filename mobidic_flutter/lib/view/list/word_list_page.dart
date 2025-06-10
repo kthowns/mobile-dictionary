@@ -12,7 +12,6 @@ class WordListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vocabViewModel = context.watch<VocabViewModel>();
     final wordViewModel = context.watch<WordViewModel>();
 
     void showAddWordDialog() {
@@ -515,7 +514,7 @@ class WordListPage extends StatelessWidget {
               children: [
                 SizedBox(width: 8),
                 Text(
-                  vocabViewModel.currentVocab?.title ?? '',
+                  wordViewModel.currentVocab?.title ?? '',
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -607,7 +606,7 @@ class WordListPage extends StatelessWidget {
                                       ),
                                       backgroundColor: Colors.grey[300],
                                       color: getRateColor(
-                                        vocabViewModel.avgLearningRate,
+                                        wordViewModel.avgLearningRate,
                                       ),
                                       minHeight: 6,
                                     ),

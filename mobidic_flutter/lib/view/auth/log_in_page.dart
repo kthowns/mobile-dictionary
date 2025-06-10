@@ -15,7 +15,7 @@ class LoginPage extends StatelessWidget {
 
     void onLoggedIn() async {
       if (authViewModel.isLoggedIn) {
-        Navigator.pushNamed(context, '/vocab_list');
+        NavigationHelper.navigateToVocabList(context);
 
         showDialog(
           context: context,
