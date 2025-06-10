@@ -76,7 +76,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                       onPressed: () {
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (_) => const VocabListPage()),
+                          MaterialPageRoute(builder: (_) => VocabListPage()),
                               (route) => false,
                         );
                       },

@@ -1,11 +1,12 @@
 import 'package:mobidic_flutter/model/definition.dart';
-import 'package:mobidic_flutter/type/difficulty.dart';
+import 'package:mobidic_flutter/model/rate.dart';
 
 class Word {
   String id;
   String vocabId;
   String expression;
-  Difficulty difficulty;
+  double difficulty;
+  bool isLearned = false;
   List<Definition> defs;
   DateTime? createdAt;
 
@@ -15,19 +16,21 @@ class Word {
     required this.expression,
     required this.difficulty,
     required this.defs,
+    required this.isLearned,
     required this.createdAt,
   });
 
   factory Word.fromDto(
     WordDto wordDto,
-    Difficulty difficulty,
+    Rate rate,
     List<Definition> defs,
   ) => Word(
     id: wordDto.id,
     vocabId: wordDto.vocabId,
     expression: wordDto.expression,
-    difficulty: difficulty,
+    difficulty: rate.difficulty,
     defs: defs,
+    isLearned: rate.isLearned != 0 ? true : false,
     createdAt: wordDto.createdAt,
   );
 }

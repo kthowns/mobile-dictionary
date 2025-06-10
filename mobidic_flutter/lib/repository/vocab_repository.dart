@@ -32,7 +32,13 @@ class VocabRepository {
         params: {'vId': dto.id},
       );
 
-      vocabs.add(Vocab.fromDto(dto, rateBody.data));
+      GeneralResponseDto accuracyBody = await _apiClient.get(
+        url: '/rate/accuracy',
+        headers: {'Authorization': 'Bearer $token'},
+        params: {'vId': dto.id},
+      );
+
+      vocabs.add(Vocab.fromDto(dto, rateBody.data, accuracyBody.data));
     }
 
     return vocabs;

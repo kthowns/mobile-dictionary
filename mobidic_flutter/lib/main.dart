@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:mobidic_flutter/data/secure_storage_data_source.dart';
 import 'package:mobidic_flutter/repository/auth_repository.dart';
 import 'package:mobidic_flutter/repository/member_repository.dart';
+import 'package:mobidic_flutter/repository/pronunciation_repository.dart';
+import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/vocab_repository.dart';
+import 'package:mobidic_flutter/repository/word_repository.dart';
 import 'package:mobidic_flutter/view/auth/join_page.dart';
 import 'package:mobidic_flutter/view/auth/log_in_page.dart';
+import 'package:mobidic_flutter/view/learning/phonics_page.dart';
 import 'package:mobidic_flutter/view/list/vocab_list_page.dart';
 import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/join_view_model.dart';
@@ -39,6 +43,26 @@ void main() async {
         Provider(
           create:
               (context) => VocabRepository(
+                context.read<ApiClient>(),
+                context.read<AuthRepository>(),
+              ),
+        ),
+        Provider(
+          create:
+              (context) => WordRepository(
+                context.read<ApiClient>(),
+                context.read<AuthRepository>(),
+              ),
+        ),
+        Provider(
+          create:
+              (context) => RateRepository(
+                context.read<ApiClient>(),
+                context.read<AuthRepository>(),
+              ),
+        ),Provider(
+          create:
+              (context) => PronunciationRepository(
             context.read<ApiClient>(),
             context.read<AuthRepository>(),
           ),
@@ -75,20 +99,15 @@ class MyApp extends StatelessWidget {
             ),
         '/vocab_list':
             (context) => ChangeNotifierProvider(
-              create: (_) => VocabViewModel(context.read<VocabRepository>()),
+              create:
+                  (_) => VocabViewModel(
+                    context.read<VocabRepository>(),
+                    context.read<RateRepository>(),
+                  ),
               child: VocabListPage(),
             ),
-        /*
-        '/word_list':
-            (context) => ChangeNotifierProvider(
-              create:
-                  (_) => WordViewModel(
-                    context.read<WordRepository>(),
-                    context.read<VocabViewModel>(),
-                  ),
-              child: WordListPage(),
-            ),
-         */
+        '/phonics':
+        (context) => PhonicsPage()
       },
     );
   }
