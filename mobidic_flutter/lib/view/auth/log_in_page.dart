@@ -15,7 +15,7 @@ class LoginPage extends StatelessWidget {
 
     void onLoggedIn() async {
       if (authViewModel.isLoggedIn) {
-        NavigationHelper.navigateToVocabList(context);
+        NavigationHelper.navigateToVocabList(context, authViewModel);
 
         showDialog(
           context: context,
@@ -104,7 +104,7 @@ class LoginPage extends StatelessWidget {
             Center(
               child: TextButton(
                 onPressed: () {
-                  NavigationHelper.navigateToVocabList(context);
+                  NavigationHelper.navigateToJoin(context);
                 },
                 child: const Text(
                   '회원가입',

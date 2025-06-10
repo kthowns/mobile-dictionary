@@ -1,15 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:mobidic_flutter/di/ViewModelFactory.dart';
 import 'package:mobidic_flutter/repository/word_repository.dart';
+import 'package:mobidic_flutter/view/auth/join_page.dart';
 import 'package:mobidic_flutter/view/learning/pronunciation_check_page.dart';
 import 'package:mobidic_flutter/view/list/vocab_list_page.dart';
 import 'package:mobidic_flutter/view/list/word_list_page.dart';
 import 'package:mobidic_flutter/view/quiz/flash_card_page.dart';
+import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/flash_card_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
 import 'package:provider/provider.dart';
 
 class NavigationHelper {
+  static void navigateToJoin(
+      BuildContext context,
+      ){
+
+    final provider = MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => ViewModelFactory.getJoinViewModel(context),
+        ),
+      ],
+      child: JoinPage(),
+    );
+
+    _navigateTo(context, provider);
+  }
+
+  static void navigateToVocabList(BuildContext context, AuthViewModel authViewModel) {
+    final provider = MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => ViewModelFactory.getVocabViewModel(context, authViewModel),
+        ),
+      ],
+      child: VocabListPage(),
+    );
+
+    _navigateTo(context, provider);
+  }
+
   static void navigateToWordList(
     BuildContext context,
     VocabViewModel vocabViewModel,
@@ -48,19 +79,6 @@ class NavigationHelper {
         ),
       ],
       child: PronunciationCheckPage(),
-    );
-
-    _navigateTo(context, provider);
-  }
-
-  static void navigateToVocabList(BuildContext context) {
-    final provider = MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => ViewModelFactory.getVocabViewModel(context),
-        ),
-      ],
-      child: VocabListPage(),
     );
 
     _navigateTo(context, provider);
