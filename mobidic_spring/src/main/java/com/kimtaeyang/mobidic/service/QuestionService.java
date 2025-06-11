@@ -31,7 +31,7 @@ public class QuestionService {
     private final WordService wordService;
     private static final String QUESTION_PREFIX = "question";
     private final RedisTemplate<String, String> redisTemplate;
-    private static final Long min = 60000L;
+    private static final Long expPerQuestion = 30000L;
     private final VocabService vocabService;
     private final RateService rateService;
     private final CryptoService cryptoService;
@@ -78,7 +78,7 @@ public class QuestionService {
         List<Question> questions = QuestionUtil.generateQuiz(vocab.getMemberId(), strategy, wordsWithDefs);
         List<QuestionDto> questionDtos = new ArrayList<>();
         for (Question question : questions) {
-            String token = registerQuestion(question);
+            String token = registerQuestion(question, questions.size());
             questionDtos.add(QuestionDto.builder()
                     .token(token)
                     .options(question.getOptions())
@@ -112,7 +112,7 @@ public class QuestionService {
         return response;
     }
 
-    private String registerQuestion(Question question) {
+    private String registerQuestion(Question question, int questionAmount) {
         String key = QUESTION_PREFIX
                 + ":" + question.getMemberId()
                 + ":" + question.getWordId()
@@ -121,7 +121,7 @@ public class QuestionService {
         redisTemplate.opsForValue().set(
                 key,
                 question.getAnswer(),
-                Duration.ofMillis(min)
+                Duration.ofMillis(expPerQuestion * questionAmount)
         );
 
         return cryptoService.encrypt(key); //암호화
