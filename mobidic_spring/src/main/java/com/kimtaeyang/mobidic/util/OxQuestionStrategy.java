@@ -1,7 +1,6 @@
 package com.kimtaeyang.mobidic.util;
 
 import com.kimtaeyang.mobidic.dto.DefDto;
-import com.kimtaeyang.mobidic.dto.QuestionRateDto;
 import com.kimtaeyang.mobidic.entity.Question;
 import com.kimtaeyang.mobidic.model.WordWithDefs;
 
@@ -54,10 +53,5 @@ public class OxQuestionStrategy extends QuestionStrategy {
         }
 
         return questions;
-    }
-
-    @Override
-    public boolean rate(QuestionRateDto.Request request, String correctAnswer) {
-        return request.getAnswer().equals(correctAnswer);
     }
 }

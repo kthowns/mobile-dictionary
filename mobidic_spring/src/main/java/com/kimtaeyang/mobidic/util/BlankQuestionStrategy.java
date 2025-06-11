@@ -1,6 +1,5 @@
 package com.kimtaeyang.mobidic.util;
 
-import com.kimtaeyang.mobidic.dto.QuestionRateDto;
 import com.kimtaeyang.mobidic.entity.Question;
 import com.kimtaeyang.mobidic.model.WordWithDefs;
 
@@ -66,10 +65,5 @@ public class BlankQuestionStrategy extends QuestionStrategy {
         }
 
         return questions;
-    }
-
-    @Override
-    public boolean rate(QuestionRateDto.Request request, String correctAnswer) {
-        return request.getAnswer().equals(correctAnswer);
     }
 }

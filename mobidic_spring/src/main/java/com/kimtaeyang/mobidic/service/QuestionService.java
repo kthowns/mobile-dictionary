@@ -42,19 +42,33 @@ public class QuestionService {
         return generateQuestions(vocabId, new OxQuestionStrategy());
     }
 
-    @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
-    public QuestionRateDto.Response rateOxQuestion(UUID memberId, QuestionRateDto.Request request) {
-        return rateQuestion(request, new OxQuestionStrategy());
-    }
-
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
     public List<QuestionDto> getBlankQuestions(UUID vocabId) {
         return generateQuestions(vocabId, new BlankQuestionStrategy());
     }
 
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
-    public QuestionRateDto.Response rateBlankQuestion(UUID memberId, QuestionRateDto.Request request) {
-        return rateQuestion(request, new BlankQuestionStrategy());
+    public QuestionRateDto.Response rateQuestion(
+            UUID memberId,
+            QuestionRateDto.Request request
+    ) {
+        String key = cryptoService.decrypt(request.getToken()); //복호화
+        String correctAnswer = findCorrectAnswer(key);
+        expireAnswer(key);
+
+        UUID wordId = UUID.fromString(key.split(":")[2]);
+        QuestionRateDto.Response response = QuestionRateDto.Response.builder()
+                .isCorrect(request.getAnswer().equals(correctAnswer))
+                .correctAnswer(correctAnswer)
+                .build();
+
+        if (response.getIsCorrect()) {
+            rateService.increaseCorrectCount(wordId);
+        } else {
+            rateService.increaseIncorrectCount(wordId);
+        }
+
+        return response;
     }
 
     private List<QuestionDto> generateQuestions(UUID vocabId, QuestionStrategy strategy) {
@@ -87,29 +101,6 @@ public class QuestionService {
         }
 
         return questionDtos;
-    }
-
-    private QuestionRateDto.Response rateQuestion(
-            QuestionRateDto.Request request,
-            QuestionStrategy strategy
-    ) {
-        String key = cryptoService.decrypt(request.getToken()); //복호화
-        String correctAnswer = findCorrectAnswer(key);
-        expireAnswer(key);
-
-        UUID wordId = UUID.fromString(key.split(":")[2]);
-        QuestionRateDto.Response response = QuestionRateDto.Response.builder()
-                .isCorrect(QuestionUtil.rate(strategy, request, correctAnswer))
-                .correctAnswer(correctAnswer)
-                .build();
-
-        if (response.getIsCorrect()) {
-            rateService.increaseCorrectCount(wordId);
-        } else {
-            rateService.increaseIncorrectCount(wordId);
-        }
-
-        return response;
     }
 
     private String registerQuestion(Question question, int questionAmount) {
