@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mobidic_flutter/di/ViewModelFactory.dart';
-import 'package:mobidic_flutter/repository/word_repository.dart';
+import 'package:mobidic_flutter/type/quiz_type.dart';
 import 'package:mobidic_flutter/view/auth/join_page.dart';
 import 'package:mobidic_flutter/view/learning/pronunciation_check_page.dart';
 import 'package:mobidic_flutter/view/list/vocab_list_page.dart';
 import 'package:mobidic_flutter/view/list/word_list_page.dart';
+import 'package:mobidic_flutter/view/quiz/fill_blank_quiz.dart';
 import 'package:mobidic_flutter/view/quiz/flash_card_page.dart';
+import 'package:mobidic_flutter/view/quiz/ox_quiz_page.dart';
 import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
-import 'package:mobidic_flutter/viewmodel/flash_card_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -103,8 +104,8 @@ class NavigationHelper {
       providers: [
         ChangeNotifierProvider(
           create:
-              (_) => FlashCardViewModel(
-                context.read<WordRepository>(),
+              (_) => ViewModelFactory.getFlashCardViewModel(
+                context,
                 vocabViewModel,
               ),
         ),
@@ -115,11 +116,46 @@ class NavigationHelper {
     _navigateTo(context, provider, routeName);
   }
 
+  static void navigateToQuiz(
+    BuildContext context,
+    VocabViewModel vocabViewModel,
+    int index,
+    QuizType quizType,
+  ) {
+    vocabViewModel.selectVocabAt(index);
+    final String routeName = '${quizType.name}_quiz';
+
+    final provider = MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create:
+              (_) => switch (quizType) {
+                QuizType.OX => ViewModelFactory.getOxQuizViewModel(
+                  context,
+                  vocabViewModel,
+                ),
+                QuizType.DICTATION => throw UnimplementedError(),
+                QuizType.BLANK => throw UnimplementedError(),
+                _ => throw UnimplementedError(),
+              },
+        ),
+      ],
+      child: switch (quizType) {
+        QuizType.OX => OxQuizPage(),
+        QuizType.BLANK => FillBlankQuizPage(),
+        _ => throw UnimplementedError(),
+      },
+    );
+
+    _navigateTo(context, provider, routeName);
+  }
+
   static void _navigateTo(
     BuildContext context,
     MultiProvider provider,
     String routeName,
   ) {
+    print(provider);
     Navigator.push(
       context,
       MaterialPageRoute(

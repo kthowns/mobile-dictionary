@@ -1,6 +1,7 @@
 import 'package:mobidic_flutter/repository/auth_repository.dart';
 import 'package:mobidic_flutter/repository/member_repository.dart';
 import 'package:mobidic_flutter/repository/pronunciation_repository.dart';
+import 'package:mobidic_flutter/repository/question_repository.dart';
 import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/vocab_repository.dart';
 import 'package:mobidic_flutter/repository/word_repository.dart';
@@ -52,6 +53,13 @@ final providers = [
   Provider(
     create:
         (context) => PronunciationRepository(
+          context.read<ApiClient>(),
+          context.read<AuthRepository>(),
+        ),
+  ),
+  Provider(
+    create:
+        (context) => QuestionRepository(
           context.read<ApiClient>(),
           context.read<AuthRepository>(),
         ),

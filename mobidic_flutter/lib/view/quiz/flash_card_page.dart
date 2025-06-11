@@ -13,72 +13,62 @@ class FlashCardPage extends StatelessWidget {
         context.watch<FlashCardViewModel>();
     final int quizColor = 0xFFb3e5fc;
 
-    return Stack(
-      children: [
-        Scaffold(
-          appBar: AppBar(
-            backgroundColor: Color(quizColor),
-            elevation: 0,
-            systemOverlayStyle: SystemUiOverlayStyle.dark,
-            centerTitle: true,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(quizColor),
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Row(
+          children: [
+            Center(
+              child: Image.asset('assets/images/mobidic_icon.png', height: 40),
+            ),
+            SizedBox(width: 8),
+            Text(
+              'MOBIDIC',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onSelected: (value) {
+              if (value == '파닉스') {
+                Navigator.pushNamed(context, '/phonics');
+              }
+            },
+            itemBuilder:
+                (BuildContext context) => [
+                  const PopupMenuItem<String>(value: '파닉스', child: Text('파닉스')),
+                ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.home, color: Colors.black),
               onPressed: () {
-                // 원하는 로직
-                print('뒤로가기 누름');
-                // 실제 뒤로 가기
-                Navigator.pop(context);
+                Navigator.popUntil(context, (route) {
+                  return route.settings.name == '/vocab_list'; // 특정 route 이름 기준
+                });
               },
             ),
-            title: Row(
-              children: [
-                Center(
-                  child: Image.asset(
-                    'assets/images/mobidic_icon.png',
-                    height: 40,
-                  ),
-                ),
-                SizedBox(width: 8),
-                Text(
-                  'MOBIDIC',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.menu, color: Colors.black),
-                onSelected: (value) {
-                  if (value == '파닉스') {
-                    Navigator.pushNamed(context, '/phonics');
-                  }
-                },
-                itemBuilder:
-                    (BuildContext context) => [
-                      const PopupMenuItem<String>(
-                        value: '파닉스',
-                        child: Text('파닉스'),
-                      ),
-                    ],
-              ),
-              Padding(
-                padding: EdgeInsets.only(right: 12),
-                child: IconButton(
-                  icon: const Icon(Icons.home, color: Colors.black),
-                  onPressed: () {
-                    Navigator.popUntil(context, (route) {
-                      return route.settings.name ==
-                          '/vocab_list'; // 특정 route 이름 기준
-                    });
-                  },
-                ),
-              ),
-            ],
           ),
-          body: Container(
+        ],
+      ),
+      body: Stack(
+        children: [
+          Container(
             width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -92,16 +82,6 @@ class FlashCardPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (flashCardViewModel.words.isEmpty)
-                    Center(
-                      child: Text(
-                        "단어장이 비어있습니다.",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
                   // 카드 내용
                   Expanded(
                     child: Swiper(
@@ -248,13 +228,35 @@ class FlashCardPage extends StatelessWidget {
               ),
             ),
           ),
-        ),
-        if (flashCardViewModel.isLoading)
-          Container(
-            color: const Color(0x80000000), // 배경 어둡게
-            child: const Center(child: CircularProgressIndicator()),
-          ),
-      ],
+          if (flashCardViewModel.isLoading)
+            Container(
+              color: const Color(0x80000000), // 배경 어둡게
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+          if (flashCardViewModel.words.isEmpty && !flashCardViewModel.isLoading)
+            Container(
+              color: const Color(0x80000000), // 배경 어둡게
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.help_outline, size: 64, color: Colors.white70),
+                    SizedBox(height: 16),
+                    Text(
+                      '단어장이 비어있습니다.',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '단어장에 단어를 추가해보세요!',
+                      style: TextStyle(color: Colors.white54, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
