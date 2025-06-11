@@ -13,8 +13,4 @@ public class QuestionUtil {
     public static List<Question> generateQuiz(UUID memberId, QuestionStrategy strategy, List<WordWithDefs> wordsWithDefs) {
         return strategy.generateQuestions(memberId, wordsWithDefs);
     }
-
-    public static boolean rate(QuestionStrategy strategy, QuestionRateDto.Request request, String correctAnswer) {
-        return strategy.rate(request, correctAnswer);
-    }
 }

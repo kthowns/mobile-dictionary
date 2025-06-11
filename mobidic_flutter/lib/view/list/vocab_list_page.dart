@@ -1,77 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobidic_flutter/repository/pronunciation_repository.dart';
-import 'package:mobidic_flutter/repository/rate_repository.dart';
-import 'package:mobidic_flutter/repository/word_repository.dart';
-import 'package:mobidic_flutter/view/learning/pronunciation_check_page.dart';
-import 'package:mobidic_flutter/view/list/word_list_page.dart';
+import 'package:mobidic_flutter/type/quiz_type.dart';
 import 'package:mobidic_flutter/view/quiz/dictation_quiz.dart';
 import 'package:mobidic_flutter/view/quiz/fill_blank_quiz.dart';
-import 'package:mobidic_flutter/view/quiz/ox_quiz.dart';
-import 'package:mobidic_flutter/view/quiz/flash_card.dart';
-import 'package:mobidic_flutter/viewmodel/pronunciation_view_model.dart';
+import 'package:mobidic_flutter/view/util/navigation_helper.dart';
 import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
-import 'package:mobidic_flutter/viewmodel/word_view_model.dart';
 import 'package:provider/provider.dart';
 
 class VocabListPage extends StatelessWidget {
-  VocabListPage({super.key});
+  const VocabListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final vocabViewModel = context.watch<VocabViewModel>();
-
-    void navigateToWordList(int index) {
-      vocabViewModel.currentVocab = vocabViewModel.showingVocabs[index];
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder:
-              (_) => MultiProvider(
-                providers: [
-                  ChangeNotifierProvider.value(value: vocabViewModel),
-                  // 기존 인스턴스 전달
-                  ChangeNotifierProvider(
-                    create:
-                        (_) => WordViewModel(
-                          context.read<WordRepository>(),
-                          context.read<RateRepository>(),
-                          vocabViewModel,
-                        ),
-                  ),
-                ],
-                child: WordListPage(),
-              ),
-        ),
-      );
-    }
-
-    void navigateToPronunciationCheck(int index) {
-      vocabViewModel.currentVocab = vocabViewModel.vocabs[index];
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder:
-              (_) => MultiProvider(
-                providers: [
-                  //ChangeNotifierProvider.value(value: vocabViewModel),
-                  // 기존 인스턴스 전달
-                  ChangeNotifierProvider(
-                    create:
-                        (_) => PronunciationViewModel(
-                          context.read<PronunciationRepository>(),
-                          context.read<WordRepository>(),
-                          context.read<RateRepository>(),
-                          vocabViewModel,
-                        ),
-                  ),
-                ],
-                child: PronunciationCheckPage(),
-              ),
-        ),
-      );
-    }
 
     void showAddVocabDialog() {
       TextEditingController titleController = TextEditingController();
@@ -172,7 +113,7 @@ class VocabListPage extends StatelessWidget {
       );
     }
 
-    void _showDeleteDialog(int index) {
+    void showDeleteDialog(int index) {
       showDialog(
         context: context,
         builder:
@@ -236,32 +177,48 @@ class VocabListPage extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (_) => FlashcardScreen()));
+                              vocabViewModel.selectVocabAt(index);
+                              NavigationHelper.navigateToFlashCard(
+                                context,
+                                vocabViewModel,
+                                index,
+                              );
                             },
                             child: const Text('플래시카드'),
                           ),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (_) => OXQuizPage()));
+                              NavigationHelper.navigateToQuiz(
+                                context,
+                                vocabViewModel,
+                                index,
+                                QuizType.OX,
+                              );
                             },
                             child: const Text('O/X 퀴즈'),
                           ),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (_) => DictationQuizPage()));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => DictationQuizPage(),
+                                ),
+                              );
                             },
                             child: const Text('받아쓰기'),
                           ),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (_) => FillBlankQuizPage()));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => FillBlankQuizPage(),
+                                ),
+                              );
                             },
                             child: const Text('빈칸 채우기'),
                           ),
@@ -273,7 +230,11 @@ class VocabListPage extends StatelessWidget {
               },
             );
           } else if (label == '발음 체크') {
-            navigateToPronunciationCheck(index);
+            NavigationHelper.navigateToPronunciationCheck(
+              context,
+              vocabViewModel,
+              index,
+            );
           }
         },
         child: Text(label),
@@ -289,7 +250,6 @@ class VocabListPage extends StatelessWidget {
 
     Widget buildVocabCard(int index) {
       final progress = vocabViewModel.showingVocabs[index].learningRate;
-      final isExpanded = vocabViewModel.selectedCardIndex == index;
 
       return Container(
         margin: const EdgeInsets.only(bottom: 20),
@@ -343,7 +303,7 @@ class VocabListPage extends StatelessWidget {
                         child: const Text('수정'),
                       ),
                       TextButton(
-                        onPressed: () => _showDeleteDialog(index),
+                        onPressed: () => showDeleteDialog(index),
                         child: const Text('삭제'),
                       ),
                     ],
@@ -351,9 +311,8 @@ class VocabListPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Wrap(
+            Row(
               spacing: 8,
-              runSpacing: 4,
               children: [tagButton('퀴즈', index), tagButton('발음 체크', index)],
             ),
             const SizedBox(height: 12),
@@ -412,21 +371,27 @@ class VocabListPage extends StatelessWidget {
             backgroundColor: Colors.transparent,
             elevation: 0,
             systemOverlayStyle: SystemUiOverlayStyle.dark,
+            centerTitle: true,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () {
                 // 원하는 로직
                 print('뒤로가기 누름');
-
                 // 실제 뒤로 가기
                 Navigator.pop(context);
               },
             ),
-            title: const Row(
+            title: Row(
               children: [
+                Center(
+                  child: Image.asset(
+                    'assets/images/mobidic_icon.png',
+                    height: 40,
+                  ),
+                ),
                 SizedBox(width: 8),
                 Text(
-                  '나만의 단어장',
+                  'MOBIDIC',
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -549,7 +514,7 @@ class VocabListPage extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: vocabViewModel.cycleSortOption,
                           style: ElevatedButton.styleFrom(
@@ -612,7 +577,13 @@ class VocabListPage extends StatelessWidget {
                                 itemCount: vocabViewModel.showingVocabs.length,
                                 itemBuilder: (context, index) {
                                   return GestureDetector(
-                                    onTap: () => navigateToWordList(index),
+                                    onTap:
+                                        () =>
+                                            NavigationHelper.navigateToWordList(
+                                              context,
+                                              vocabViewModel,
+                                              index,
+                                            ),
                                     child: buildVocabCard(index),
                                   );
                                 },

@@ -16,6 +16,9 @@ class ApiClient {
     Map<String, String>? headers,
   }) async {
     print("Request uri : POST $_baseUrl$url");
+    print("body : $body");
+    print("headers : $headers");
+
     final http.Response response = await http.post(
       Uri.parse('$_baseUrl$url'),
       headers: {'Content-Type': 'application/json', ...?headers},
@@ -31,6 +34,9 @@ class ApiClient {
     Map<String, String>? headers,
   }) async {
     print("Request uri : PATCH $_baseUrl$url");
+    print("body : $body");
+    print("headers : $headers");
+
     final http.Response response = await http.patch(
       Uri.parse('$_baseUrl$url'),
       headers: {'Content-Type': 'application/json', ...?headers},
@@ -49,6 +55,8 @@ class ApiClient {
       queryParameters: params?.map((k, v) => MapEntry(k, v.toString())),
     );
     print("Request uri : GET $_baseUrl$url");
+    print("params : $params");
+    print("headers : $headers");
 
     final http.Response response = await http.get(
       uri,
@@ -64,6 +72,9 @@ class ApiClient {
     Map<String, String>? headers,
   }) async {
     print("Request uri : DELETE $_baseUrl$url");
+    print("body : $body");
+    print("headers : $headers");
+
     final http.Response response = await http.delete(
       Uri.parse('$_baseUrl$url'),
       headers: {'Content-Type': 'application/json', ...?headers},
@@ -79,6 +90,8 @@ class ApiClient {
     Map<String, dynamic>? headers,
   }) async {
     print("Request uri : POST $_baseUrl$url");
+    print("headers : $headers");
+
     Dio dio = Dio();
     Response response = await dio.post(
       '$_baseUrl$url',

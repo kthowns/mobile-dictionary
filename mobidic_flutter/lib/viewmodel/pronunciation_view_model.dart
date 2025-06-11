@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:mobidic_flutter/mixin/LoadingMixin.dart';
 import 'package:mobidic_flutter/model/word.dart';
 import 'package:mobidic_flutter/repository/pronunciation_repository.dart';
 import 'package:mobidic_flutter/repository/rate_repository.dart';
@@ -9,7 +10,7 @@ import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
-class PronunciationViewModel extends ChangeNotifier {
+class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
   final PronunciationRepository _pronunciationRepository;
   final WordRepository _wordRepository;
   final RateRepository _rateRepository;
@@ -29,17 +30,13 @@ class PronunciationViewModel extends ChangeNotifier {
   }
 
   Future<void> loadData() async {
-    _loadStart();
+    startLoading();
     _words = await _wordRepository.getWords(_vocabViewModel.currentVocab?.id);
     if(_words.length < 2){
       _isEnd = true;
     }
-    _loadStop();
+    stopLoading();
   }
-
-  bool _isLoading = false;
-
-  bool get isLoading => _isLoading;
 
   List<Word> _words = [];
 
@@ -113,16 +110,6 @@ class PronunciationViewModel extends ChangeNotifier {
     if(currentWordIndex >= words.length-1){
       _isEnd = true;
     }
-    notifyListeners();
-  }
-
-  void _loadStart() {
-    _isLoading = true;
-    notifyListeners();
-  }
-
-  void _loadStop() {
-    _isLoading = false;
     notifyListeners();
   }
 }

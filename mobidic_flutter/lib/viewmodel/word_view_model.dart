@@ -1,12 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mobidic_flutter/mixin/LoadingMixin.dart';
 import 'package:mobidic_flutter/model/definition.dart';
+import 'package:mobidic_flutter/model/vocab.dart';
 import 'package:mobidic_flutter/model/word.dart';
 import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/word_repository.dart';
 import 'package:mobidic_flutter/type/part_of_speech.dart';
 import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
 
-class WordViewModel extends ChangeNotifier {
+class WordViewModel extends ChangeNotifier with LoadingMixin {
   final WordRepository _wordRepository;
   final RateRepository _rateRepository;
   final VocabViewModel _vocabViewModel;
@@ -28,12 +30,12 @@ class WordViewModel extends ChangeNotifier {
   }
 
   Future<void> loadData() async {
-    _loadStart();
+    startLoading();
     _words = await _wordRepository.getWords(_vocabViewModel.currentVocab?.id);
     searchWords();
     sort();
     updateRates();
-    _loadStop();
+    stopLoading();
   }
 
   Future<void> updateRates() async {
@@ -47,6 +49,8 @@ class WordViewModel extends ChangeNotifier {
     searchController.dispose();
     super.dispose();
   }
+
+  Vocab? get currentVocab => _vocabViewModel.currentVocab;
 
   final List<String> sortOptions = ['최신순', '난이도순', '알파벳순'];
   int currentSortIndex = 0;
@@ -85,8 +89,6 @@ class WordViewModel extends ChangeNotifier {
   final List<Definition> editingDefs = [];
   final List<Definition> removingDefs = [];
 
-  Word? currentVocab;
-
   List<Word> _words = [];
 
   List<Word> get words => _words;
@@ -117,9 +119,7 @@ class WordViewModel extends ChangeNotifier {
 
   int selectedCardIndex = -1;
 
-  bool _isLoading = false;
-
-  bool get isLoading => _isLoading;
+  double get avgLearningRate => _vocabViewModel.avgLearningRate;
 
   void searchWords() {
     String keyword = searchController.text;
@@ -192,16 +192,6 @@ class WordViewModel extends ChangeNotifier {
 
   void sort() {
     _words.sort(comparator);
-    notifyListeners();
-  }
-
-  void _loadStart() {
-    _isLoading = true;
-    notifyListeners();
-  }
-
-  void _loadStop() {
-    _isLoading = false;
     notifyListeners();
   }
 }
