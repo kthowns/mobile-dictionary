@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 
 class NavigationHelper {
   static void navigateToJoin(BuildContext context) {
-    const String routeName = 'join';
+    const String routeName = '/join';
 
     final provider = MultiProvider(
       providers: [
@@ -32,7 +32,7 @@ class NavigationHelper {
     BuildContext context,
     AuthViewModel authViewModel,
   ) {
-    const String routeName = 'vocab_list';
+    const String routeName = '/vocab_list';
 
     final provider = MultiProvider(
       providers: [
@@ -52,7 +52,7 @@ class NavigationHelper {
     VocabViewModel vocabViewModel,
     int index,
   ) {
-    const String routeName = 'word_list';
+    const String routeName = '/word_list';
     vocabViewModel.selectVocabAt(index);
 
     final MultiProvider provider = MultiProvider(
@@ -73,7 +73,7 @@ class NavigationHelper {
     VocabViewModel vocabViewModel,
     int index,
   ) {
-    const String routeName = 'pronunciation_check';
+    const String routeName = '/pronunciation_check';
     vocabViewModel.selectVocabAt(index);
 
     final MultiProvider provider = MultiProvider(
@@ -98,7 +98,7 @@ class NavigationHelper {
     int index,
   ) {
     vocabViewModel.selectVocabAt(index);
-    const String routeName = 'flash_card';
+    const String routeName = '/flash_card';
 
     final provider = MultiProvider(
       providers: [
@@ -123,7 +123,7 @@ class NavigationHelper {
     QuizType quizType,
   ) {
     vocabViewModel.selectVocabAt(index);
-    final String routeName = '${quizType.name}_quiz';
+    final String routeName = '/${quizType.name}_quiz';
 
     final provider = MultiProvider(
       providers: [
