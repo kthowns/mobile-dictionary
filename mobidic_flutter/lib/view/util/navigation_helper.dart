@@ -155,7 +155,6 @@ class NavigationHelper {
     MultiProvider provider,
     String routeName,
   ) {
-    print(provider);
     Navigator.push(
       context,
       MaterialPageRoute(
