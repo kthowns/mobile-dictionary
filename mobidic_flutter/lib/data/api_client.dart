@@ -25,7 +25,7 @@ class ApiClient {
       body: body != null ? jsonEncode(body) : null,
     );
 
-    return _handleResponse(response, GeneralResponseDto.fromJson);
+    return _handleHttpResponse(response, GeneralResponseDto.fromJson);
   }
 
   Future<GeneralResponseDto> patch({
@@ -43,7 +43,7 @@ class ApiClient {
       body: body != null ? jsonEncode(body) : null,
     );
 
-    return _handleResponse(response, GeneralResponseDto.fromJson);
+    return _handleHttpResponse(response, GeneralResponseDto.fromJson);
   }
 
   Future<GeneralResponseDto> get({
@@ -63,7 +63,7 @@ class ApiClient {
       headers: {'Content-Type': 'application/json', ...?headers},
     );
 
-    return _handleResponse(response, GeneralResponseDto.fromJson);
+    return _handleHttpResponse(response, GeneralResponseDto.fromJson);
   }
 
   Future<GeneralResponseDto> delete({
@@ -81,7 +81,7 @@ class ApiClient {
       body: body != null ? jsonEncode(body) : null,
     );
 
-    return _handleResponse(response, GeneralResponseDto.fromJson);
+    return _handleHttpResponse(response, GeneralResponseDto.fromJson);
   }
 
   Future<GeneralResponseDto> multiPartPost({
@@ -99,10 +99,10 @@ class ApiClient {
       options: Options(headers: headers),
     );
 
-    return _handleResponse(response.data, GeneralResponseDto.fromJson);
+    return _handleDioResponse(response, GeneralResponseDto.fromJson);
   }
 
-  Future<T> _handleResponse<T>(
+  Future<T> _handleHttpResponse<T>(
     http.Response response,
     T Function(Map<String, dynamic>) fromJson,
   ) async {
@@ -120,5 +120,23 @@ class ApiClient {
     }
 
     return fromJson(bodyJson);
+  }
+
+  Future<T> _handleDioResponse<T>(
+      Response response,
+      T Function(Map<String, dynamic>) fromJson,
+      ) async {
+    print(response);
+
+    if (response.statusCode != 200) {
+      final errorBody = ErrorResponseDto.fromJson(response.data);
+      throw ApiException(
+        response.statusCode ?? 500,
+        errorBody.message,
+        errors: errorBody.errors,
+      );
+    }
+
+    return fromJson(response.data);
   }
 }
