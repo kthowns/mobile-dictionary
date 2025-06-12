@@ -89,7 +89,7 @@ class JoinPage extends StatelessWidget {
               obscureText: !joinViewModel.isPasswordVisible,
               decoration: InputDecoration(
                 labelText: '사용할 비밀번호를 입력하세요.',
-                helperText: '8자 이상 + 특수문자 1개 이상 ( - 와 = 제외 )',
+                helperText: '8자 이상 + 알파벳 + 숫자 ( - 와 = 제외 )',
                 errorText: joinViewModel.passwordErrorText,
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
