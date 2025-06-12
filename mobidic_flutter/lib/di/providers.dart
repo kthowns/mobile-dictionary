@@ -7,12 +7,12 @@ import 'package:mobidic_flutter/repository/vocab_repository.dart';
 import 'package:mobidic_flutter/repository/word_repository.dart';
 import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 
 import '../data/api_client.dart';
 import '../data/secure_storage_data_source.dart';
 
-const String apiBaseUrl = 'http://www.mobidic.shop/api';
-final providers = [
+List<SingleChildWidget> getProviders(String apiBaseUrl) => [
   Provider(create: (_) => ApiClient(apiBaseUrl)),
   Provider(create: (_) => SecureStorageDataSource()),
   Provider(

@@ -76,6 +76,10 @@ public class QuestionService {
 
         List<WordWithDefs> wordsWithDefs = new ArrayList<>();
         List<WordDto> wordDtos = wordService.getWordsByVocabId(vocab.getId());
+        if(wordDtos.isEmpty()){
+            return List.of();
+        }
+
         for (WordDto wordDto : wordDtos) {
             WordWithDefs wordWithDefs = WordWithDefs.builder()
                     .wordDto(wordDto)
@@ -83,10 +87,6 @@ public class QuestionService {
                     .build();
 
             wordsWithDefs.add(wordWithDefs);
-        }
-
-        if (wordsWithDefs.isEmpty()) {
-            throw new ApiException(EMPTY_VOCAB);
         }
 
         List<Question> questions = QuestionUtil.generateQuiz(vocab.getMemberId(), strategy, wordsWithDefs);
