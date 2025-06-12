@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:mobidic_flutter/mixin/LoadingMixin.dart';
 import 'package:mobidic_flutter/model/vocab.dart';
 import 'package:mobidic_flutter/model/word.dart';
