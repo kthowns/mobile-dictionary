@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.OK;
@@ -99,5 +100,53 @@ public class RateController {
         rateService.toggleRateByWordId(UUID.fromString(wordId));
 
         return GeneralResponse.toResponseEntity(OK, null);
+    }
+
+    @Operation(
+            summary = "단어장 퀴즈 정답률 조회",
+            description = "단어의 학습 여부 토글링",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @GetMapping("/accuracy")
+    public ResponseEntity<GeneralResponse<Double>> getAvgAccuracyByVocab(
+            @RequestParam String vId
+    ) {
+        return GeneralResponse.toResponseEntity(OK,
+                rateService.getAvgAccuracyByVocab(UUID.fromString(vId)));
+    }
+
+    @Operation(
+            summary = "모든 단어장 퀴즈 정답률 조회",
+            description = "사용자 식별자를 통한 모든 단어장의 퀴즈 정답률 평균 조회",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인가되지 않은 요청",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @GetMapping("/accuracy/all")
+    public ResponseEntity<GeneralResponse<Double>> getAvgAccuracyOfAll(
+            @RequestParam String uId
+    ) {
+        return GeneralResponse.toResponseEntity(OK,
+                rateService.getAvgAccuracyByMember(UUID.fromString(uId)));
     }
 }

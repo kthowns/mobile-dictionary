@@ -4,6 +4,7 @@ class Vocab {
   final String title;
   final String description;
   final double learningRate;
+  final double accuracy;
   final DateTime? createdAt;
 
   Vocab({
@@ -12,15 +13,17 @@ class Vocab {
     required this.title,
     required this.description,
     required this.learningRate,
+    required this.accuracy,
     required this.createdAt,
   });
 
-  factory Vocab.fromDto(VocabDto dto, double learningRate) => Vocab(
+  factory Vocab.fromDto(VocabDto dto, double learningRate, double accuracy) => Vocab(
     id: dto.id,
     memberId: dto.memberId,
     title: dto.title,
     description: dto.description,
     learningRate: learningRate,
+    accuracy: accuracy,
     createdAt: dto.createdAt,
   );
 }

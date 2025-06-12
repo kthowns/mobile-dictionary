@@ -1,32 +1,68 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SecureStorageDataSource {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
-
   static const _tokenKey = 'jwt_token';
   static const _memberId = 'member_id';
 
   Future<void> saveToken(String token) async {
-    await _storage.write(key: _tokenKey, value: token);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_tokenKey, token);
+    } else {
+      const storage = FlutterSecureStorage();
+      await storage.write(key: _tokenKey, value: token);
+    }
   }
 
   Future<String?> readToken() async {
-    return await _storage.read(key: _tokenKey);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_tokenKey);
+    } else {
+      const storage = FlutterSecureStorage();
+      return await storage.read(key: _tokenKey);
+    }
   }
 
   Future<void> deleteToken() async {
-    await _storage.delete(key: _tokenKey);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_tokenKey);
+    } else {
+      const storage = FlutterSecureStorage();
+      await storage.delete(key: _tokenKey);
+    }
   }
 
   Future<void> saveMemberId(String memberId) async {
-    await _storage.write(key: _memberId, value: memberId);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_memberId, memberId);
+    } else {
+      const storage = FlutterSecureStorage();
+      await storage.write(key: _memberId, value: memberId);
+    }
   }
 
   Future<String?> readMemberId() async {
-    return await _storage.read(key: _memberId);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_memberId);
+    } else {
+      const storage = FlutterSecureStorage();
+      return await storage.read(key: _memberId);
+    }
   }
 
   Future<void> deleteMemberId() async {
-    await _storage.delete(key: _memberId);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_memberId);
+    } else {
+      const storage = FlutterSecureStorage();
+      await storage.delete(key: _memberId);
+    }
   }
 }

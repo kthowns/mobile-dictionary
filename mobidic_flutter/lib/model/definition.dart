@@ -34,10 +34,24 @@ class DefDto {
     required this.part,
   });
 
+  static PartOfSpeech parsePart(String value) {
+    return PartOfSpeech.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => throw Exception("Invalid part: $value"),
+    );
+  }
+
   factory DefDto.fromJson(Map<String, dynamic> json) => DefDto(
-    id: json['id'],
-    wordId: json['wordId'],
-    definition: json['definition'],
-    part: json['part'],
+    id: json['id'] ?? (throw Exception("id is null")),
+    wordId: json['wordId'] ?? (throw Exception("wordId is null")),
+    definition: json['definition'] ?? (throw Exception("definition is null")),
+    part: parsePart(json['part']),
   );
+}
+
+class DefWithPart {
+  final String definition;
+  final PartOfSpeech part;
+
+  DefWithPart({required this.definition, required this.part});
 }

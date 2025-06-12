@@ -31,7 +31,7 @@ public class QuestionService {
     private final WordService wordService;
     private static final String QUESTION_PREFIX = "question";
     private final RedisTemplate<String, String> redisTemplate;
-    private static final Long min = 60000L;
+    private static final Long expPerQuestion = 30000L;
     private final VocabService vocabService;
     private final RateService rateService;
     private final CryptoService cryptoService;
@@ -42,56 +42,15 @@ public class QuestionService {
         return generateQuestions(vocabId, new OxQuestionStrategy());
     }
 
-    @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
-    public QuestionRateDto.Response rateOxQuestion(UUID memberId, QuestionRateDto.Request request) {
-        return rateQuestion(request, new OxQuestionStrategy());
-    }
-
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
     public List<QuestionDto> getBlankQuestions(UUID vocabId) {
         return generateQuestions(vocabId, new BlankQuestionStrategy());
     }
 
     @PreAuthorize("@memberAccessHandler.ownershipCheck(#memberId)")
-    public QuestionRateDto.Response rateBlankQuestion(UUID memberId, QuestionRateDto.Request request) {
-        return rateQuestion(request, new BlankQuestionStrategy());
-    }
-
-    private List<QuestionDto> generateQuestions(UUID vocabId, QuestionStrategy strategy) {
-        VocabDto vocab = vocabService.getVocabById(vocabId);
-
-        List<WordWithDefs> wordsWithDefs = new ArrayList<>();
-        List<WordDto> wordDtos = wordService.getWordsByVocabId(vocab.getId());
-        for (WordDto wordDto : wordDtos) {
-            WordWithDefs wordWithDefs = WordWithDefs.builder()
-                    .wordDto(wordDto)
-                    .defDtos(defService.getDefsByWordId(wordDto.getId()))
-                    .build();
-
-            wordsWithDefs.add(wordWithDefs);
-        }
-
-        if (wordsWithDefs.isEmpty()) {
-            throw new ApiException(EMPTY_VOCAB);
-        }
-
-        List<Question> questions = QuestionUtil.generateQuiz(vocab.getMemberId(), strategy, wordsWithDefs);
-        List<QuestionDto> questionDtos = new ArrayList<>();
-        for (Question question : questions) {
-            String token = registerQuestion(question);
-            questionDtos.add(QuestionDto.builder()
-                    .token(token)
-                    .options(question.getOptions())
-                    .stem(question.getStem())
-                    .build());
-        }
-
-        return questionDtos;
-    }
-
-    private QuestionRateDto.Response rateQuestion(
-            QuestionRateDto.Request request,
-            QuestionStrategy strategy
+    public QuestionRateDto.Response rateQuestion(
+            UUID memberId,
+            QuestionRateDto.Request request
     ) {
         String key = cryptoService.decrypt(request.getToken()); //복호화
         String correctAnswer = findCorrectAnswer(key);
@@ -99,7 +58,7 @@ public class QuestionService {
 
         UUID wordId = UUID.fromString(key.split(":")[2]);
         QuestionRateDto.Response response = QuestionRateDto.Response.builder()
-                .isCorrect(QuestionUtil.rate(strategy, request, correctAnswer))
+                .isCorrect(request.getAnswer().equals(correctAnswer))
                 .correctAnswer(correctAnswer)
                 .build();
 
@@ -112,7 +71,39 @@ public class QuestionService {
         return response;
     }
 
-    private String registerQuestion(Question question) {
+    private List<QuestionDto> generateQuestions(UUID vocabId, QuestionStrategy strategy) {
+        VocabDto vocab = vocabService.getVocabById(vocabId);
+
+        List<WordWithDefs> wordsWithDefs = new ArrayList<>();
+        List<WordDto> wordDtos = wordService.getWordsByVocabId(vocab.getId());
+        if(wordDtos.isEmpty()){
+            return List.of();
+        }
+
+        for (WordDto wordDto : wordDtos) {
+            WordWithDefs wordWithDefs = WordWithDefs.builder()
+                    .wordDto(wordDto)
+                    .defDtos(defService.getDefsByWordId(wordDto.getId()))
+                    .build();
+
+            wordsWithDefs.add(wordWithDefs);
+        }
+
+        List<Question> questions = QuestionUtil.generateQuiz(vocab.getMemberId(), strategy, wordsWithDefs);
+        List<QuestionDto> questionDtos = new ArrayList<>();
+        for (Question question : questions) {
+            String token = registerQuestion(question, questions.size());
+            questionDtos.add(QuestionDto.builder()
+                    .token(token)
+                    .options(question.getOptions())
+                    .stem(question.getStem())
+                    .build());
+        }
+
+        return questionDtos;
+    }
+
+    private String registerQuestion(Question question, int questionAmount) {
         String key = QUESTION_PREFIX
                 + ":" + question.getMemberId()
                 + ":" + question.getWordId()
@@ -121,7 +112,7 @@ public class QuestionService {
         redisTemplate.opsForValue().set(
                 key,
                 question.getAnswer(),
-                Duration.ofMillis(min)
+                Duration.ofMillis(expPerQuestion * questionAmount)
         );
 
         return cryptoService.encrypt(key); //암호화

@@ -12,8 +12,6 @@ import java.util.UUID;
 abstract public class QuestionStrategy {
     abstract public List<Question> generateQuestions(UUID memberId, List<WordWithDefs> wordsWithDefs);
 
-    abstract public boolean rate(QuestionRateDto.Request request, String correctAnswer);
-
     protected static <T> void partialShuffle(int n, List<T> list) {
         List<Integer> nums = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
@@ -50,9 +48,15 @@ abstract public class QuestionStrategy {
 
         List<T> orgList = new ArrayList<>(list);
 
+        int epoch = 30;
+        int cnt = 0;
         while (true) { //complete derangement
+            if (epoch < cnt) {
+                return;
+            }
             Collections.shuffle(list);
             boolean isDerangement = true;
+            cnt++;
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).equals(orgList.get(i))) {
                     isDerangement = false;

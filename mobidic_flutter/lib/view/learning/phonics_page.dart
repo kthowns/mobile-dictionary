@@ -1,45 +1,5 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MaterialApp(
-    home: PhonicsPage(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
-
-// ------------------------ 공통 하단 바 ------------------------
-
-Widget buildBottomNavBar(BuildContext context) {
-  return Container(
-    color: Colors.grey[200],
-    padding: const EdgeInsets.symmetric(vertical: 12.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.note_outlined, size: 32),
-          onPressed: () {
-            // 단어장 이동
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.home, size: 32),
-          onPressed: () {
-            Navigator.popUntil(context, (route) => route.isFirst);
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.exit_to_app, size: 32),
-          onPressed: () {
-            // 로그아웃 또는 종료
-          },
-        ),
-      ],
-    ),
-  );
-}
-
-// ------------------------ 메인 파닉스 페이지 ------------------------
+import 'package:flutter/services.dart';
 
 class PhonicsPage extends StatelessWidget {
   const PhonicsPage({super.key});
@@ -48,6 +8,60 @@ class PhonicsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            // 원하는 로직
+            print('뒤로가기 누름');
+
+            // 실제 뒤로 가기
+            Navigator.pop(context);
+          },
+        ),
+        title: const Row(
+          children: [
+            SizedBox(width: 8),
+            Text(
+              '파닉스 학습',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onSelected: (value) {
+              if (value == '파닉스') {
+                Navigator.pushNamed(context, '/phonics');
+              }
+            },
+            itemBuilder:
+                (BuildContext context) => [
+                  const PopupMenuItem<String>(value: '파닉스', child: Text('파닉스')),
+                ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.home, color: Colors.black),
+              onPressed: () {
+                Navigator.popUntil(context, (route) {
+                  return route.settings.name == '/vocab_list'; // 특정 route 이름 기준
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+      extendBodyBehindAppBar: true,
       body: SafeArea(
         bottom: false,
         child: Container(
@@ -83,28 +97,52 @@ class PhonicsPage extends StatelessWidget {
                   style: TextStyle(fontSize: 16, color: Colors.black87),
                 ),
               ),
-              _buildButton(context, '단모음', Colors.green, '난이도: 하', const ShortVowelPage()),
+              _buildButton(
+                context,
+                '단모음',
+                Colors.green,
+                '난이도: 하',
+                const ShortVowelPage(),
+              ),
               const SizedBox(height: 24),
-              _buildButton(context, '중모음', Colors.blue, '난이도: 중', const LongVowelPage()),
+              _buildButton(
+                context,
+                '중모음',
+                Colors.blue,
+                '난이도: 중',
+                const LongVowelPage(),
+              ),
               const SizedBox(height: 24),
-              _buildButton(context, '이중모음', Colors.red, '난이도: 상', const DiphthongPage()),
+              _buildButton(
+                context,
+                '이중모음',
+                Colors.red,
+                '난이도: 상',
+                const DiphthongPage(),
+              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: buildBottomNavBar(context),
     );
   }
 
-  Widget _buildButton(BuildContext context, String label, Color color, String subtitle, Widget page) {
+  Widget _buildButton(
+    BuildContext context,
+    String label,
+    Color color,
+    String subtitle,
+    Widget page,
+  ) {
     return SizedBox(
       width: 280,
       height: 80,
       child: ElevatedButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => page),
-        ),
+        onPressed:
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => page),
+            ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           padding: const EdgeInsets.all(12),
@@ -119,7 +157,11 @@ class PhonicsPage extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 label,
-                style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             Positioned(
@@ -205,7 +247,11 @@ class DiphthongPage extends StatelessWidget {
 
 // ------------------------ 공통 단어 목록 UI ------------------------
 
-Widget _buildListScreen(BuildContext context, String title, List<String> items) {
+Widget _buildListScreen(
+  BuildContext context,
+  String title,
+  List<String> items,
+) {
   return Scaffold(
     appBar: AppBar(
       title: Text(title),
@@ -253,6 +299,5 @@ Widget _buildListScreen(BuildContext context, String title, List<String> items) 
         },
       ),
     ),
-    bottomNavigationBar: buildBottomNavBar(context),
   );
 }

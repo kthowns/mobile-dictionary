@@ -1,7 +1,6 @@
 package com.kimtaeyang.mobidic.dto;
 
 import com.kimtaeyang.mobidic.entity.Rate;
-import com.kimtaeyang.mobidic.type.Difficulty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,9 +17,9 @@ public class RateDto {
     private int correctCount;
     private int incorrectCount;
     private int isLearned;
-    private Difficulty difficulty;
+    private double difficulty;
 
-    public static RateDto fromEntity(Rate rate, Difficulty difficulty) {
+    public static RateDto fromEntity(Rate rate, double difficulty) {
         return RateDto.builder()
                 .wordId(rate.getWordId())
                 .correctCount(rate.getCorrectCount())

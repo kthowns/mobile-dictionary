@@ -1,6 +1,6 @@
 package com.kimtaeyang.mobidic.util;
 
-import com.kimtaeyang.mobidic.dto.QuestionRateDto;
+import com.kimtaeyang.mobidic.dto.DefDto;
 import com.kimtaeyang.mobidic.entity.Question;
 import com.kimtaeyang.mobidic.model.WordWithDefs;
 
@@ -19,35 +19,39 @@ public class OxQuestionStrategy extends QuestionStrategy {
         ArrayList<Question> questions = new ArrayList<>();
 
         for (WordWithDefs wordWithDefs : wordsWithDefs) {
-            String option = null;
+            String option = "";
 
             if (wordWithDefs.getDefDtos() != null && !wordWithDefs.getDefDtos().isEmpty()) {
                 int randIdx = ThreadLocalRandom.current().nextInt(wordWithDefs.getDefDtos().size());
                 option = wordWithDefs.getDefDtos().get(randIdx).getDefinition();
             }
 
-            options.add(option);
-            questions.add(
-                    Question.builder()
-                            .id(UUID.randomUUID())
-                            .wordId(wordWithDefs.getWordDto().getId())
-                            .memberId(memberId)
-                            .stem(wordWithDefs.getWordDto().getExpression())
-                            .answer(option)
-                            .build()
-            );
+            options.add(option); //단어당 랜덤한 하나의 뜻 추출하여 options에 저장
         }
         partialShuffle((options.size() / 2) + 1, options);
 
         for (int i = 0; i < wordsWithDefs.size(); i++) {
-            questions.get(i).setOptions(List.of(options.get(i)));
+            String answer = "0";
+
+            List<String> defs = wordsWithDefs.get(i).getDefDtos().stream()
+                    .map(DefDto::getDefinition).toList();
+
+            if (defs.contains(options.get(i))) {
+                answer = "1";
+            }
+
+            questions.add(
+                    Question.builder()
+                            .id(UUID.randomUUID())
+                            .wordId(wordsWithDefs.get(i).getWordDto().getId())
+                            .memberId(memberId)
+                            .stem(wordsWithDefs.get(i).getWordDto().getExpression())
+                            .answer(answer)
+                            .options(List.of(options.get(i)))
+                            .build()
+            );
         }
 
         return questions;
-    }
-
-    @Override
-    public boolean rate(QuestionRateDto.Request request, String correctAnswer) {
-        return request.getAnswer().equals(correctAnswer);
     }
 }

@@ -1,22 +1,25 @@
 package com.kimtaeyang.mobidic.service;
 
 import com.kimtaeyang.mobidic.dto.RateDto;
+import com.kimtaeyang.mobidic.entity.Member;
 import com.kimtaeyang.mobidic.entity.Rate;
 import com.kimtaeyang.mobidic.entity.Vocab;
 import com.kimtaeyang.mobidic.entity.Word;
 import com.kimtaeyang.mobidic.exception.ApiException;
+import com.kimtaeyang.mobidic.repository.MemberRepository;
 import com.kimtaeyang.mobidic.repository.RateRepository;
 import com.kimtaeyang.mobidic.repository.VocabRepository;
 import com.kimtaeyang.mobidic.repository.WordRepository;
-import com.kimtaeyang.mobidic.type.Difficulty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
+import static com.kimtaeyang.mobidic.code.AuthResponseCode.NO_MEMBER;
 import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 
 @Service
@@ -25,6 +28,7 @@ import static com.kimtaeyang.mobidic.code.GeneralResponseCode.*;
 public class RateService {
     private final WordRepository wordRepository;
     private final RateRepository rateRepository;
+    private final MemberRepository memberRepository;
     private final VocabRepository vocabRepository;
 
     @Transactional(readOnly = true)
@@ -35,7 +39,7 @@ public class RateService {
         Rate rate = rateRepository.findRateByWord(word)
                 .orElseThrow(() -> new ApiException(NO_RATE));
 
-        return RateDto.fromEntity(rate, getDifficulty(rate.getCorrectCount(), rate.getIncorrectCount()));
+        return RateDto.fromEntity(rate, calcDifficultyRatio(rate.getCorrectCount(), rate.getIncorrectCount()));
     }
 
     @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vocabId)")
@@ -83,16 +87,45 @@ public class RateService {
         rateRepository.increaseIncorrectCount(word);
     }
 
-    private Difficulty getDifficulty(Integer correct, Integer incorrect) {
-        double diff = calcDifficultyRatio(correct, incorrect);
+    @Transactional
+    @PreAuthorize("@vocabAccessHandler.ownershipCheck(#vId)")
+    public double getAvgAccuracyByVocab(UUID vId) {
+        Vocab vocab = vocabRepository.findById(vId)
+                .orElseThrow(()-> new ApiException(NO_VOCAB));
 
-        if (diff < 0.3) {
-            return Difficulty.EASY;
-        } else if (diff > 0.7) {
-            return Difficulty.HARD;
+        List<Rate> rates = rateRepository.findByVocab(vocab);
+
+        return calcAvgRate(rates);
+    }
+
+    @Transactional
+    @PreAuthorize("@memberAccessHandler.ownershipCheck(#uId)")
+    public double getAvgAccuracyByMember(UUID uId) {
+        Member member = memberRepository.findById(uId)
+                .orElseThrow(()-> new ApiException(NO_MEMBER));
+
+        List<Rate> rates = rateRepository.findByMember(member);
+
+        return calcAvgRate(rates);
+    }
+
+    private double calcAvgRate(List<Rate> rates) {
+        if(rates == null || rates.isEmpty()){
+            return 0.0;
         }
 
-        return Difficulty.NORMAL;
+        double sum = 0.0;
+        for(Rate rate : rates){
+            if(rate.getIncorrectCount() == 0){
+                if(rate.getCorrectCount() > 0){
+                    sum += 1;
+                }
+            } else {
+                sum += (double) rate.getCorrectCount() / (rate.getIncorrectCount() + rate.getCorrectCount());
+            }
+        }
+
+        return sum / rates.size();
     }
 
     private double calcDifficultyRatio(Integer correct, Integer incorrect) {

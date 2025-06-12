@@ -89,7 +89,7 @@ class JoinPage extends StatelessWidget {
               obscureText: !joinViewModel.isPasswordVisible,
               decoration: InputDecoration(
                 labelText: '사용할 비밀번호를 입력하세요.',
-                helperText: '8자 이상 + 특수문자 1개 이상 ( - 와 = 제외 )',
+                helperText: '8자 이상 + 알파벳 + 숫자 ( - 와 = 제외 )',
                 errorText: joinViewModel.passwordErrorText,
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
@@ -188,20 +188,6 @@ class JoinPage extends StatelessWidget {
             ),
             const SizedBox(height: 40),
           ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.grey[300],
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              Icon(Icons.note, color: Colors.black),
-              Icon(Icons.home, color: Colors.black),
-              Icon(Icons.exit_to_app, color: Colors.black),
-            ],
-          ),
         ),
       ),
     );
