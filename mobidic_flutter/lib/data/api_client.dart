@@ -96,10 +96,7 @@ class ApiClient {
     Response response = await dio.post(
       '$_baseUrl$url',
       data: formData,
-      options: Options(
-        headers: headers,
-        validateStatus: (status) => true, // 모든 Status code 허용
-      ),
+      options: Options(headers: headers),
     );
 
     return _handleDioResponse(response, GeneralResponseDto.fromJson);
@@ -126,9 +123,9 @@ class ApiClient {
   }
 
   Future<T> _handleDioResponse<T>(
-    Response response,
-    T Function(Map<String, dynamic>) fromJson,
-  ) async {
+      Response response,
+      T Function(Map<String, dynamic>) fromJson,
+      ) async {
     print(response);
 
     if (response.statusCode != 200) {
