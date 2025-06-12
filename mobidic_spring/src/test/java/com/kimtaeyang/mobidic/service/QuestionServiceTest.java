@@ -196,7 +196,7 @@ public class QuestionServiceTest {
 
         for (int i = 0; i < wordsWithDefs.size(); i++) {
             //when
-            QuestionRateDto.Response response = questionService.rateOxQuestion(memberId, requests.get(i));
+            QuestionRateDto.Response response = questionService.rateQuestion(memberId, requests.get(i));
 
             //then
             assertTrue(response.getIsCorrect());
