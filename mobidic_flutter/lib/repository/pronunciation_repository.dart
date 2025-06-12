@@ -9,7 +9,7 @@ class PronunciationRepository {
 
   PronunciationRepository(this._apiClient, this._authRepository);
 
-  Future<String> checkPronunciation(String filePath, String wordId) async {
+  Future<double> checkPronunciation(String filePath, String wordId) async {
     String? token = await _authRepository.getToken();
     String? memberId = await _authRepository.getCurrentMemberId();
 
@@ -29,11 +29,7 @@ class PronunciationRepository {
         headers: headers,
       );
 
-      Map<String, dynamic> body = response.data;
-
-      double score = body['data'] * 100;
-
-      return score.ceil().toString();
+      return response.data;
     } on DioException catch (e) {
       print("error : ${e.error}");
       print("message : ${e.message}");

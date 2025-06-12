@@ -15,9 +15,7 @@ class PronunciationCheckPage extends StatefulWidget {
 
 class _PronunciationCheckPageState extends State<PronunciationCheckPage>
     with SingleTickerProviderStateMixin {
-  bool _isHoldingMic = false;
   late AnimationController _controller;
-  late Animation<double> _waveAnimation;
 
   List<double> _barHeights = List.filled(6, 20);
   Timer? _volumeTimer;
@@ -31,10 +29,6 @@ class _PronunciationCheckPageState extends State<PronunciationCheckPage>
       duration: const Duration(milliseconds: 800),
     )..repeat(reverse: true);
 
-    _waveAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.3,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.stop(); // 처음에는 정지
   }
 
@@ -48,13 +42,10 @@ class _PronunciationCheckPageState extends State<PronunciationCheckPage>
   @override
   Widget build(BuildContext context) {
     final pronunciationViewModel = context.watch<PronunciationViewModel>();
+    final int quizColor = 0xFFb3e5fc;
 
     void onMicPressStart() {
-      setState(() {
-        _isHoldingMic = true;
-      });
       _controller.repeat(reverse: true);
-
       pronunciationViewModel.startRecording();
 
       _volumeTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
@@ -69,316 +60,375 @@ class _PronunciationCheckPageState extends State<PronunciationCheckPage>
 
     void onMicPressEnd() {
       setState(() {
-        _isHoldingMic = false;
         _barHeights = List.filled(6, 20);
       });
       _controller.stop();
       _volumeTimer?.cancel();
 
       pronunciationViewModel.stopRecordingAndUpload();
+    }
 
-      // 점수 랜덤 생성 (60 ~ 100)
-      final int score = 60 + _random.nextInt(41);
+    Widget buildHeader() {
+      return Container();
+    }
 
-      // 커스텀 투명 다이얼로그 띄우기
-      showGeneralDialog(
-        context: context,
-        barrierDismissible: false,
-        barrierColor: Colors.black54,
-        transitionDuration: const Duration(milliseconds: 200),
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return Material(
-            // ✅ Material로 감싸기
-            color: Colors.transparent,
-            child: Center(
+    Widget buildFirstBody() {
+      return GestureDetector(
+        onTap: pronunciationViewModel.speak,
+        child: Container(
+          padding: const EdgeInsets.symmetric(),
+          decoration: BoxDecoration(
+            color: const Color(0xFFB2F2BB),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    pronunciationViewModel.words.isNotEmpty
+                        ? pronunciationViewModel.currentWord.expression
+                        : "-",
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    softWrap: true, // 줄바꿈 허용
+                    overflow: TextOverflow.ellipsis, // 넘치면 ... 표시
+                    maxLines: 2, // 최대 두 줄까지
+                  ),
+                  SizedBox(width: 10),
+                  Icon(Icons.volume_up, size: 30),
+                ],
+              ),
+              Text(
+                pronunciationViewModel.words.isNotEmpty
+                    ? pronunciationViewModel.currentWord.defs
+                        .map((d) => "${d.definition} (${d.part.label})")
+                        .join(', ')
+                    : "-",
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 28),
+              ),
+              Spacer(),
+              Text("발음을 들어보세요.", style: const TextStyle(fontSize: 15)),
+              SizedBox(height: 10),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget buildSecondBody() {
+      Color scoreColor;
+      if (pronunciationViewModel.score < 30) {
+        scoreColor = Colors.red;
+      } else if (pronunciationViewModel.score < 65) {
+        scoreColor = Colors.orange;
+      } else {
+        scoreColor = Colors.green;
+      }
+
+      return Container(
+        child: Column(
+          children: [
+            SizedBox(height: 10),
+            if (pronunciationViewModel.resultMessage != "")
+              Text(
+                '발음 채점 결과',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
+                  color: Colors.orange,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            Spacer(),
+            if (pronunciationViewModel.resultMessage != "")
+              Text(
+                pronunciationViewModel.resultMessage,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
+                  color: scoreColor,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            Spacer(),
+            Column(
+              children: [
+                SizedBox(
+                  height: 60, // ← 고정 높이
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(6, (i) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          width: 8,
+                          height: _barHeights[i],
+                          decoration: BoxDecoration(
+                            color: Colors.blueAccent,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                const Text(
+                  'AI 티쳐가 발음을 확인합니다',
+                  style: TextStyle(fontSize: 18, color: Colors.black54),
+                ),
+                const SizedBox(height: 15),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    Widget buildFooter() {
+      return Container(
+        child: Column(
+          children: [
+            GestureDetector(
+              onLongPressStart:
+                  (_) =>
+                      !pronunciationViewModel.isWeb ? onMicPressStart() : null,
+              onLongPressEnd: (_) => !pronunciationViewModel.isWeb ? onMicPressEnd() : null,
               child: Container(
-                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF6A7FDB), Color(0xFF52E5E7)],
+                  ),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(14.0),
+                  child: Icon(Icons.mic, color: Colors.white, size: 44),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              !pronunciationViewModel.isWeb
+                  ? '버튼을 누른 채 말해보세요!'
+                  : "발음체크는 모바일 앱에서만 지원됩니다.",
+              style: TextStyle(fontSize: 16, color: Colors.black87),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(quizColor),
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Row(
+          children: [
+            Center(
+              child: Image.asset('assets/images/mobidic_icon.png', height: 40),
+            ),
+            SizedBox(width: 8),
+            Text(
+              'MOBIDIC',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onSelected: (value) {
+              if (value == '파닉스') {
+                Navigator.pushNamed(context, '/phonics');
+              }
+            },
+            itemBuilder:
+                (BuildContext context) => [
+                  const PopupMenuItem<String>(value: '파닉스', child: Text('파닉스')),
+                ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.home, color: Colors.black),
+              onPressed: () {
+                Navigator.popUntil(context, (route) {
+                  return route.settings.name == '/vocab_list'; // 특정 route 이름 기준
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(color: Color(0xFFb3e5fc)),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 6,
+                              offset: Offset(2, 4),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            Column(
+                              children: [
+                                Flexible(
+                                  flex: 1,
+                                  fit: FlexFit.loose,
+                                  child: buildHeader(),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.loose,
+                                  child: buildFirstBody(),
+                                ),
+                                Flexible(
+                                  flex: 3,
+                                  fit: FlexFit.loose,
+                                  child: buildSecondBody(),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.loose,
+                                  child: buildFooter(),
+                                ),
+                              ],
+                            ),
+                            // 진행률 우측 상단
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: Text(
+                                '${pronunciationViewModel.currentWordIndex + 1}/'
+                                '${pronunciationViewModel.words.length}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 30.0, top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios),
+                          iconSize: 32,
+                          onPressed:
+                              pronunciationViewModel.currentWordIndex > 0
+                                  ? () {
+                                    pronunciationViewModel.toPrevWord();
+                                  }
+                                  : null,
+                        ),
+                        const SizedBox(width: 40),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_forward_ios),
+                          iconSize: 32,
+                          onPressed:
+                              pronunciationViewModel.currentWordIndex <
+                                      pronunciationViewModel.words.length - 1
+                                  ? () {
+                                    pronunciationViewModel.toNextWord();
+                                  }
+                                  : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (pronunciationViewModel.isLoading)
+            Container(
+              color: const Color(0x80000000), // 배경 어둡게
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+          if (pronunciationViewModel.isRating)
+            Container(
+              color: const Color(0x80000000), // 배경 어둡게
+              child: const Center(
                 child: const Text(
                   '채점 중...',
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    decoration: TextDecoration.none, // ✅ 밑줄 제거 명시
+                    decoration: TextDecoration.none,
                   ),
                 ),
               ),
             ),
-          );
-        },
-      );
-
-      // 2초 후 채점 결과 다이얼로그 표시
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.pop(context); // "채점 중..." 닫기
-
-        // 점수 색상
-        Color scoreColor;
-        if (score < 70) {
-          scoreColor = Colors.red;
-        } else if (score < 85) {
-          scoreColor = Colors.orange;
-        } else {
-          scoreColor = Colors.green;
-        }
-
-        showDialog(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                title: const Text(
-                  '발음 채점 결과',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center, // ✅ 타이틀 가운데 정렬
-                ),
-                content: Text.rich(
-                  TextSpan(
-                    style: const TextStyle(fontSize: 20, color: Colors.black),
-                    children: [
-                      const TextSpan(text: '당신의 발음 점수는\n'),
-                      TextSpan(
-                        //text: '$score점',
-                        text: pronunciationViewModel.score,
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: scoreColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  textAlign: TextAlign.center, // ✅ 내용 가운데 정렬
-                ),
-                actionsAlignment: MainAxisAlignment.center,
-                // ✅ 버튼 가운데 정렬 (선택사항)
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('확인', style: TextStyle(fontSize: 16)),
-                  ),
-                ],
-              ),
-        );
-      });
-    }
-
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            systemOverlayStyle: SystemUiOverlayStyle.dark,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () {
-                // 실제 뒤로 가기
-                Navigator.pop(context);
-              },
-            ),
-            title: Row(
-              children: [
-                SizedBox(width: 8),
-                Text(
-                  '발음 체크',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.menu, color: Colors.black),
-                onSelected: (value) {
-                  if (value == '파닉스') {
-                    Navigator.pushNamed(context, '/phonics');
-                  }
-                },
-                itemBuilder:
-                    (BuildContext context) => [
-                      const PopupMenuItem<String>(
-                        value: '파닉스',
-                        child: Text('파닉스'),
-                      ),
-                    ],
-              ),
-              Padding(
-                padding: EdgeInsets.only(right: 12),
-                child: IconButton(
-                  icon: const Icon(Icons.home, color: Colors.black),
-                  onPressed: () {
-                    Navigator.popUntil(context, (route) {
-                      return route.settings.name ==
-                          '/vocab_list'; // 특정 route 이름 기준
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // 중앙 정렬 영역 시작
-                  Expanded(
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 32,
-                              horizontal: 72,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFB2F2BB),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      pronunciationViewModel.words.isNotEmpty
-                                          ? pronunciationViewModel
-                                              .words[pronunciationViewModel
-                                                  .currentWordIndex]
-                                              .expression
-                                          : "",
-                                      style: TextStyle(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    Icon(Icons.volume_up, size: 30),
-                                  ],
-                                ),
-                                const SizedBox(height: 14),
-                                const Text(
-                                  '버튼을 눌러 발음 듣기',
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 40),
-
-                          // 🔄 수정된 파형 부분 시작
-                          SizedBox(
-                            height: 80,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(6, (i) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4.0,
-                                  ),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 150),
-                                    width: 8,
-                                    height: _barHeights[i],
-                                    decoration: BoxDecoration(
-                                      color: Colors.blueAccent,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'AI 티쳐가 발음을 확인중입니다',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          // 🔄 수정된 파형 부분 끝
-                        ],
-                      ),
+          if (pronunciationViewModel.words.isEmpty &&
+              !pronunciationViewModel.isLoading)
+            Container(
+              color: const Color(0x80000000), // 배경 어둡게
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.help_outline, size: 64, color: Colors.white70),
+                    SizedBox(height: 16),
+                    Text(
+                      '단어장이 비어있습니다.',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                  ),
-                  // 중앙 정렬 영역 끝
-
-                  // 하단 마이크 및 NEXT
-                  GestureDetector(
-                    onLongPressStart: (_) => onMicPressStart(),
-                    onLongPressEnd: (_) => onMicPressEnd(),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF6A7FDB), Color(0xFF52E5E7)],
-                        ),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(14.0),
-                        child: Icon(Icons.mic, color: Colors.white, size: 44),
-                      ),
+                    SizedBox(height: 8),
+                    Text(
+                      '단어장에 단어를 추가해보세요!',
+                      style: TextStyle(color: Colors.white54, fontSize: 14),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    '버튼을 눌러 말해보세요',
-                    style: TextStyle(fontSize: 16, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed:
-                        pronunciationViewModel.words.isEmpty ||
-                                pronunciationViewModel.isLoading ||
-                                pronunciationViewModel.isEnd
-                            ? null
-                            : () {
-                              if (pronunciationViewModel.currentWordIndex <
-                                  pronunciationViewModel.words.length - 1) {
-                                pronunciationViewModel.goToNextWord();
-                              }
-                            },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
-                        vertical: 14,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      backgroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.black12),
-                    ),
-                    child: const Text(
-                      'NEXT',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
-        if (pronunciationViewModel.isLoading)
-          Container(
-            color: const Color(0x80000000), // 배경 어둡게
-            child: const Center(child: CircularProgressIndicator()),
-          ),
-      ],
+        ],
+      ),
     );
+    Stack(children: []);
   }
 }

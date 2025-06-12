@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:mobidic_flutter/mixin/LoadingMixin.dart';
 import 'package:mobidic_flutter/model/word.dart';
 import 'package:mobidic_flutter/repository/pronunciation_repository.dart';
@@ -10,11 +12,14 @@ import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
+import '../exception/api_exception.dart';
+
 class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
   final PronunciationRepository _pronunciationRepository;
   final WordRepository _wordRepository;
   final RateRepository _rateRepository;
   final VocabViewModel _vocabViewModel;
+  final FlutterTts flutterTts = FlutterTts();
 
   PronunciationViewModel(
     this._pronunciationRepository,
@@ -27,6 +32,7 @@ class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
 
   Future<void> init() async {
     await loadData();
+    await _initTts();
   }
 
   Future<void> loadData() async {
@@ -38,11 +44,26 @@ class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
     stopLoading();
   }
 
+  @override
+  void dispose(){
+    flutterTts.stop();
+    super.dispose();
+  }
+
+  Future<void> _initTts() async {
+    await flutterTts.setLanguage("en-US"); // 한국어: "ko-KR"
+    await flutterTts.setPitch(1.0);
+    await flutterTts.setSpeechRate(0.5); // 속도 조절 (0.0 ~ 1.0)
+  }
+
   List<Word> _words = [];
 
   List<Word> get words => _words;
 
-  int currentWordIndex = 0;
+  int _currentWordIndex = 0;
+  int get currentWordIndex => _currentWordIndex;
+
+  Word get currentWord => words[currentWordIndex];
 
   final _recorder = AudioRecorder();
 
@@ -51,11 +72,33 @@ class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
   bool get isRecording => _isRecording;
 
   String recordFilePath = "";
+  String resultMessage = "";
 
-  String score = "점";
+  bool _isRating = false;
+  bool get isRating => _isRating;
+
+  double score = 0.0;
 
   bool _isEnd = false;
   bool get isEnd => _isEnd;
+
+  bool _isSolved = false;
+  bool get isSolved => _isSolved;
+
+  bool _isDone = false;
+
+  bool get isDone => _isDone;
+
+  bool get isButtonAvailable =>
+      words.isNotEmpty && !isDone && !isSolved;
+
+  bool get isWeb => kIsWeb;
+
+  Future<void> speak() async {
+    if (words.isNotEmpty) {
+      await flutterTts.speak(words[currentWordIndex].expression);
+    }
+  }
 
   Future<void> startRecording() async {
     final dir = await getTemporaryDirectory();
@@ -78,8 +121,9 @@ class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
   Future<void> stopRecordingAndUpload() async {
     final path = await _recorder.stop();
 
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(Duration(milliseconds: 300));
     _isRecording = false;
+    _isRating = true;
     notifyListeners();
 
     if (path != null) {
@@ -92,24 +136,39 @@ class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
         print("확실한 byte 크기: $size");
 
         try {
-          String responseScore = score = await _pronunciationRepository.checkPronunciation(
+          score = await _pronunciationRepository.checkPronunciation(
             file.path,
             words[currentWordIndex].id,
           );
-          score = "$responseScore점";
-        } catch (e){
-          score = "오류 발생";
+          resultMessage = "${(score * 100).ceil().toStringAsFixed(0)}점";
+          print("resultMessage : $resultMessage");
+          file.delete();
+        } on ApiException catch (e){
+          resultMessage = "다시 말해보세요.";
+          rethrow;
+        } on Exception catch (e){
+          resultMessage = "오류 발생";
+          rethrow;
+        } finally {
+          _isRating = false;
+          notifyListeners();
         }
-        notifyListeners();
       }
     }
   }
 
-  void goToNextWord() {
-    currentWordIndex += 1;
-    if(currentWordIndex >= words.length-1){
-      _isEnd = true;
+  void toNextWord() {
+    if (_currentWordIndex < words.length - 1) {
+      _currentWordIndex += 1;
+      resultMessage = "";
+      notifyListeners();
     }
-    notifyListeners();
+  }
+
+  void toPrevWord() {
+    if (_currentWordIndex > 0) {
+      _currentWordIndex -= 1;
+      notifyListeners();
+    }
   }
 }
