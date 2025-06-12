@@ -48,6 +48,12 @@ public class SecurityConfig {
                     }
                     auth.requestMatchers("/api/auth/login", "/api/auth/join").permitAll()
                             .requestMatchers("/error").permitAll()
+                            .requestMatchers(
+                                    "/", "/index.html",
+                                    "/main.dart.js", "/flutter.js", "/flutter_bootstrap.js",
+                                    "/favicon.png", "/manifest.json",
+                                    "/assets/**", "/icons/**"
+                            ).permitAll()
                             .anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
