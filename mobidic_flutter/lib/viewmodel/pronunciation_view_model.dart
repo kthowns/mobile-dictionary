@@ -33,15 +33,6 @@ class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
   Future<void> init() async {
     await loadData();
     await _initTts();
-    await flutterTts.setLanguage('en-US');
-
-    List<dynamic> voices = await flutterTts.getVoices;
-
-    for (var voice in voices) {
-      if (voice.toString().contains('en-US')) {
-        print('en-US 음성: $voice');
-      }
-    }
   }
 
   Future<void> loadData() async {
