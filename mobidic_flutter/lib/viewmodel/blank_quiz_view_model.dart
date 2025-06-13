@@ -11,8 +11,6 @@ import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
 class BlankQuizViewModel extends ChangeNotifier with LoadingMixin {
   final QuestionRepository _questionRepository;
   final VocabViewModel _vocabViewModel;
-  final TextEditingController _userAnswerController = TextEditingController();
-  TextEditingController get userAnswerController => _userAnswerController;
 
   BlankQuizViewModel(this._questionRepository, this._vocabViewModel) {
     init();
@@ -40,7 +38,6 @@ class BlankQuizViewModel extends ChangeNotifier with LoadingMixin {
   @override
   void dispose() {
     _timer?.cancel();
-    _userAnswerController.dispose();
     super.dispose();
   }
 
@@ -71,8 +68,6 @@ class BlankQuizViewModel extends ChangeNotifier with LoadingMixin {
 
   int get incorrectCount => _incorrectCount;
 
-  String get currentAnswer => _userAnswerController.text;
-
   bool _isDone = false;
 
   bool get isDone => _isDone;
@@ -101,17 +96,17 @@ class BlankQuizViewModel extends ChangeNotifier with LoadingMixin {
     });
   }
 
-  Future<void> checkAnswer(String userAnswer) async {
+  Future<void> checkAnswer(bool userAnswer) async {
     resultMessage = "";
     _isSolved = true;
     notifyListeners();
 
     final result = await _questionRepository.rateQuestion(
       currentQuestion.token,
-      userAnswer,
+      userAnswer ? "1" : "0",
     );
 
-    String correctAnswer = result.correctAnswer;
+    String correctAnswer = result.correctAnswer == "1" ? "O" : "X";
 
     if (result.isCorrect) {
       resultMessage = "정답입니다!";
@@ -128,7 +123,6 @@ class BlankQuizViewModel extends ChangeNotifier with LoadingMixin {
       notifyListeners();
     }
     _isSolved = false;
-    _userAnswerController.text = "";
     toNextWord();
   }
 
