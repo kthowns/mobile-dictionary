@@ -8,11 +8,11 @@ import 'package:mobidic_flutter/repository/question_repository.dart';
 import 'package:mobidic_flutter/type/quiz_type.dart';
 import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
 
-class OxQuizViewModel extends ChangeNotifier with LoadingMixin {
+class BlankQuizViewModel extends ChangeNotifier with LoadingMixin {
   final QuestionRepository _questionRepository;
   final VocabViewModel _vocabViewModel;
 
-  OxQuizViewModel(this._questionRepository, this._vocabViewModel) {
+  BlankQuizViewModel(this._questionRepository, this._vocabViewModel) {
     init();
   }
 
@@ -24,12 +24,12 @@ class OxQuizViewModel extends ChangeNotifier with LoadingMixin {
     startLoading();
     _questions = await _questionRepository.getQuestions(
       currentVocab?.id,
-      QuizType.OX,
+      QuizType.BLANK,
     );
     if(_questions.isNotEmpty){
       _secondsLeft = questions[0].expMil ~/ 1000;
     }
-    if(secondsLeft > 0){
+    if (secondsLeft > 0) {
       startTimer();
     }
     stopLoading();
@@ -76,7 +76,6 @@ class OxQuizViewModel extends ChangeNotifier with LoadingMixin {
 
   int _secondsLeft = 1;
   int get secondsLeft => _secondsLeft;
-
   Timer? _timer;
 
   void startTimer() {
@@ -85,7 +84,7 @@ class OxQuizViewModel extends ChangeNotifier with LoadingMixin {
       if (secondsLeft == 0 || isDone) {
         timer.cancel();
         _isDone = true;
-        if(secondsLeft == 0) {
+        if (secondsLeft == 0) {
           _isSolved = true;
           resultMessage = "시간 초과!";
         }
