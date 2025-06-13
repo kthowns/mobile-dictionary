@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobidic_flutter/type/quiz_type.dart';
 import 'package:mobidic_flutter/view/quiz/dictation_quiz.dart';
-import 'package:mobidic_flutter/view/quiz/fill_blank_quiz.dart';
 import 'package:mobidic_flutter/view/util/navigation_helper.dart';
 import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
 import 'package:provider/provider.dart';
@@ -189,11 +187,10 @@ class VocabListPage extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              NavigationHelper.navigateToQuiz(
+                              NavigationHelper.navigateToOxQuiz(
                                 context,
                                 vocabViewModel,
                                 index,
-                                QuizType.OX,
                               );
                             },
                             child: const Text('O/X 퀴즈'),
@@ -213,11 +210,10 @@ class VocabListPage extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              Navigator.push(
+                              NavigationHelper.navigateToBlankQuiz(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) => FillBlankQuizPage(),
-                                ),
+                                vocabViewModel,
+                                index,
                               );
                             },
                             child: const Text('빈칸 채우기'),
