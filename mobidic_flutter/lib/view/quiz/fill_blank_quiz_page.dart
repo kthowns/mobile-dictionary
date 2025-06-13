@@ -25,16 +25,20 @@ class FillBlankQuizPage extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 5,
                 ),
               ),
-              const Divider(height: 50, thickness: 1),
+              const Divider(height: 30, thickness: 1),
               Text(
                 blankQuizViewModel.questions.isNotEmpty
                     ? blankQuizViewModel.currentQuestion.options.join(', ')
                     : "-",
-                style: const TextStyle(fontSize: 28),
+                style: const TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              SizedBox(height: 40),
+              SizedBox(height: 20),
               if (blankQuizViewModel.isSolved)
                 Text(
                   blankQuizViewModel.resultMessage,
@@ -66,58 +70,51 @@ class FillBlankQuizPage extends StatelessWidget {
     }
 
     Widget buildSecondHalf() {
-      return Row(
+      return Column(
         children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: ElevatedButton(
-                onPressed:
-                    blankQuizViewModel.isButtonAvailable
-                        ? () {
-                          blankQuizViewModel.checkAnswer(true);
-                        }
-                        : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[100],
-                  // 보기 쉽게 색 추가
-                  minimumSize: Size.fromHeight(double.infinity),
-                  // 세로 꽉 채우기
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // 적당히 각진 정도
-                  ),
+          SizedBox(height: 20),
+          Text(
+            "전체 단어를 입력해주세요",
+            style: const TextStyle(fontSize: 24, color: Colors.black),
+          ),
+          SizedBox(height: 20),
+          TextField(
+            enabled: blankQuizViewModel.isButtonAvailable,
+            controller: blankQuizViewModel.userAnswerController,
+            maxLines: 1,
+            maxLength: blankQuizViewModel.questions.isNotEmpty ?
+              blankQuizViewModel.currentQuestion.stem.length : 10,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 30, color: Colors.black),
+            decoration: const InputDecoration(
+              counterText: '',
+              border: OutlineInputBorder(),
+            ),
+            onSubmitted: (s) {},
+          ),
+          SizedBox(height: 30,),
+          SizedBox(
+            width: double.infinity, // 부모 너비를 가득 채움
+            child: ElevatedButton(
+              onPressed: blankQuizViewModel.isButtonAvailable ?
+                  (){
+                blankQuizViewModel.checkAnswer(blankQuizViewModel.currentAnswer);
+              } : null,
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  "O",
-                  style: TextStyle(fontSize: 30, color: Colors.black),
+                backgroundColor: Colors.blue[100],
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text("제출하기",
+                style: TextStyle(
+                  fontSize: 30,
+                  color: Colors.blueAccent
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: ElevatedButton(
-                onPressed:
-                    blankQuizViewModel.isButtonAvailable
-                        ? () {
-                          blankQuizViewModel.checkAnswer(false);
-                        }
-                        : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.yellow[100],
-                  minimumSize: Size.fromHeight(double.infinity),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  "X",
-                  style: TextStyle(fontSize: 30, color: Colors.black),
-                ),
-              ),
-            ),
-          ),
+          )
         ],
       );
     }
