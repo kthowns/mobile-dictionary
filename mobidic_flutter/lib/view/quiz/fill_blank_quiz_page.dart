@@ -90,7 +90,9 @@ class FillBlankQuizPage extends StatelessWidget {
               counterText: '',
               border: OutlineInputBorder(),
             ),
-            onSubmitted: (s) {},
+            onSubmitted: (s) {
+              blankQuizViewModel.checkAnswer(s);
+            },
           ),
           SizedBox(height: 30,),
           SizedBox(
