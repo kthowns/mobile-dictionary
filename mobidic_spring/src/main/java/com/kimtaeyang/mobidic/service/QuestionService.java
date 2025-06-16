@@ -31,7 +31,7 @@ public class QuestionService {
     private final WordService wordService;
     private static final String QUESTION_PREFIX = "question";
     private final RedisTemplate<String, String> redisTemplate;
-    private static final Long expPerQuestion = 30000L;
+    private static final Long expPerQuestion = 15000L;
     private final VocabService vocabService;
     private final RateService rateService;
     private final CryptoService cryptoService;
@@ -76,7 +76,7 @@ public class QuestionService {
 
         List<WordWithDefs> wordsWithDefs = new ArrayList<>();
         List<WordDto> wordDtos = wordService.getWordsByVocabId(vocab.getId());
-        if(wordDtos.isEmpty()){
+        if (wordDtos.isEmpty()) {
             return List.of();
         }
 
@@ -91,19 +91,22 @@ public class QuestionService {
 
         List<Question> questions = QuestionUtil.generateQuiz(vocab.getMemberId(), strategy, wordsWithDefs);
         List<QuestionDto> questionDtos = new ArrayList<>();
+
         for (Question question : questions) {
-            String token = registerQuestion(question, questions.size());
+            long expSec = expPerQuestion * questions.size();
+            String token = registerQuestion(question, expSec);
             questionDtos.add(QuestionDto.builder()
                     .token(token)
                     .options(question.getOptions())
                     .stem(question.getStem())
+                    .expMil(expSec)
                     .build());
         }
 
         return questionDtos;
     }
 
-    private String registerQuestion(Question question, int questionAmount) {
+    private String registerQuestion(Question question, long expSec) {
         String key = QUESTION_PREFIX
                 + ":" + question.getMemberId()
                 + ":" + question.getWordId()
@@ -112,7 +115,7 @@ public class QuestionService {
         redisTemplate.opsForValue().set(
                 key,
                 question.getAnswer(),
-                Duration.ofMillis(expPerQuestion * questionAmount)
+                Duration.ofMillis(expSec)
         );
 
         return cryptoService.encrypt(key); //암호화

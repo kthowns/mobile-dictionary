@@ -359,8 +359,8 @@ class WordListPage extends StatelessWidget {
         context: context,
         builder:
             (_) => AlertDialog(
-              title: const Text('단어장 삭제'),
-              content: const Text('이 단어장을 삭제할까요?'),
+              title: const Text('단어 삭제'),
+              content: const Text('이 단어를 삭제할까요?'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),

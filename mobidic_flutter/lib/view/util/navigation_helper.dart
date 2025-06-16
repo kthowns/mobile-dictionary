@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobidic_flutter/di/ViewModelFactory.dart';
-import 'package:mobidic_flutter/type/quiz_type.dart';
 import 'package:mobidic_flutter/view/auth/join_page.dart';
 import 'package:mobidic_flutter/view/learning/pronunciation_check_page.dart';
 import 'package:mobidic_flutter/view/list/vocab_list_page.dart';
 import 'package:mobidic_flutter/view/list/word_list_page.dart';
-import 'package:mobidic_flutter/view/quiz/fill_blank_quiz.dart';
+import 'package:mobidic_flutter/view/quiz/fill_blank_quiz_page.dart';
 import 'package:mobidic_flutter/view/quiz/flash_card_page.dart';
 import 'package:mobidic_flutter/view/quiz/ox_quiz_page.dart';
 import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
@@ -116,35 +115,47 @@ class NavigationHelper {
     _navigateTo(context, provider, routeName);
   }
 
-  static void navigateToQuiz(
+  static void navigateToOxQuiz(
     BuildContext context,
     VocabViewModel vocabViewModel,
     int index,
-    QuizType quizType,
   ) {
     vocabViewModel.selectVocabAt(index);
-    final String routeName = '/${quizType.name}_quiz';
+    final String routeName = '/ox_quiz';
 
     final provider = MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create:
-              (_) => switch (quizType) {
-                QuizType.OX => ViewModelFactory.getOxQuizViewModel(
-                  context,
-                  vocabViewModel,
-                ),
-                QuizType.DICTATION => throw UnimplementedError(),
-                QuizType.BLANK => throw UnimplementedError(),
-                _ => throw UnimplementedError(),
-              },
+              (_) =>
+                  ViewModelFactory.getOxQuizViewModel(context, vocabViewModel),
         ),
       ],
-      child: switch (quizType) {
-        QuizType.OX => OxQuizPage(),
-        QuizType.BLANK => FillBlankQuizPage(),
-        _ => throw UnimplementedError(),
-      },
+      child: OxQuizPage(),
+    );
+
+    _navigateTo(context, provider, routeName);
+  }
+
+  static void navigateToBlankQuiz(
+    BuildContext context,
+    VocabViewModel vocabViewModel,
+    int index,
+  ) {
+    vocabViewModel.selectVocabAt(index);
+    final String routeName = '/ox_quiz';
+
+    final provider = MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create:
+              (_) => ViewModelFactory.getBlankQuizViewModel(
+                context,
+                vocabViewModel,
+              ),
+        ),
+      ],
+      child: FillBlankQuizPage(),
     );
 
     _navigateTo(context, provider, routeName);
