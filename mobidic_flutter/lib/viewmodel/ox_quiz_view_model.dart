@@ -28,8 +28,6 @@ class OxQuizViewModel extends ChangeNotifier with LoadingMixin {
     );
     if(_questions.isNotEmpty){
       _secondsLeft = questions[0].expMil ~/ 1000;
-    }
-    if(secondsLeft > 0){
       startTimer();
     }
     stopLoading();
