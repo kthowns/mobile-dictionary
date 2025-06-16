@@ -4,6 +4,7 @@ import 'package:mobidic_flutter/view/auth/join_page.dart';
 import 'package:mobidic_flutter/view/learning/pronunciation_check_page.dart';
 import 'package:mobidic_flutter/view/list/vocab_list_page.dart';
 import 'package:mobidic_flutter/view/list/word_list_page.dart';
+import 'package:mobidic_flutter/view/quiz/dictation_quiz_page.dart';
 import 'package:mobidic_flutter/view/quiz/fill_blank_quiz_page.dart';
 import 'package:mobidic_flutter/view/quiz/flash_card_page.dart';
 import 'package:mobidic_flutter/view/quiz/ox_quiz_page.dart';
@@ -156,6 +157,30 @@ class NavigationHelper {
         ),
       ],
       child: FillBlankQuizPage(),
+    );
+
+    _navigateTo(context, provider, routeName);
+  }
+
+  static void navigateToDictationQuiz(
+      BuildContext context,
+      VocabViewModel vocabViewModel,
+      int index,
+      ) {
+    vocabViewModel.selectVocabAt(index);
+    final String routeName = '/dictation_quiz';
+
+    final provider = MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create:
+              (_) => ViewModelFactory.getDictationQuizViewModel(
+            context,
+            vocabViewModel,
+          ),
+        ),
+      ],
+      child: DictationQuizPage(),
     );
 
     _navigateTo(context, provider, routeName);

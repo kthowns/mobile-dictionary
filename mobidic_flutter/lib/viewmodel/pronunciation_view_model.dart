@@ -19,7 +19,7 @@ class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
   final WordRepository _wordRepository;
   final RateRepository _rateRepository;
   final VocabViewModel _vocabViewModel;
-  final FlutterTts flutterTts = FlutterTts();
+  final FlutterTts _flutterTts = FlutterTts();
 
   PronunciationViewModel(
     this._pronunciationRepository,
@@ -33,15 +33,7 @@ class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
   Future<void> init() async {
     await loadData();
     await _initTts();
-    await flutterTts.setLanguage('en-US');
-
-    List<dynamic> voices = await flutterTts.getVoices;
-
-    for (var voice in voices) {
-      if (voice.toString().contains('en-US')) {
-        print('en-US 음성: $voice');
-      }
-    }
+    await _flutterTts.setLanguage('en-US');
   }
 
   Future<void> loadData() async {
@@ -55,14 +47,14 @@ class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
 
   @override
   void dispose(){
-    flutterTts.stop();
+    _flutterTts.stop();
     super.dispose();
   }
 
   Future<void> _initTts() async {
-    await flutterTts.setLanguage("en-US"); // 한국어: "ko-KR"
-    await flutterTts.setPitch(1.0);
-    await flutterTts.setSpeechRate(0.5); // 속도 조절 (0.0 ~ 1.0)
+    await _flutterTts.setLanguage("en-US"); // 한국어: "ko-KR"
+    await _flutterTts.setPitch(1.0);
+    await _flutterTts.setSpeechRate(0.5); // 속도 조절 (0.0 ~ 1.0)
   }
 
   List<Word> _words = [];
@@ -105,7 +97,7 @@ class PronunciationViewModel extends ChangeNotifier with LoadingMixin {
 
   Future<void> speak() async {
     if (words.isNotEmpty) {
-      await flutterTts.speak(words[currentWordIndex].expression);
+      await _flutterTts.speak(words[currentWordIndex].expression);
     }
   }
 
