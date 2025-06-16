@@ -14,5 +14,6 @@ import java.util.List;
 public class QuestionDto {
     private String token;
     private String stem;
+    private long expMil;
     private List<String> options;
 }

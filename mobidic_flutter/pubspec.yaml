@@ -32,10 +32,11 @@ dependencies:
   path_provider: ^2.1.5
   permission_handler: ^12.0.0+1
   record: ^5.2.1
-  card_swiper: ^3.0.1
+  flutter_card_swiper: ^7.0.2
   shared_preferences: ^2.5.3
   flutter_tts: ^4.2.3
   flutter_dotenv: ^5.2.1
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +51,11 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/mobidic_icon.png"
 
 # The following section is specific to Flutter packages.
 flutter:

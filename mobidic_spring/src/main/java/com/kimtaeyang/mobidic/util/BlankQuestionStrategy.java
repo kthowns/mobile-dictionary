@@ -43,9 +43,7 @@ public class BlankQuestionStrategy extends QuestionStrategy {
             Collections.sort(indices);
 
             char[] stem = wordWithDefs.getWordDto().getExpression().toCharArray();
-            StringBuilder answer = new StringBuilder();
             for (int idx : indices) {
-                answer.append(stem[idx]);
                 stem[idx] = '_';
             }
 
@@ -55,7 +53,7 @@ public class BlankQuestionStrategy extends QuestionStrategy {
                             .wordId(wordWithDefs.getWordDto().getId())
                             .memberId(memberId)
                             .stem(new String(stem))
-                            .answer(answer.toString())
+                            .answer(wordWithDefs.getWordDto().getExpression())
                             .build()
             );
         }

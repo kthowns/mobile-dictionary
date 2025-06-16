@@ -6,6 +6,7 @@ import 'package:mobidic_flutter/repository/rate_repository.dart';
 import 'package:mobidic_flutter/repository/vocab_repository.dart';
 import 'package:mobidic_flutter/repository/word_repository.dart';
 import 'package:mobidic_flutter/viewmodel/auth_view_model.dart';
+import 'package:mobidic_flutter/viewmodel/blank_quiz_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/flash_card_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/join_view_model.dart';
 import 'package:mobidic_flutter/viewmodel/ox_quiz_view_model.dart';
@@ -55,6 +56,13 @@ class ViewModelFactory{
 
   static OxQuizViewModel getOxQuizViewModel(BuildContext context, VocabViewModel vocabViewModel){
     return OxQuizViewModel(
+      context.read<QuestionRepository>(),
+      vocabViewModel,
+    );
+  }
+
+  static BlankQuizViewModel getBlankQuizViewModel(BuildContext context, VocabViewModel vocabViewModel){
+    return BlankQuizViewModel(
       context.read<QuestionRepository>(),
       vocabViewModel,
     );

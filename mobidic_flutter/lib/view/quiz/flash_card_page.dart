@@ -1,6 +1,6 @@
-import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:mobidic_flutter/viewmodel/flash_card_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +12,7 @@ class FlashCardPage extends StatelessWidget {
     final FlashCardViewModel flashCardViewModel =
         context.watch<FlashCardViewModel>();
     final int quizColor = 0xFFb3e5fc;
+    final CardSwiperController _cardSwiperController = CardSwiperController();
 
     return Scaffold(
       appBar: AppBar(
@@ -83,10 +84,12 @@ class FlashCardPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // 카드 내용
+                  if(flashCardViewModel.words.isNotEmpty)
                   Expanded(
-                    child: Swiper(
-                      loop: false,
-                      itemBuilder: (BuildContext context, int index) {
+                    child: CardSwiper(
+                      controller: _cardSwiperController,
+                      isLoop: false,
+                      cardBuilder: (context, index, hPer, vPer) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: Container(
@@ -154,7 +157,6 @@ class FlashCardPage extends StatelessWidget {
                                       ],
                                     ),
                                     const Divider(height: 50, thickness: 1),
-
                                     // 뜻 영역
                                     Row(
                                       mainAxisAlignment:
@@ -202,7 +204,6 @@ class FlashCardPage extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-
                                 // 진행률 우측 상단
                                 Positioned(
                                   top: 0,
@@ -221,7 +222,29 @@ class FlashCardPage extends StatelessWidget {
                           ),
                         );
                       },
-                      itemCount: flashCardViewModel.words.length,
+                      cardsCount: flashCardViewModel.words.length,
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 30.0, top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios),
+                          iconSize: 32,
+                          onPressed: _cardSwiperController.undo
+                        ),
+                        const SizedBox(width: 40),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_forward_ios),
+                          iconSize: 32,
+                          onPressed: () {
+                            _cardSwiperController.swipe(CardSwiperDirection.right);
+                            },
+                        ),
+                      ],
                     ),
                   ),
                 ],

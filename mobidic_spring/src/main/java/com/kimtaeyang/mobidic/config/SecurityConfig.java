@@ -52,7 +52,7 @@ public class SecurityConfig {
                                     "/", "/index.html",
                                     "/main.dart.js", "/flutter.js", "/flutter_bootstrap.js",
                                     "/favicon.png", "/manifest.json",
-                                    "/assets/**", "/icons/**"
+                                    "/assets/**", "/icons/**", "/flutter_service_worker.js*"
                             ).permitAll()
                             .anyRequest().authenticated();
                 })
