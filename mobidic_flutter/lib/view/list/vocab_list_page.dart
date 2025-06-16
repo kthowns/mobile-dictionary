@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobidic_flutter/view/quiz/dictation_quiz.dart';
 import 'package:mobidic_flutter/view/util/navigation_helper.dart';
 import 'package:mobidic_flutter/viewmodel/vocab_view_model.dart';
 import 'package:provider/provider.dart';
@@ -198,11 +197,10 @@ class VocabListPage extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              Navigator.push(
+                              NavigationHelper.navigateToDictationQuiz(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) => DictationQuizPage(),
-                                ),
+                                vocabViewModel,
+                                index,
                               );
                             },
                             child: const Text('받아쓰기'),
