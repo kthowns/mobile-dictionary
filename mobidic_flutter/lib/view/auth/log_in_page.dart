@@ -102,17 +102,11 @@ class LoginPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Center(
-              child: TextButton(
-                onPressed: () {
-                  NavigationHelper.navigateToJoin(context);
-                },
-                child: const Text(
-                  '회원가입',
-                  style: TextStyle(color: Colors.black54),
-                ),
+              child: Image.asset(
+                'assets/images/kakao_login_medium_wide.png',
+                height: 100,
               ),
             ),
-            const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -135,6 +129,17 @@ class LoginPage extends StatelessWidget {
                           '로그인',
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
+              ),
+            ),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  NavigationHelper.navigateToJoin(context);
+                },
+                child: const Text(
+                  '회원가입',
+                  style: TextStyle(color: Colors.black54),
+                ),
               ),
             ),
           ],

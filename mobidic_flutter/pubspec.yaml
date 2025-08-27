@@ -37,6 +37,7 @@ dependencies:
   flutter_tts: ^4.2.3
   flutter_dotenv: ^5.2.1
   flutter_launcher_icons: ^0.14.4
+  kakao_flutter_sdk: ^1.9.7+3
 
 dev_dependencies:
   flutter_test:
@@ -61,6 +62,7 @@ flutter_launcher_icons:
 flutter:
   assets:
     - assets/images/mobidic_icon.png
+    - assets/images/kakao_login_medium_wide.png
     - assets/.env
   fonts:
     - family: Baloo2
