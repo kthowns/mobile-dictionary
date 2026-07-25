@@ -1,21 +1,13 @@
 package com.kthowns.mobidic.api.global.dto;
 
 import com.kthowns.mobidic.common.code.ApiResponseCode;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class GeneralResponse<T> {
-    private Integer status;
-    private String message;
-    private T data;
-
+public record GeneralResponse<T>(
+        Integer status,
+        String message,
+        T data
+) {
     public static <T> ResponseEntity<GeneralResponse<T>> toResponseEntity(ApiResponseCode responseCode, T data) {
         return ResponseEntity.status(responseCode.getStatus())
                 .body(GeneralResponse.fromData(
@@ -23,10 +15,6 @@ public class GeneralResponse<T> {
     }
 
     private static <T> GeneralResponse<T> fromData(ApiResponseCode responseCode, T data) {
-        return GeneralResponse.<T>builder()
-                .data(data)
-                .message(responseCode.getMessage())
-                .status(responseCode.getStatus().value())
-                .build();
+        return new GeneralResponse<>(responseCode.getStatus().value(), responseCode.getMessage(), data);
     }
 }
