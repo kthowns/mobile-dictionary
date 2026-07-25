@@ -2,7 +2,7 @@ package com.kthowns.mobidic.api.term.controller;
 
 import com.kthowns.mobidic.api.global.dto.GeneralResponse;
 import com.kthowns.mobidic.api.term.dto.request.AddTermRequest;
-import com.kthowns.mobidic.domain.term.model.SimpleTerm;
+import com.kthowns.mobidic.api.term.dto.response.SimpleTermResponse;
 import com.kthowns.mobidic.domain.term.service.TermService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,8 +24,9 @@ public class TermController {
     private final TermService termService;
 
     @GetMapping("/api/terms")
-    public ResponseEntity<GeneralResponse<List<SimpleTerm>>> getActiveTerms() {
-        List<SimpleTerm> terms = termService.getActiveTerms();
+    public ResponseEntity<GeneralResponse<List<SimpleTermResponse>>> getActiveTerms() {
+        List<SimpleTermResponse> terms = termService.getActiveTerms().stream()
+                .map(SimpleTermResponse::fromModel).toList();
 
         return GeneralResponse.toResponseEntity(OK, terms);
     }
@@ -39,10 +40,10 @@ public class TermController {
             @RequestBody @Valid AddTermRequest addTermRequest
     ) {
         termService.addTerm(
-                addTermRequest.getType(),
-                addTermRequest.getVersion(),
-                addTermRequest.isRequired(),
-                addTermRequest.getContent()
+                addTermRequest.type(),
+                addTermRequest.version(),
+                addTermRequest.required(),
+                addTermRequest.content()
         );
         return GeneralResponse.toResponseEntity(OK, null);
     }

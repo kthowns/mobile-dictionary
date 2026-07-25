@@ -151,7 +151,7 @@ public class QuizIntegrationTest {
         // Given
         List<QuizInfo> quizzes = objectMapper.readValue(
                 objectMapper.readTree(generateResult.getResponse().getContentAsString()).path("data").toString(),
-                new TypeReference<List<QuizInfo>>() {
+                new TypeReference<>() {
                 }
         );
 
