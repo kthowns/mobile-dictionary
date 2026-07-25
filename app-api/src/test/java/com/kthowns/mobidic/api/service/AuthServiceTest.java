@@ -55,7 +55,7 @@ class AuthServiceTest {
         LoginResponse response = authService.login(request);
 
         // then
-        assertEquals(expectedToken, response.getAccessToken());
+        assertEquals(expectedToken, response.accessToken());
     }
 
     @Test

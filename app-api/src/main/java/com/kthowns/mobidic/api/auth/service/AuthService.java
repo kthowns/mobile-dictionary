@@ -18,13 +18,11 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
         Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
 
         AuthUser authUser = (AuthUser) auth.getPrincipal();
 
-        return LoginResponse.builder()
-                .accessToken(jwtProvider.generateToken(authUser.getId(), authUser.getRole()))
-                .build();
+        return new LoginResponse(jwtProvider.generateToken(authUser.getId(), authUser.getRole()));
     }
 }
