@@ -28,7 +28,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -99,9 +101,7 @@ public class UserIntegrationTest {
     @DisplayName("사용자 닉네임 수정 성공")
     void updateNicknameSuccess() throws Exception {
         // Given
-        UpdateUserRequestDto request = UpdateUserRequestDto.builder()
-                .nickname("newnickname")
-                .build();
+        UpdateUserRequestDto request = new UpdateUserRequestDto("newnickname", null);
 
         // When
         mockMvc.perform(patch("/api/users/me")
@@ -124,9 +124,7 @@ public class UserIntegrationTest {
         userJpaRepository.save(UserJpaEntity.createFromModel(
                 User.create("other@test.com", "other", "pass", UserRole.USER)));
 
-        UpdateUserRequestDto request = UpdateUserRequestDto.builder()
-                .nickname("other")
-                .build();
+        UpdateUserRequestDto request = new UpdateUserRequestDto("other", null);
 
         // When
         mockMvc.perform(patch("/api/users/me")
@@ -142,9 +140,7 @@ public class UserIntegrationTest {
     @DisplayName("사용자 비밀번호 수정 성공")
     void updatePasswordSuccess() throws Exception {
         // Given
-        UpdateUserRequestDto request = UpdateUserRequestDto.builder()
-                .password("newPassword123!")
-                .build();
+        UpdateUserRequestDto request = new UpdateUserRequestDto(null, "newPassword123!");
 
         // When
         mockMvc.perform(patch("/api/users/me")

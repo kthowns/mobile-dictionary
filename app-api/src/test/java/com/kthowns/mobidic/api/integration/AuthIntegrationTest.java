@@ -70,12 +70,12 @@ public class AuthIntegrationTest {
     @DisplayName("회원가입 성공 - 유효한 정보를 입력하면 새로운 사용자가 생성된다.")
     void joinSuccess() throws Exception {
         // Given
-        SignUpRequestDto request = SignUpRequestDto.builder()
-                .email("test@test.com")
-                .nickname("test")
-                .password("testTest1!")
-                .agreeTermIds(List.of())
-                .build();
+        SignUpRequestDto request = new SignUpRequestDto(
+                "test@test.com",
+                "test",
+                "testTest1!",
+                List.of()
+        );
 
         // When
         mockMvc.perform(post("/api/users/signup")
@@ -97,12 +97,12 @@ public class AuthIntegrationTest {
         userJpaRepository.save(UserJpaEntity.createFromModel(User.create(
                 "test@test.com", "other", passwordEncoder.encode("password123!"), UserRole.USER)));
 
-        SignUpRequestDto request = SignUpRequestDto.builder()
-                .email("test@test.com")
-                .nickname("test")
-                .password("testTest1!")
-                .agreeTermIds(List.of())
-                .build();
+        SignUpRequestDto request = new SignUpRequestDto(
+                "test@test.com",
+                "test",
+                "testTest1!",
+                List.of()
+        );
 
         // When
         mockMvc.perform(post("/api/users/signup")
@@ -120,12 +120,12 @@ public class AuthIntegrationTest {
         userJpaRepository.save(UserJpaEntity.createFromModel(User.create(
                 "other@test.com", "test", passwordEncoder.encode("password123!"), UserRole.USER)));
 
-        SignUpRequestDto request = SignUpRequestDto.builder()
-                .email("test@test.com")
-                .nickname("test")
-                .password("testTest1!")
-                .agreeTermIds(List.of())
-                .build();
+        SignUpRequestDto request = new SignUpRequestDto(
+                "test@test.com",
+                "test",
+                "testTest1!",
+                List.of()
+        );
 
         // When
         mockMvc.perform(post("/api/users/signup")
@@ -140,12 +140,12 @@ public class AuthIntegrationTest {
     @DisplayName("회원가입 실패 - 유효하지 않은 입력값(이메일, 닉네임, 비밀번호 형식)")
     void joinFailInvalidInput() throws Exception {
         // Given
-        SignUpRequestDto request = SignUpRequestDto.builder()
-                .email("test@test")
-                .nickname("1")
-                .password("test")
-                .agreeTermIds(List.of())
-                .build();
+        SignUpRequestDto request = new SignUpRequestDto(
+                "test@test",
+                "1",
+                "test",
+                List.of()
+        );
 
         HashMap<String, String> expectedErrors = new HashMap<>();
         expectedErrors.put("email", "유효하지 않은 이메일 형식입니다.");
@@ -207,7 +207,7 @@ public class AuthIntegrationTest {
     void loginFailNonExistentEmail() throws Exception {
         // Given
         LoginRequest loginRequest = new LoginRequest("nonexistent@test.com", "password123!");
-        
+
         // When
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
