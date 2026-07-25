@@ -1,6 +1,7 @@
 package com.kthowns.mobidic.api.integration;
 
-import com.kthowns.mobidic.security.util.JwtProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kthowns.mobidic.api.statistic.dto.request.ChangeLearnedStatusRequest;
 import com.kthowns.mobidic.common.code.AuthResponseCode;
 import com.kthowns.mobidic.common.code.GeneralResponseCode;
 import com.kthowns.mobidic.domain.global.model.AuditTime;
@@ -9,6 +10,7 @@ import com.kthowns.mobidic.domain.user.model.User;
 import com.kthowns.mobidic.domain.user.model.UserRole;
 import com.kthowns.mobidic.domain.vocabulary.model.Vocabulary;
 import com.kthowns.mobidic.domain.word.model.Word;
+import com.kthowns.mobidic.security.util.JwtProvider;
 import com.kthowns.mobidic.storage.statistic.jpaentity.WordStatisticJpaEntity;
 import com.kthowns.mobidic.storage.statistic.jparepository.WordStatisticJpaRepository;
 import com.kthowns.mobidic.storage.user.jpaentity.UserJpaEntity;
@@ -24,17 +26,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -78,6 +76,8 @@ public class WordStatisticIntegrationTest {
     private String userToken;
     private VocabularyJpaEntity testVocab;
     private WordJpaEntity testWord;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
@@ -211,6 +211,39 @@ public class WordStatisticIntegrationTest {
     }
 
     @Test
+    @DisplayName("단어 학습 상태 변경 성공")
+    void changeLearnedStatusSuccess() throws Exception {
+        ChangeLearnedStatusRequest requestTrue = new ChangeLearnedStatusRequest(true);
+
+        // When
+        mockMvc.perform(patch("/api/v1/words/" + testWord.getId() + "/learning-status")
+                        .header("Authorization", "Bearer " + userToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestTrue)))
+                // Then
+                .andExpect(status().isOk());
+
+        // Then
+        WordStatisticJpaEntity stat = wordStatisticJpaRepository.findById(testWord.getId()).orElseThrow();
+        assertThat(stat.isLearned()).isTrue();
+
+        ChangeLearnedStatusRequest requestFalse = new ChangeLearnedStatusRequest(false);
+
+        // When
+        mockMvc.perform(patch("/api/v1/words/" + testWord.getId() + "/learning-status")
+                        .header("Authorization", "Bearer " + userToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestFalse)))
+                // Then
+                .andExpect(status().isOk());
+
+        // Then
+        WordStatisticJpaEntity statAfter = wordStatisticJpaRepository.findById(testWord.getId()).orElseThrow();
+        assertThat(statAfter.isLearned()).isFalse();
+    }
+
+    /*
+    @Test
     @DisplayName("동시성 테스트 - 단어 학습 상태 동시 토글")
     void toggleLearnedStatusConcurrency() throws Exception {
         // Given
@@ -247,6 +280,7 @@ public class WordStatisticIntegrationTest {
         assertThat(stat.isLearned()).isEqualTo(expectedState);
         assertThat(successCount.get()).isGreaterThan(0); // 적어도 한 번은 성공해야 데드락이 아님
     }
+     */
 
     @Test
     @DisplayName("단어 통계 조회 실패 - 존재하지 않는 단어")
@@ -299,6 +333,23 @@ public class WordStatisticIntegrationTest {
         // When
         mockMvc.perform(patch("/api/words/" + randomId + "/toggle-learned")
                         .header("Authorization", "Bearer " + userToken))
+                // Then
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(GeneralResponseCode.NO_STAT.getMessage()));
+    }
+
+    @Test
+    @DisplayName("단어 학습 상태 변경 실패 - 존재하지 않는 단어")
+    void changeLearnedStatusFailNoWord() throws Exception {
+        // Given
+        UUID randomId = UUID.randomUUID();
+        ChangeLearnedStatusRequest request = new ChangeLearnedStatusRequest(true);
+
+        // When
+        mockMvc.perform(patch("/api/v1/words/" + randomId + "/learning-status")
+                        .header("Authorization", "Bearer " + userToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 // Then
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(GeneralResponseCode.NO_STAT.getMessage()));

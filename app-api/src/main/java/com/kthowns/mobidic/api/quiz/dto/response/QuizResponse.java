@@ -1,19 +1,16 @@
 package com.kthowns.mobidic.api.quiz.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.kthowns.mobidic.domain.quiz.model.QuizInfo;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class QuizResponse {
-    private String token;
-    private String stem;
-    private long expMil;
-    private List<String> options;
+public record QuizResponse(
+        String token,
+        String stem,
+        long expMil,
+        List<String> options
+) {
+    public static QuizResponse fromModel(QuizInfo quiz) {
+        return new QuizResponse(quiz.token(), quiz.stem(), quiz.expMil(), quiz.options());
+    }
 }

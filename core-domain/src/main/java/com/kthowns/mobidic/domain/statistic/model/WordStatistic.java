@@ -25,6 +25,18 @@ public record WordStatistic(
         );
     }
 
+    public WordStatistic update(boolean isLearned) {
+        return new WordStatistic(
+                this.wordId,
+                this.correctCount,
+                this.incorrectCount,
+                isLearned,
+                this.difficulty,
+                this.accuracy,
+                AuditTime.update(this.auditTime)
+        );
+    }
+
     public WordStatistic increaseCorrectCount() {
         long newCorrectCount = this.correctCount + 1;
         return new WordStatistic(

@@ -79,6 +79,16 @@ class WordStatisticServiceTest {
     }
 
     @Test
+    @DisplayName("[StatService] Change learned success")
+    void changeLearnedSuccess() {
+        // when
+        statisticService.changeLearnedStatusByWordId(userId, wordId, true);
+
+        // then
+        verify(statisticUpdater).changeLearnedStatus(userId, wordId, true);
+    }
+
+    @Test
     @DisplayName("[StatService] Increase correct count success")
     void increaseCorrectCountSuccess() {
         // when

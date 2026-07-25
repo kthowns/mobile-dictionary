@@ -3,7 +3,8 @@ package com.kthowns.mobidic.api.quiz.controller;
 import com.kthowns.mobidic.api.global.dto.ErrorResponse;
 import com.kthowns.mobidic.api.global.dto.GeneralResponse;
 import com.kthowns.mobidic.api.quiz.dto.request.QuizRateRequest;
-import com.kthowns.mobidic.domain.quiz.model.QuizInfo;
+import com.kthowns.mobidic.api.quiz.dto.response.QuizResponse;
+import com.kthowns.mobidic.api.quiz.dto.response.QuizResultResponse;
 import com.kthowns.mobidic.domain.quiz.model.QuizResult;
 import com.kthowns.mobidic.domain.quiz.service.QuizService;
 import com.kthowns.mobidic.security.model.AuthUser;
@@ -18,7 +19,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +38,26 @@ import static com.kthowns.mobidic.common.code.GeneralResponseCode.OK;
 @RequestMapping("/api")
 public class QuizController {
     private final QuizService quizService;
+
+    /*
+    @Operation(
+            summary = "퀴즈 생성",
+            description = "단어장 식별자를 통해 단어장에 속한 단어들로 문제 생성",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/v2/vocabularies/{vocabularyId}/quizzes/{quizType}")
+    public ResponseEntity<GeneralResponse<List<QuizResponse>>> getQuizzes(
+            @PathVariable UUID vocabularyId,
+            @PathVariable QuizType quizType,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        // TODO: 모든 API 버저닝 필요
+        List<QuizResponse> quizzes = quizService.getQuizzes(authUser.getId(), vocabularyId, quizType)
+                .stream().map(QuizResponse::fromModel).toList();
+
+        return GeneralResponse.toResponseEntity(OK, quizzes);
+    }
+     */
 
     @Operation(
             summary = "OX 퀴즈 생성",
@@ -50,12 +76,14 @@ public class QuizController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/vocabularies/{vocabularyId}/quizzes/ox")
-    public ResponseEntity<GeneralResponse<List<QuizInfo>>> getOxQuizzes(
+    public ResponseEntity<GeneralResponse<List<QuizResponse>>> getOxQuizzes(
             @PathVariable UUID vocabularyId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        return GeneralResponse.toResponseEntity(OK,
-                quizService.getOXQuizzes(authUser.getId(), vocabularyId));
+        List<QuizResponse> quizzes = quizService.getOXQuizzes(authUser.getId(), vocabularyId)
+                .stream().map(QuizResponse::fromModel).toList();
+
+        return GeneralResponse.toResponseEntity(OK, quizzes);
     }
 
     @Operation(
@@ -75,12 +103,14 @@ public class QuizController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/vocabularies/{vocabularyId}/quizzes/blank")
-    public ResponseEntity<GeneralResponse<List<QuizInfo>>> getBlankQuizzes(
+    public ResponseEntity<GeneralResponse<List<QuizResponse>>> getBlankQuizzes(
             @PathVariable UUID vocabularyId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        return GeneralResponse.toResponseEntity(OK,
-                quizService.getBlankQuizzes(authUser.getId(), vocabularyId));
+        List<QuizResponse> quizzes = quizService.getBlankQuizzes(authUser.getId(), vocabularyId)
+                .stream().map(QuizResponse::fromModel).toList();
+
+        return GeneralResponse.toResponseEntity(OK, quizzes);
     }
 
     @Operation(
@@ -102,11 +132,16 @@ public class QuizController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/quizzes/rate")
-    public ResponseEntity<GeneralResponse<QuizResult>> rateOxQuiz(
+    public ResponseEntity<GeneralResponse<QuizResultResponse>> rateOxQuiz(
             @RequestBody QuizRateRequest quizRateRequest,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        return GeneralResponse.toResponseEntity(OK,
-                quizService.rateQuiz(authUser.getId(), quizRateRequest.getToken(), quizRateRequest.getAnswer()));
+        QuizResult quizResult = quizService.rateQuiz(
+                authUser.getId(),
+                quizRateRequest.token(),
+                quizRateRequest.answer()
+        );
+
+        return GeneralResponse.toResponseEntity(OK, QuizResultResponse.fromModel(quizResult));
     }
 }

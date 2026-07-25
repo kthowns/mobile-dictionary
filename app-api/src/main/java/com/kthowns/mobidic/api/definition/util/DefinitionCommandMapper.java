@@ -14,7 +14,7 @@ public class DefinitionCommandMapper {
     public List<AddDefinitionCommand> toAddDefinitionCommands(List<AddDefinitionRequestDto> requests) {
         return requests != null ?
                 requests.stream()
-                        .map((d) -> AddDefinitionCommand.of(d.getMeaning(), d.getPart()))
+                        .map((d) -> AddDefinitionCommand.of(d.meaning(), d.part()))
                         .toList()
                 : List.of();
     }
@@ -23,7 +23,7 @@ public class DefinitionCommandMapper {
         return requests != null ?
                 requests.stream()
                         .map((d) -> UpdateDefinitionCommand
-                                .of(d.getId(), wordId, d.getMeaning(), d.getPart()))
+                                .of(d.id(), wordId, d.meaning(), d.part()))
                         .toList()
                 : List.of();
     }

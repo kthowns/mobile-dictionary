@@ -4,6 +4,7 @@ import com.kthowns.mobidic.api.global.dto.ErrorResponse;
 import com.kthowns.mobidic.api.global.dto.GeneralResponse;
 import com.kthowns.mobidic.api.user.dto.request.SignUpRequestDto;
 import com.kthowns.mobidic.api.user.dto.request.UpdateUserRequestDto;
+import com.kthowns.mobidic.api.user.dto.response.UserResponse;
 import com.kthowns.mobidic.domain.user.facade.UserFacade;
 import com.kthowns.mobidic.domain.user.model.User;
 import com.kthowns.mobidic.domain.user.service.UserService;
@@ -21,7 +22,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import static com.kthowns.mobidic.common.code.GeneralResponseCode.OK;
 
@@ -51,10 +58,12 @@ public class UserController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/me")
-    public ResponseEntity<GeneralResponse<User>> getMe(
+    public ResponseEntity<GeneralResponse<UserResponse>> getMe(
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        return GeneralResponse.toResponseEntity(OK, userService.getUserById(authUser.getId()));
+        User user = userService.getUserById(authUser.getId());
+
+        return GeneralResponse.toResponseEntity(OK, UserResponse.fromModel(user));
     }
 
     @Operation(
@@ -76,12 +85,13 @@ public class UserController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @PatchMapping("/me")
-    public ResponseEntity<GeneralResponse<User>> updateMe(
+    public ResponseEntity<GeneralResponse<UserResponse>> updateMe(
             @RequestBody @Valid UpdateUserRequestDto request,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        return GeneralResponse.toResponseEntity(OK,
-                userService.updateUser(authUser.getId(), request.getNickname(), request.getPassword()));
+        User user = userService.updateUser(authUser.getId(), request.nickname(), request.password());
+
+        return GeneralResponse.toResponseEntity(OK, UserResponse.fromModel(user));
     }
 
     @Operation(
@@ -101,11 +111,12 @@ public class UserController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @DeleteMapping("/me")
-    public ResponseEntity<GeneralResponse<User>> deactivateUser(
+    public ResponseEntity<GeneralResponse<UserResponse>> deactivateUser(
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        return GeneralResponse.toResponseEntity(OK,
-                userService.deactivateUser(authUser.getId(), jwtProperties.getJwtAccessExp()));
+        User user = userService.deactivateUser(authUser.getId(), jwtProperties.getJwtAccessExp());
+
+        return GeneralResponse.toResponseEntity(OK, UserResponse.fromModel(user));
     }
 
     @Operation(
@@ -128,10 +139,10 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<GeneralResponse<Void>> signUp(@Valid @RequestBody SignUpRequestDto request) {
         userFacade.signUp(
-                request.getEmail(),
-                request.getNickname(),
-                request.getPassword(),
-                request.getAgreeTermIds()
+                request.email(),
+                request.nickname(),
+                request.password(),
+                request.agreeTermIds()
         );
 
         return GeneralResponse.toResponseEntity(OK, null);

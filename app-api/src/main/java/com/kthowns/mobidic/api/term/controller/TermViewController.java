@@ -1,5 +1,6 @@
 package com.kthowns.mobidic.api.term.controller;
 
+import com.kthowns.mobidic.api.term.dto.response.TermResponse;
 import com.kthowns.mobidic.domain.term.model.Term;
 import com.kthowns.mobidic.domain.term.model.TermType;
 import com.kthowns.mobidic.domain.term.service.TermService;
@@ -22,7 +23,7 @@ public class TermViewController {
             Model model
     ) {
         Term term = termService.getTerm(TermType.valueOf(type.toUpperCase()), version);
-        model.addAttribute("term", term);
+        model.addAttribute("term", TermResponse.fromModel(term));
 
         return "term/term";
     }

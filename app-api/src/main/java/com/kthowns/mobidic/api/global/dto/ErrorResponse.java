@@ -1,22 +1,15 @@
 package com.kthowns.mobidic.api.global.dto;
 
 import com.kthowns.mobidic.common.code.ApiResponseCode;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class ErrorResponse {
-    private Integer status;
-    private String message;
-    private HashMap<String, String> errors;
+public record ErrorResponse(
+        Integer status,
+        String message,
+        HashMap<String, String> errors
+) {
 
     public static ResponseEntity<ErrorResponse> toResponseEntity(ApiResponseCode responseCode, HashMap<String, String> errors) {
         return ResponseEntity.status(responseCode.getStatus())
@@ -25,10 +18,6 @@ public class ErrorResponse {
     }
 
     private static ErrorResponse fromData(ApiResponseCode responseCode, HashMap<String, String> errors) {
-        return ErrorResponse.builder()
-                .errors(errors)
-                .message(responseCode.getMessage())
-                .status(responseCode.getStatus().value())
-                .build();
+        return new ErrorResponse(responseCode.getStatus().value(), responseCode.getMessage(), errors);
     }
 }
