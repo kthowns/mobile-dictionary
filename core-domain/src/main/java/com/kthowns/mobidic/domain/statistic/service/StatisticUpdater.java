@@ -21,6 +21,13 @@ class StatisticUpdater {
         wordStatisticRepository.update(wordStatistic.toggleLearned(), userId);
     }
 
+    public void changeLearnedStatus(UUID userId, UUID wordId, boolean isLearned) {
+        WordStatistic wordStatistic = wordStatisticRepository.readForUpdate(wordId, userId)
+                .orElseThrow(() -> new ApiException(GeneralResponseCode.NO_STAT));
+
+        wordStatisticRepository.update(wordStatistic.update(isLearned), userId);
+    }
+
     public void increaseCorrectCount(UUID userId, UUID wordId) {
         WordStatistic wordStatistic = wordStatisticRepository.readForUpdate(wordId, userId)
                 .orElseThrow(() -> new ApiException(GeneralResponseCode.NO_STAT));

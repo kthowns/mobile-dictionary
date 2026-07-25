@@ -46,6 +46,11 @@ public class StatisticService {
     }
 
     @Transactional
+    public void changeLearnedStatusByWordId(UUID userId, UUID wordId, boolean isLearned) {
+        statisticUpdater.changeLearnedStatus(userId, wordId, isLearned);
+    }
+
+    @Transactional
     public void increaseCorrectCount(UUID userId, UUID wordId) {
         statisticUpdater.increaseCorrectCount(userId, wordId);
     }

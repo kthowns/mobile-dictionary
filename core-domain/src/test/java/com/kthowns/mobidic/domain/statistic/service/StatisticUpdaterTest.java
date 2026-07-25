@@ -64,6 +64,38 @@ class StatisticUpdaterTest {
     }
 
     @Test
+    @DisplayName("toggleLearned 테스트 - 성공")
+    void changeLearnedStatusTest_Success() {
+        // Given
+        UUID userId = UUID.randomUUID();
+        UUID wordId = UUID.randomUUID();
+        WordStatistic existingStat = new WordStatistic(wordId, 0L, 0L, false, 0.0, 0.0, AuditTime.create());
+        given(wordStatisticRepository.readForUpdate(wordId, userId)).willReturn(Optional.of(existingStat));
+
+        // When
+        statisticUpdater.changeLearnedStatus(userId, wordId, true);
+
+        // Then
+        ArgumentCaptor<WordStatistic> captor = ArgumentCaptor.forClass(WordStatistic.class);
+        verify(wordStatisticRepository).update(captor.capture(), eq(userId));
+        assertThat(captor.getValue().isLearned()).isTrue();
+    }
+
+    @Test
+    @DisplayName("toggleLearned 테스트 - 실패 (통계 없음)")
+    void changeLearnedStatusTest_Fail() {
+        // Given
+        UUID userId = UUID.randomUUID();
+        UUID wordId = UUID.randomUUID();
+        given(wordStatisticRepository.readForUpdate(wordId, userId)).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> statisticUpdater.changeLearnedStatus(userId, wordId, true))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining(GeneralResponseCode.NO_STAT.getMessage());
+    }
+
+    @Test
     @DisplayName("increaseCorrectCount 테스트 - 성공")
     void increaseCorrectCountTest_Success() {
         // Given
