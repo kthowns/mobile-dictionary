@@ -1,9 +1,9 @@
 package com.kthowns.mobidic.api.definition.controller;
 
+import com.kthowns.mobidic.api.definition.dto.response.DefinitionResponse;
 import com.kthowns.mobidic.api.global.dto.ErrorResponse;
 import com.kthowns.mobidic.api.global.dto.GeneralResponse;
 import com.kthowns.mobidic.common.code.GeneralResponseCode;
-import com.kthowns.mobidic.domain.definition.model.Definition;
 import com.kthowns.mobidic.domain.definition.service.DefinitionService;
 import com.kthowns.mobidic.security.model.AuthUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,11 +50,15 @@ public class DefinitionController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/words/{wordId}/definitions")
-    public ResponseEntity<GeneralResponse<List<Definition>>> getDefinitionsByWordId(
+    public ResponseEntity<GeneralResponse<List<DefinitionResponse>>> getDefinitionsByWordId(
             @PathVariable UUID wordId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        return GeneralResponse.toResponseEntity(GeneralResponseCode.OK,
-                definitionService.getDefinitionsByWordId(authUser.getId(), wordId));
+        List<DefinitionResponse> definitions = definitionService
+                .getDefinitionsByWordId(authUser.getId(), wordId).stream()
+                .map(DefinitionResponse::fromModel)
+                .toList();
+
+        return GeneralResponse.toResponseEntity(GeneralResponseCode.OK, definitions);
     }
 }
