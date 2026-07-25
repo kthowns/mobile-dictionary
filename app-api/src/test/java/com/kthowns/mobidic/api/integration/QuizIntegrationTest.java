@@ -160,10 +160,7 @@ public class QuizIntegrationTest {
         QuizInfo quiz = quizzes.getFirst();
         String answer = wordToMeaning.get(quiz.stem()).equals(quiz.options().getFirst()) ? "1" : "0";
 
-        QuizRateRequest rateRequest = QuizRateRequest.builder()
-                .token(quiz.token())
-                .answer(answer)
-                .build();
+        QuizRateRequest rateRequest = new QuizRateRequest(quiz.token(), answer);
 
         // When
         mockMvc.perform(post("/api/quizzes/rate")
@@ -205,10 +202,7 @@ public class QuizIntegrationTest {
         String correctAnswer = wordToMeaning.keySet().stream()
                 .filter(w -> isMatchPattern(w, quiz.stem())).findFirst().orElseThrow();
 
-        QuizRateRequest rateRequest = QuizRateRequest.builder()
-                .token(quiz.token())
-                .answer(correctAnswer)
-                .build();
+        QuizRateRequest rateRequest = new QuizRateRequest(quiz.token(), correctAnswer);
 
         // When
         mockMvc.perform(post("/api/quizzes/rate")

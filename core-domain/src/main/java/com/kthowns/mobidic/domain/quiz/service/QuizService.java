@@ -1,6 +1,10 @@
 package com.kthowns.mobidic.domain.quiz.service;
 
-import com.kthowns.mobidic.domain.quiz.model.*;
+import com.kthowns.mobidic.domain.quiz.model.Quiz;
+import com.kthowns.mobidic.domain.quiz.model.QuizAnswer;
+import com.kthowns.mobidic.domain.quiz.model.QuizInfo;
+import com.kthowns.mobidic.domain.quiz.model.QuizResult;
+import com.kthowns.mobidic.domain.quiz.model.QuizType;
 import com.kthowns.mobidic.domain.quiz.properties.QuizProperties;
 import com.kthowns.mobidic.domain.statistic.service.StatisticService;
 import com.kthowns.mobidic.domain.word.model.WordDetail;
@@ -26,6 +30,14 @@ public class QuizService {
     private final QuizReader quizReader;
     private final QuizRemover quizRemover;
     private final QuizValidator quizValidator;
+
+    @Transactional(readOnly = true)
+    public List<QuizInfo> getQuizzes(UUID userId, UUID vocabularyId, QuizType quizType) {
+        // TODO: QuizStrategy 전략 아래와 같은 구조로 개편 필요
+        // >> interface QuizStrategy { boolean supports(QuizType quizType); generateQuizzes(...); }
+        
+        return generateQuizzes(userId, vocabularyId, QuizType.OX);
+    }
 
     @Transactional(readOnly = true)
     public List<QuizInfo> getOXQuizzes(UUID userId, UUID vocabularyId) {
