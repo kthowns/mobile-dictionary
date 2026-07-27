@@ -24,7 +24,7 @@ Mobidic은 기존 단어장 서비스들의 불편함을 해소하고, 사용자
 
 ## 📝 패치 노트 (Patch Notes)
 
-### **v1.11.0 (2026.06.04)**
+### **v1.11.1 (2026.06.04)**
 
 - **Refactor**: 백엔드 멀티모듈 구조 개편 (`api`, `domain`, `storage`, `external`, `common`)
 - **Arch**: 의존성 역전 원칙(DIP)을 적용하여 도메인 모듈의 인프라 종속성 제거 (`storage -> domain`)
