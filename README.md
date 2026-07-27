@@ -30,6 +30,10 @@ Mobidic은 기존 단어장 서비스들의 불편함을 해소하고, 사용자
 - **Arch**: 의존성 역전 원칙(DIP)을 적용하여 도메인 모듈의 인프라 종속성 제거 (`storage -> domain`)
 - **Build**: 루트 `build.gradle` 설정을 통한 모듈 간 중복 의존성 관리 및 빌드 최적화
 
+### **v1.11.2 (2026.07.28)**
+
+- **Fix**: OAuth2 Android 및 웹뷰 환경에서 웹이 아닌 AppScheme 방식으로 동작하는 점 수정
+
 ---
 
 ## 📅 개발 정보 (Development Info)
