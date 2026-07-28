@@ -18,7 +18,7 @@ Mobidic은 기존 단어장 서비스들의 불편함을 해소하고, 사용자
 | 항목              |                                                                                          Link                                                                                          | 상세 설명                     |
 |:----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------|
 | **Google Play** | [![Google Play](https://img.shields.io/badge/Download-000000?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.kthowns.mobidic) | 모바일 앱 정식 출시 및 서비스 중       |
-| **Toss In-App Store** | [![Toss](https://img.shields.io/badge/Toss_In--App_Store-0051FF?style=for-the-badge)](https://minion.toss.im/PXGV8SWz) | 토스 인앱 스토어 정식 출시 및 서비스 중       |
+| **Toss In-App Store** | [![Toss](https://img.shields.io/badge/Toss_In--App_Store-0051FF?style=for-the-badge)](https://minion.toss.im/PXGV8SWz) | 토스 인앱 스토어 정식 출시 및 서비스 중 (모바일 전용 딥링크)       |
 | **Swagger UI**  |              [![Swagger](https://img.shields.io/badge/Documentation-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://mobidic.kthowns.cloud/api/my-docs)               | 백엔드 API 실시간 명세서 (Swagger) |
 
 ---
