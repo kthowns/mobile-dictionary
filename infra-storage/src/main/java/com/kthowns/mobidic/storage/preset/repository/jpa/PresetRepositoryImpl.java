@@ -61,6 +61,17 @@ public class PresetRepositoryImpl implements PresetRepository {
                         v
                 );
                 allWords.add(w);
+            }
+        }
+
+        wordJpaRepository.saveAllAndFlush(allWords);
+
+        int wordIdx = 0;
+        for (int i = 0; i < presetVocabs.size(); i++) {
+            PresetVocabularyJpaEntity pv = presetVocabs.get(i);
+
+            for (var pw : pv.getWords()) {
+                WordJpaEntity w = allWords.get(wordIdx++);
 
                 allWordStatistics.add(
                         WordStatisticJpaEntity.createFromModel(WordStatistic.create(w.getId()))
@@ -77,7 +88,6 @@ public class PresetRepositoryImpl implements PresetRepository {
             }
         }
 
-        wordJpaRepository.saveAllAndFlush(allWords);
         wordStatisticJpaRepository.saveAllAndFlush(allWordStatistics);
         definitionJpaRepository.saveAll(allDefinitions);
     }

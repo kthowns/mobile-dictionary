@@ -34,4 +34,12 @@ public class PresetVocabularyJpaEntity extends BaseAuditingEntity {
 
     @OneToMany(mappedBy = "vocabulary", fetch = FetchType.LAZY)
     private List<PresetWordJpaEntity> words;
+
+    public static PresetVocabularyJpaEntity create(String title, String description, List<PresetWordJpaEntity> words) {
+        PresetVocabularyJpaEntity entity = new PresetVocabularyJpaEntity();
+        entity.title = title;
+        entity.description = description;
+        entity.words = words != null ? words : new java.util.ArrayList<>();
+        return entity;
+    }
 }
