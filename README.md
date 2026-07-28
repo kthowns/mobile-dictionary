@@ -18,6 +18,7 @@ Mobidic은 기존 단어장 서비스들의 불편함을 해소하고, 사용자
 | 항목              |                                                                                          Link                                                                                          | 상세 설명                     |
 |:----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------|
 | **Google Play** | [![Google Play](https://img.shields.io/badge/Download-000000?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.kthowns.mobidic) | 모바일 앱 정식 출시 및 서비스 중       |
+| **Toss In-App Store** | [![Toss](https://img.shields.io/badge/Toss_In--App_Store-0051FF?style=for-the-badge)](https://minion.toss.im/PXGV8SWz) | 토스 인앱 스토어 정식 출시 및 서비스 중       |
 | **Swagger UI**  |              [![Swagger](https://img.shields.io/badge/Documentation-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://mobidic.kthowns.cloud/api/my-docs)               | 백엔드 API 실시간 명세서 (Swagger) |
 
 ---
@@ -26,7 +27,14 @@ Mobidic은 기존 단어장 서비스들의 불편함을 해소하고, 사용자
 
 ### **v1.11.2 (2026.07.28)**
 
+- 토스 인앱스토어 출시
 - **Fix**: OAuth2 Android 및 웹뷰 환경에서 웹이 아닌 AppScheme 방식으로 동작하는 점 수정
+- **FE**: SecureStorageDataSource 3단계(Mobile / Toss / Web) 저장 분기 처리
+  - Apps in Toss(AIT) JS Interop 브릿지(TossBridge) 신설 및 네이티브 Storage SDK 연동
+  - Android : SecureStorage
+  - 토스 인앱 : TossNativeStorage
+  - 일반웹 : SharedPreferences
+  - 저장소 레이어 클린 아키텍처 적용
 
 ### **v1.11.1 (2026.06.04)**
 
