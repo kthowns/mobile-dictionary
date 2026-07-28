@@ -42,4 +42,12 @@ public class PresetDefinitionJpaEntity extends BaseAuditingEntity {
     @Column(name = "part", nullable = false)
     @Enumerated(EnumType.STRING)
     private PartOfSpeech part;
+
+    public static PresetDefinitionJpaEntity create(PresetWordJpaEntity word, String meaning, PartOfSpeech part) {
+        PresetDefinitionJpaEntity entity = new PresetDefinitionJpaEntity();
+        entity.word = word;
+        entity.meaning = meaning;
+        entity.part = part;
+        return entity;
+    }
 }
